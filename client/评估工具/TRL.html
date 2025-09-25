@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>技术成熟度水平评估(TRL)</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
+
+    <!-- Tailwind 配置 -->
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#99774b',
+                        secondary: '#f9f8f6',
+                        accent: '#0FC6C2',
+                        neutral: '#F5F7FA',
+                        dark: '#1D2129',
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'system-ui', 'sans-serif'],
+                    },
+                }
+            }
+        }
+    </script>
+
+    <style type="text/tailwindcss">
+        @layer utilities {
+      .content-auto {
+        content-visibility: auto;
+      }
+      .table-shadow {
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+      }
+      .cell-hover {
+        transition: all 0.2s ease;
+      }
+      .scrollbar-thin {
+        scrollbar-width: thin;
+      }
+      .scrollbar-thin::-webkit-scrollbar {
+        width: 6px;
+        height: 6px;
+      }
+      .scrollbar-thin::-webkit-scrollbar-thumb {
+        background-color: rgba(100, 116, 139, 0.5);
+        border-radius: 3px;
+      }
+      .highlight {
+        background-color: rgba(165, 42, 42, 0.589);
+      }
+    }
+  </style>
+</head>
+
+<body class="bg-gray-50 font-sans text-dark">
+    <div class="container mx-auto px-4 py-8 max-w-[95%]">
+        <!-- 页面标题 -->
+        <header class="mb-4 text-center">
+            <h1 class="text-[clamp(1.8rem,4vw,2.5rem)] font-bold text-dark mb-2">技术成熟度水平评估(TRL)</h1>
+            <p class="text-gray-400 text-lg">TRL是一套衡量技术发展成熟度的标准，从概念阶段到实际应用共分为9个等级。</p>
+            <p class="text-gray-400 text-xs">参考资料：GB/T 22900-2022 科学技术研究项目评价通则</p>
+        </header>
+    </div>
+
+    <div class="bg-white rounded-xl shadow-md overflow-hidden table-shadow max-w-[95%] mx-auto mb-12">
+        <div class="overflow-x-auto scrollbar-thi">
+            <table class="w-full text-sm">
+                <!-- 表头 -->
+                <thead>
+                    <tr class="bg-gray-600 text-gray-100 text-xl text-center font-blod leading-normal">
+                        <th class="min-w-[12vh] py-3 px-6 text-left">等级</th>
+                        <th class="py-3 px-6 text-left">描述</th>
+                        <th class="py-3 px-6 text-left">主要成果形式</th>
+                        <th class="py-3 px-6 text-left">行动建议</th>
+                    </tr>
+                </thead>
+                <!-- 表体 -->
+                <tbody class="divide-y divide-gray-100">
+                    <!-- 基础研究阶段 -->
+                    <tr class="bg-gray-50 hover:bg-primary/30 transition-colors">
+                        <td class="py-4 px-6 text-left font-medium">TRL 1</td>
+                        <td class="py-4 px-6 text-left">产生新想法并表述成概念性报告</td>
+                        <td class="py-4 px-6 text-left">报告</td>
+                        <td class="py-4 px-6 text-left" rowspan="3">
+                            <span class="text-center text-lg font-bold">基础研究阶段</span>
+                            <p>聚焦产品前瞻性，明确核心价值与可行性，轻资产验证，知识产权布局</p>
+                        </td>
+                    </tr>
+                    <tr class="bg-gray-200 hover:bg-primary/30 transition-colors">
+                        <td class="py-4 px-6 text-left font-medium">TRL 2</td>
+                        <td class="py-4 px-6 text-left">被确定为值得探索的研究方向且提出可行的目标和方案</td>
+                        <td class="py-4 px-6 text-left">方案、论文、报告</td>
+                    </tr>
+                    <tr class="bg-gray-50 hover:bg-primary/30 transition-colors">
+                        <td class="py-4 px-6 text-left font-medium">TRL 3</td>
+                        <td class="py-4 px-6 text-left">实验室环境中的仿真结论成立,通过测试</td>
+                        <td class="py-4 px-6 text-left">仿真结论、测试报告</td>
+                    </tr>
+                    <!-- 技术开发阶段 -->
+                    <tr class="bg-gray-200 hover:bg-primary/30 transition-colors">
+                        <td class="py-4 px-6 text-left font-medium">TRL 4</td>
+                        <td class="py-4 px-6 text-left">在实验室环境中关键功能可实现，形成论文、著作、知识产权、研究报告并被引用或采纳</td>
+                        <td class="py-4 px-6 text-left">论文、报告、著作、引用次数、采纳次数</td>
+                        <td class="py-4 px-6 text-left" rowspan="3">
+                            <span class="text-center text-lg font-bold">技术开发阶段</span>
+                            <p>原型开发与迭代，启动法规和临床前置准备，初步探索供应链</p>
+                        </td>
+                    </tr>
+                    <tr class="bg-gray-50 hover:bg-primary/30 transition-colors">
+                        <td class="py-4 px-6 text-left font-medium">TRL 5</td>
+                        <td class="py-4 px-6 text-left">实验室小试（模拟生产）环境中的初样样品完成，主要功能与性能指标测试通过</td>
+                        <td class="py-4 px-6 text-left">初样、功能结论、性能结论、测试报告</td>
+                    </tr>
+                    <tr class="bg-gray-200 hover:bg-primary/30 transition-colors">
+                        <td class="py-4 px-6 text-left font-medium">TRL 6</td>
+                        <td class="py-4 px-6 text-left">实验室中试（准生产）环境中的正样样品完成，全部功能和性能指标多次测试通过并基本满足要求</td>
+                        <td class="py-4 px-6 text-left">正样、功能结论、性能结论、测试报告</td>
+                    </tr>
+                    <!-- 应用示范阶段 -->
+                    <tr class="bg-gray-50 hover:bg-primary/30 transition-colors">
+                        <td class="py-4 px-6 text-left font-medium">TRL 7</td>
+                        <td class="py-4 px-6 text-left">正样样品在实际环境中试验验证合格，进行应用，得到用户认可，形成专利等知识产权并被使用、授权或转让</td>
+                        <td class="py-4 px-6 text-left">样试验验证结论、用户试用效果、用户应用合同、专利、各类知识产权、授权合同、转让合同</td>
+                        <td class="py-4 px-6 text-left" rowspan="3">
+                            <span class="text-center text-lg font-bold">工程应用阶段</span>
+                            <p>工艺固化与量产能力建设、加速注册与上市、市场导入与持续迭代、供应链与商业化保障</p>
+                        </td>
+                    </tr>
+                    <tr class="bg-gray-200 hover:bg-primary/30 transition-colors">
+                        <td class="py-4 px-6 text-left font-medium">TRL 8</td>
+                        <td class="py-4 px-6 text-left">完成小批量试生产并形成实际产品，产品、系统定型，工艺成熟稳定，生产与服务条件完备，能够实际使用，形成技术标准、管理标准并被使用</td>
+                        <td class="py-4 px-6 text-left">小批量产品、工艺归档、小批量生产条件、服务条件、实际使用效果、标准</td>
+                    </tr>
+                    <tr class="bg-gray-50 hover:bg-primary/30 transition-colors">
+                        <td class="py-4 px-6 text-left font-medium">TRL 9</td>
+                        <td class="py-4 px-6 text-left">具备大批量产业化生产与服务条件（多次可重复），形成质量控制体系，质量检测合格，具备市场准入条件</td>
+                        <td class="py-4 px-6 text-left">大批量产品、质量检测结论、大批量生产条件、可重复服务条件、市场准入许可</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        <div class="text-center p-4 text-gray-600 text-lg mt-2 md-2">
+            <h1 class="text-[clamp(1.8rem,4vw,2.5rem)] font-bold text-dark mb-2">技术创新就绪水平评估(TIRL)</h1>
+            在技术成熟度水平基础上，继续提出技术满足预期产业化目标的成熟程度评估
+            <p class="text-xs text-gray-400">其中前9级与TRL相对应，属于技术研究开发阶段，后4级属于应用、产业化与商业化阶段</p>
+        </div>
+        <table class="w-full text-sm">
+            <thead class="hidden">
+                <tr class="bg-gray-600 text-gray-100 text-xl text-center font-blod leading-normal">
+                    <th class="min-w-[12vh] py-3 px-6 text-left">等级</th>
+                    <th class="py-3 px-6 text-left">描述</th>
+                    <th class="py-3 px-6 text-left">主要成果</th>
+                    <th class="py-3 px-6 text-left">行动建议</th>
+                </tr>
+            </thead>
+            <tbody class="divide-y divide-gray-100">
+                <tr class="bg-gray-200 hover:bg-primary/30 transition-colors">
+                    <td class="py-4 px-6 text-left font-medium">TIRL 10</td>
+                    <td class="py-4 px-6 text-left">获得批量产品（可重复服务）的第一笔销售收入，销量≥盈亏平衡点数量的30%</td>
+                    <td class="py-4 px-6 text-left">生产线、大批量产品、银行账单、财务报表、销售合同、审计报告、发票、完税证明</td>
+                    <td class="py-4 px-6 text-left" rowspan="4">
+                        <span class="text-center text-lg font-bold">市场化阶段</span>
+                        <p>开拓市场、优化运营、持续创新</p>
+                    </td>
+                </tr>
+                <tr class="bg-gray-50 hover:bg-primary/30 transition-colors">
+                    <td class="py-4 px-6 text-left font-medium">TIRL 11</td>
+                    <td class="py-4 px-6 text-left">项目年度总收益J-项目年度运营成本≥0，开始年度盈利</td>
+                    <td class="py-4 px-6 text-left">银行账单、财务报表、销售合同、审计报告、发票、完税证明</td>
+                </tr>
+                <tr class="bg-gray-200 hover:bg-primary/30 transition-colors">
+                    <td class="py-4 px-6 text-left font-medium">TIRL 12</td>
+                    <td class="py-4 px-6 text-left">项目累计总收益≥项目全部累计总投入的50%</td>
+                    <td class="py-4 px-6 text-left">银行账单、财务报表、销售合同、审计报告、发票、完税证明</td>
+                </tr>
+                <tr class="bg-gray-50 hover:bg-primary/30 transition-colors">
+                    <td class="py-4 px-6 text-left font-medium">TIRL 13</td>
+                    <td class="py-4 px-6 text-left">项目累计总收益-项目全部累计总投入（研发投入+生产投入+运营投入）≥0</td>
+                    <td class="py-4 px-6 text-left">银行账单、财务报表、销售合同、审计报告、发票、完税证明</td>
+            </tbody>
+        </table>
+    </div>
+</body>
+</html>

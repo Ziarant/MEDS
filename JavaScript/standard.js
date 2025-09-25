@@ -147,13 +147,15 @@ function renderStandards(currentData) {
             type = "国家标准", typeColor = "bg-green-200", typeIcon = '<i class="fa fa-flag mr-1" style="color: #de2910;"></i>';
         } else if (standard.type.includes("YY")) {
             type = "行业标准", typeColor = "bg-blue-200", typeIcon = '<i class="fa fa-cogs mr-1"></i>';
+        } else if (standard.type.includes("TT")) {
+            type = "团体标准", typeColor = "bg-indigo-200", typeIcon = '<i class="fa fa-map-marker mr-1"></i>';
         }
 
-        let enforceability = "强制", enforceColor = "bg-red-200";
+        let enforceability = "强制", enforceColor = "bg-red-200", enforceTitle = "强制性标准";
         if (standard.enforceability === "recommend") {
-            enforceability = "推荐", enforceColor = "bg-indigo-200";
+            enforceability = "推荐", enforceColor = "bg-indigo-200", enforceTitle = "推荐性标准";
         } else if (standard.enforceability === "guide") {
-            enforceability = "指导", enforceColor = "bg-green-200";
+            enforceability = "指导", enforceColor = "bg-green-200", enforceTitle = "指导性标准";
         }
 
         let state = "现行", stateColor = "bg-green-200";
@@ -164,7 +166,7 @@ function renderStandards(currentData) {
 
         let adopted = '', adoptedDiv = '';
         if (standard.referenceStandard !== undefined && standard.referenceStandard !== '') {
-            adopted = '<span class="inline-block bg-rose-200 text-xs px-2 py-1 border border-gray-400 rounded mb-2">采标</span>';
+            adopted = `<span class="inline-block bg-rose-200 text-xs px-2 py-1 border border-gray-400 rounded mb-2" title="采用标准：${standard.referenceStandard}">采标</span>`;
             adoptedDiv = `<div><i class="fa fa-globe text-primary mr-1"></i> 采用标准: ${standard.referenceStandard}</div>`;
         }
 
@@ -184,7 +186,7 @@ function renderStandards(currentData) {
                             <span
                                 class="inline-block ${typeColor} text-xs px-2 py-1 border border-gray-400 rounded mb-2">${typeIcon}${type}</span>
                             <span
-                                class="inline-block ${enforceColor} text-xs px-2 py-1 border border-gray-400 rounded mb-2">${enforceability}</span>
+                                class="inline-block ${enforceColor} text-xs px-2 py-1 border border-gray-400 rounded mb-2" title="${enforceTitle}">${enforceability}</span>
                             ${adopted}
                             <span
                                 class="inline-block bg-yellow-200 text-xs px-2 py-1 border border-gray-400 rounded mb-2">${standard.classification}</span>
@@ -224,7 +226,7 @@ function renderStandards(currentData) {
                     </div>
                     <div class="flex space-x-2">
                         <span class="inline-block ${typeColor} text-xs px-2 py-1 border border-gray-400 rounded mb-2">${typeIcon}${type}</span>
-                        <span class="inline-block ${enforceColor} text-xs px-2 py-1 border border-gray-400 rounded mb-2">${enforceability}</span>
+                        <span class="inline-block ${enforceColor} text-xs px-2 py-1 border border-gray-400 rounded mb-2" title="${enforceTitle}">${enforceability}</span>
                         ${adopted}
                         <span class="inline-block bg-yellow-200 text-xs px-2 py-1 border border-gray-400 rounded mb-2">${standard.classification}</span>
                         <span class="inline-block ${stateColor} text-xs px-2 py-1 border border-gray-400 rounded mb-2">${state}</span>
