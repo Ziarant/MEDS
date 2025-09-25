@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>莱顿力学测试数据库系统 - 登录</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Font Awesome 4.7.0 的 CSS 样式文件内容 -->
+  <!-- <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet"> -->
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" rel="stylesheet">
+  <!-- 哈希加密 -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
+
+  <!-- 版本信息:读取config.json -->
+  <!-- <script>
+    fetch('config.json')
+      .then(response => response.json())
+      .then(data => {
+        localStorage.setItem('version', data.version);
+        localStorage.setItem('updateDate', data.updateDate);
+      });
+      console.log('版本信息已加载:', localStorage.getItem('version'));
+  </script> -->
+
+  <!-- 网页图标 -->
+  <link rel="icon" type="image/png" href="icon/icons-database.png">
+
+  <!-- Tailwind 配置 -->
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            primary: '#99774b',
+            secondary: '#f9f8f6',
+            neutral: '#F5F7FA',
+            success: '#00B42A',
+            warning: '#FF7D00',
+            danger: '#F53F3F',
+            'indicator-green': '#10b981', // 成功绿色
+            'indicator-red': '#ef4444',   // 错误红色
+            'indicator-gray': '#6b7280',  // 初始灰色
+          },
+          fontFamily: {
+            inter: ['Inter', 'system-ui', 'sans-serif'],
+          },
+        },
+      }
+    }
+  </script>
+
+  <!-- 自定义样式 -->
+  <style type="text/tailwindcss">
+    @layer utilities {
+      .content-auto {
+        content-visibility: auto;
+      }
+      .form-input-focus {
+        @apply focus:border-primary focus:ring-1 focus:ring-primary focus:outline-none;
+      }
+      .btn-primary {
+        @apply bg-primary hover:bg-primary/90 text-white font-medium py-2 px-4 rounded-lg transition-all duration-300 shadow-md hover:shadow-lg transform hover:-translate-y-0.5;
+      }
+      .card-animation {
+        @apply transition-all duration-500 hover:shadow-xl transform hover:-translate-y-1;
+      }
+      /* 成功状态闪烁动画 - 较慢的闪烁 */
+      .blink-success {
+          animation: blinkSuccess 2s infinite;
+      }
+      /* 错误状态闪烁动画 - 较快的闪烁，更紧急的视觉提示 */
+      .blink-error {
+          animation: blinkError 1s infinite;
+      }
+      .indicator-glow {
+          box-shadow: 0 0 15px currentColor;
+      }
+    }
+
+    @keyframes blinkSuccess {
+        0%, 100% {
+            opacity: 1;
+            box-shadow: 0 0 15px currentColor;
+            transform: scale(1);
+        }
+        50% {
+            opacity: 0.6;
+            box-shadow: 0 0 5px currentColor;
+            transform: scale(0.95);
+        }
+    }
+    
+    @keyframes blinkError {
+        0%, 100% {
+            opacity: 1;
+            box-shadow: 0 0 20px currentColor;
+            transform: scale(1.05);
+        }
+        50% {
+            opacity: 0.5;
+            box-shadow: 0 0 5px currentColor;
+            transform: scale(0.9);
+        }
+    }
+
+    /* 设置粒子容器样式 */
+    #particles-js {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      z-index: -1;
+    }
+  </style>
+</head>
+
+<body id=app class="font-inter bg-neutral min-h-screen flex items-center justify-center p-4">
+  <!-- 粒子效果容器 -->
+  <div id="particles-js"></div>
+  <!-- 引入粒子效果配置 -->
+  <script src="https://cdn.jsdelivr.net/gh/VincentGarreau/particles.js@2.0.0/particles.min.js"></script>
+
+  <!-- 背景装饰 -->
+  <div class="fixed inset-0 bg-gradient-to-br from-secondary/5 to-primary/10 -z-10"></div>
+
+  <!-- 登录卡片 -->
+  <div class="w-full max-w-md bg-white rounded-2xl shadow-lg overflow-hidden card-animation">
+    <!-- 卡片顶部 -->
+    <div class="bg-gradient-to-r from-primary to-secondary p-6 text-white">
+      <div class="flex items-center justify-between">
+        <div>
+          <h2 class="text-2xl font-bold mb-1">莱顿-力学测试数据库</h2>
+          <p class="text-sm opacity-80">力学测试数据查询、管理平台</p>
+          <div class="flex mt-2 items-center">
+            <button id="indicator" class="w-4 h-4 rounded-full bg-indicator-gray indicator-glow transition-all duration-500 ease-in-out mr-2"></button>
+            <span  id="indicator-label" class="">网络连接中……</span>
+          </div>
+        </div>
+        <div class="w-12 h-12 bg-black/20 rounded-full flex items-center justify-center">
+          <i class="fa fa-database text-xl"></i>
+        </div>
+      </div>
+    </div>
+
+    <!-- 登录表单 -->
+    <div class="p-6">
+      <!-- 错误提示 -->
+      <div id="error-message"
+        class="hidden mb-4 p-3 bg-danger/10 border border-danger/20 rounded-lg text-danger text-sm">
+        <i class="fa fa-exclamation-circle mr-2"></i>
+        <span>用户名或密码错误，请重试</span>
+      </div>
+
+      <form id="login-form" class="space-y-4">
+        <!-- 用户名 -->
+        <div class="relative">
+          <div class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
+            <i class="fa fa-user text-neutral-dark"></i>
+          </div>
+          <input type="text" id="username-input" name="username"
+            class="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg form-input-focus transition-all duration-200"
+            placeholder="用户名<姓名/工号>" required>
+        </div>
+
+        <!-- 密码 -->
+        <div class="relative">
+          <div class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
+            <i class="fa fa-lock text-neutral-dark"></i>
+          </div>
+          <input type="password" id="password" name="password"
+            class="w-full pl-10 pr-10 py-3 border border-gray-300 rounded-lg form-input-focus transition-all duration-200"
+            placeholder="密码" required>
+          <button type="button" id="toggle-password"
+            class="absolute inset-y-0 right-0 flex items-center pr-3 text-neutral-dark hover:text-primary transition-colors">
+            <i class="fa fa-eye-slash"></i>
+          </button>
+        </div>
+
+        <!-- 新密码 -->
+        <div class="relative hidden"  id="new-password-container">
+          <div class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
+            <i class="fa fa-lock text-neutral-dark"></i>
+          </div>
+          <input type="password" id="new-password" name="new-password" autocomplete="new-password"
+            class="w-full pl-10 pr-10 py-3 border border-gray-300 rounded-lg form-input-focus transition-all duration-200"
+            placeholder="新密码" required>
+          <button type="button" id="toggle-new-password"
+            class="absolute inset-y-0 right-0 flex items-center pr-3 text-neutral-dark hover:text-primary transition-colors">
+            <i class="fa fa-eye-slash"></i>
+          </button>
+        </div>
+
+        <!-- 确认新密码 -->
+        <div class="relative hidden" id="confirm-password-container">
+          <div class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
+            <i class="fa fa-lock text-neutral-dark"></i>
+          </div>
+          <input type="password" id="confirm-password" name="confirm-password" autocomplete="new-password"
+            class="w-full pl-10 pr-10 py-3 border border-gray-300 rounded-lg form-input-focus transition-all duration-200"
+            placeholder="确认新密码" required>
+          <button type="button" id="toggle-confirm-password"
+            class="absolute inset-y-0 right-0 flex items-center pr-3 text-neutral-dark hover:text-primary transition-colors">
+            <i class="fa fa-eye-slash"></i>
+          </button>
+        </div>
+
+        <!-- 记住我 -->
+        <div class="flex items-center justify-between">
+          <div class="flex items-center">
+          </div>
+          <a href="#" id="change-password" class="text-sm text-primary hover:text-primary/80 transition-colors">更改密码</a>
+        </div>
+
+        <!-- 登录按钮 -->
+        <button type="submit" class="w-full btn-primary flex items-center justify-center active:bg-primary/60 hover:bg-primary/60"
+          id="login-button">
+          <i class="fa fa-sign-in mr-2"></i>
+          登录
+        </button>
+      </form>
+
+      <!-- 底部信息 -->
+      <div class="mt-6 pt-4 border-t border-gray-100 text-center">
+        <p class="text-xs text-neutral-dark mb-2">
+          <span class="bg-primary/10 text-primary text-xs px-2 py-1 rounded-full border border-primary/30 mr-2">
+            <i class="fa fa-flask mr-1"></i>
+            <span id="version-span">
+            </span>
+          </span>
+          | 上次更新: 
+          <span id="update-date-span">
+            <!-- 这里会通过 JavaScript 动态填充版本号和更新日期 -->
+          </span>
+        </p>
+        <p class="text-xs text-neutral-dark mt-1">
+          <!-- 创建账户、重置密码请联系管理员； -->
+          如有其他问题请联系开发者
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <!-- JavaScript -->
+  <!-- 初始化粒子效果 -->
+  <script>
+    particlesJS.load('particles-js', 'particlesConfig.json', function () {
+    });
+  </script>
+
+  <!-- 引入登录脚本 -->
+  <script src="javaScript/app.js"></script>
+  <script>
+    // 从 localStorage 获取版本信息
+    document.getElementById('update-date-span').textContent = localStorage.getItem('updateDate');
+  </script>
+</body>
+
+</html>

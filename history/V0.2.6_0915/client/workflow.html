@@ -1,0 +1,805 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>研发流程管理</title>
+    <!-- 网页图标 -->
+    <link rel="icon" type="image/png" href="../../icon/icons-database.png">
+    <!-- 加载前检查用户是否登录 -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const username = localStorage.getItem('username'); // 模拟获取用户名
+            if (!username) {
+                window.location.href = '../login.html'; // 如果未登录，重定向到登录页面
+            } else {
+                document.getElementById('username-button').textContent = username; // 显示用户名
+            }
+        });
+    </script>
+    <!-- 验证token -->
+    <script src='../../javaScript/verifyToken.js'></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- 引入Font Awesome -->
+    <!-- <link rel="stylesheet" href="https://cdn.staticfile.org/font-awesome/4.7.0/css/font-awesome.min.css"> -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" rel="stylesheet">
+    <!-- 引入SheetJS库 -->
+    <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+
+    <!-- 配置Tailwind自定义颜色和字体 -->
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#99774b',
+                        secondary: '#b3946d',
+                        accent: '#0FC6C2',
+                        neutral: '#F5F7FA',
+                        dark: '#1D2129',
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'system-ui', 'sans-serif'],
+                    },
+                }
+            }
+        }
+    </script>
+    <!-- 自定义工具类 -->
+    <link rel="stylesheet" href="../../style.css">
+    <style type="text/tailwindcss">
+        @layer utilities {
+            .content-auto {
+                content-visibility: auto;
+            }
+            .card-shadow {
+                box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+            }
+            .transition-custom {
+                transition: all 0.3s ease;
+            }
+        } 
+    </style>
+</head>
+
+<body class="bg-gray-50 font-sans text-dark">
+    <!-- 顶部导航栏 -->
+    <nav class="bg-white shadow-md sticky top-0 z-50 transition-all duration-300">
+        <div class="container mx-auto px-4 py-3 flex justify-between items-center">
+            <div class="flex items-center space-x-2">
+                <i class="fa fa-tasks text-primary text-2xl"></i>
+                <h1 class="text-xl font-bold text-neutral-600">研发流程管理</h1>
+                <div class="hidden md:flex items-center space-x-6"></div>
+                <div class="hidden md:flex items-center space-x-6">
+                    <button onClick="javascript:history.back(-1);"
+                        class="flex items-center bg-gray-100 hover:bg-primary text-black font-medium py-2 px-4 rounded-lg transition duration-300 ease-in-out shadow-md hover:shadow-lg transform hover:-translate-y-0.5">
+                        <i class="fa fa-arrow-left text-gray-600 text-2xl transition-colors"></i>
+                        <span class="hidden md:inline-block text-xl text-gray-800 transition-colors">返回</span>
+                    </button>
+                </div>
+            </div>
+
+            <div class="hidden md:flex items-center space-x-6">
+                <button id="user-button"
+                    class="flex items-center bg-gray-200 hover:bg-primary text-black font-medium py-2 px-4 rounded-lg transition duration-300 ease-in-out shadow-md hover:shadow-lg transform hover:-translate-y-0.5">
+                    <div class="w-8 h-8 rounded-full bg-gray-300 flex items-center justify-center">
+                        <i id="user-icon" class="fa fa-user text-gray-600"></i>
+                    </div>
+                    <span id="username-button" class="text-sm font-medium hidden md:inline-block ml-2">用户名</span>
+                </button>
+                <button
+                    class="flex items-center bg-gray-200 hover:bg-primary text-black font-medium py-2 px-4 rounded-lg transition duration-300 ease-in-out shadow-md hover:shadow-lg transform hover:-translate-y-0.5">
+                    <div class="w-8 h-8 rounded-full bg-gray-300 flex items-center justify-center">
+                        <i class="fa fa-envelope"></i>
+                    </div>
+                    <span class="text-sm font-medium hidden md:inline-block ml-2">消息</span>
+                    <span
+                        class="hidden ml-2 bg-gray-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">0</span>
+                </button>
+            </div>
+
+            <div class="md:hidden">
+                <button class="text-neutral-500 focus:outline-none">
+                    <i class="fa fa-bars text-xl"></i>
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    <main class="container mx-auto px-4 py-8">
+        <!-- 粒子效果容器 -->
+        <div id="particles-js"></div>
+        <!-- 引入粒子效果配置 -->
+        <script src="https://cdn.jsdelivr.net/gh/VincentGarreau/particles.js@2.0.0/particles.min.js"></script>
+        <!-- 搜索区域 -->
+
+        <!-- 筛选和列表区域 -->
+        <section id="standards" class="mb-1">
+            <div class="flex flex-col md:flex-row gap-6">
+                <!-- 左侧筛选面板 -->
+                <div id="sidebar" class="rounded-xl md:w-3/8 lg:w-3/10 z-20 transition-all duration-300 ease-in-out">
+                    <div class="bg-white p-3 border-b border-gray-400 flex items-center justify-between sticky top-24">
+                        <h1 id="sidebar-title"
+                            class="text-xl font-bold text-primary/90 transition-opacity duration-300"><i
+                                class="fa fa-filter text-primary mr-2"></i> 筛选条件</h1>
+                        <button id="toggle-btn" class="p-2 rounded-full hover:bg-gray-100 transition-colors">
+                            <i class="fa fa-angle-double-left text-xl text-gray-600" title="收起"></i>
+                        </button>
+                    </div>
+                    <div id="filter-panel" class="bg-white p-5 shadow-sm sticky top-[6.5rem]">
+                        <!-- 主要任务 -->
+                        <div class="grid grid-cols-3 items-center justify-center mb-3">
+                            <h4 class="font-medium font-semibold text-gray-700">主要任务</h4>
+                            <select id="task-select"
+                                class="col-span-2 w-full p-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/50">
+                                <option value="">全部</option>
+                                <option value="产品注册">产品注册</option>
+                                <option value="产品生产与试制">产品生产与试制</option>
+                                <option value="产品验证">产品验证</option>
+                                <option value="其他">其他</option>
+                            </select>
+                        </div>
+
+                        <!-- 项目归属 -->
+                        <div class="grid grid-cols-3 items-center justify-center mb-3">
+                            <h4 class="font-medium font-semibold text-gray-700">项目归属</h4>
+                            <select id="project-select"
+                                class="col-span-2 w-full p-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/50">
+                                <option value="">全部</option>
+                                <option value="N101: 牙种植体">N101: 牙种植体</option>
+                                <option value="N101: 基台及附件">N101: 基台及附件</option>
+                                <option value="N102: 全仿BB手术器械">N102: 全仿BB手术器械</option>
+                                <option value="N103: 包装改进研发">N103: 包装改进研发</option>
+                                <option value="N104: 超短穿翼种植体研发">N104: 超短穿翼种植体研发</option>
+                                <option value="N107: 切削基台柱研发与注册">N107: 切削基台柱研发与注册</option>
+                                <option value="N108: 支抗钉研发注册">N108: 支抗钉研发注册</option>
+                                <option value="N110: 种植体稳定性测量仪">N110: 种植体稳定性测量仪</option>
+                                <option value="N111: 全口修复基台研发注册">N111: 全口修复基台研发注册</option>
+                                <option value="N112: 人工骨粉">N112: 人工骨粉</option>
+                                <option value="N113: 3.0种植体注册取证">N113: 3.0种植体注册取证</option>
+                                <option value="N114: 人工骨胶研发">N114: 人工骨胶研发</option>
+                                <option value="N115: 预制牙冠研发与注册">N115: 预制牙冠研发与注册</option>
+                                <option value="N116: 医工交互——器械改进">N116: 医工交互——器械改进</option>
+                                <option value="N117: 临时和前沿性产品研究">N117: 临时和前沿性产品研究</option>
+                                <option value="N118: Apollo产品性能提升改进">N118: Apollo产品性能提升改进</option>
+                                <option value="N119: 全仿BB一类附件开发和备案">N119: 全仿BB一类附件开发和备案</option>
+                                <option value="N120: 个性化牙种植体">N120: 个性化牙种植体</option>
+                                <option value="N121: 可切削基台柱和个性化基台研发与注册">N121: 可切削基台柱和个性化基台研发与注册</option>
+                                <option value="N122: 医疗注册">N122: 医疗注册（GI、BB注册验证支持）</option>
+                                <option value="其他">其他</option>
+                            </select>
+                        </div>
+
+                        <!-- 状态 -->
+                        <div class="grid grid-cols-3 items-center justify-center mb-3 border-b border-gray-200 pb-5">
+                            <h4 class="font-medium font-semibold text-gray-700">状态</h4>
+                            <select id="status-select"
+                                class="col-span-2 w-full p-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/50">
+                                <option value="">全部</option>
+                                <option value="completed">✅ 完成</option>
+                                <option value="in_progress">⏳ 进行</option>
+                                <option value="pause">🚧 暂停</option>
+                                <option value="abolish">❌ 终止</option>
+                                <option value="overdue">❗ 逾期</option>
+                            </select>
+                        </div>
+
+                        <!-- 工作类型 -->
+                        <div class="mb-3 border-b border-gray-200 pb-5">
+                            <div class="flex flex-col sm:flex-row justify-between items-start gap-2 mb-3">
+                                <h4 class="font-medium font-semibold text-gray-700">工作类型</h4>
+                                <div class="flex gap-1 mr-3">
+                                    <button id="worktype-select-all"
+                                        class="h-6 w-6 text-sm bg-gray-200 text-gray-700 rounded hover:bg-gray-300 transition-colors"
+                                        title="全选">
+                                        <i class="fa fa-check-square"></i>
+                                    </button>
+                                    <button id="worktype-select-none"
+                                        class="h-6 w-6 text-sm bg-gray-200 text-gray-700 rounded hover:bg-gray-300 transition-colors"
+                                        title="全不选">
+                                        <i class="far fa-square"></i>
+                                    </button>
+                                    <button id="worktype-select-invert"
+                                        class="h-6 w-6 text-sm bg-gray-200 text-gray-700 rounded hover:bg-gray-300 transition-colors"
+                                        title="反选">
+                                        <i class="fa fa-exchange-alt"></i>
+                                    </button>
+                                </div>
+                            </div>
+                            
+                            <div class="grid grid-cols-3 space-y-2">
+                                <label class="col-span-3 text-gray-400">技术操作：</label>
+                                <label class="flex items-center cursor-pointer">
+                                    <input type="checkbox" name="worktype-filter" value="测绘"
+                                        class="form-checkbox h-4 w-4 text-primary rounded" checked>
+                                    <span class="ml-2 text-gray-600">测绘</span>
+                                </label>
+                                <label class="flex items-center cursor-pointer">
+                                    <input type="checkbox" name="worktype-filter" value="设计"
+                                        class="form-checkbox h-4 w-4 text-primary rounded" checked>
+                                    <span class="ml-2 text-gray-600">设计</span>
+                                </label>
+                                <label class="flex items-center cursor-pointer">
+                                    <input type="checkbox" name="worktype-filter" value="试验"
+                                        class="form-checkbox h-4 w-4 text-primary rounded" checked>
+                                    <span class="ml-2 text-gray-600">试验</span>
+                                </label>
+                                <label class="flex items-center cursor-pointer">
+                                    <input type="checkbox" name="worktype-filter" value="方案规划"
+                                        class="form-checkbox h-4 w-4 text-primary rounded" checked>
+                                    <span class="ml-2 text-gray-600">方案规划</span>
+                                </label>
+                                <label class="flex items-center cursor-pointer">
+                                    <input type="checkbox" name="worktype-filter" value="加工"
+                                        class="form-checkbox h-4 w-4 text-primary rounded" checked>
+                                    <span class="ml-2 text-gray-600">加工</span>
+                                </label>
+                                <label class="col-span-3 text-gray-400">文档管理：</label>
+                                <label class="flex items-center cursor-pointer">
+                                    <input type="checkbox" name="worktype-filter" value="信息汇总"
+                                        class="form-checkbox h-4 w-4 text-primary rounded" checked>
+                                    <span class="ml-2 text-gray-600">信息汇总</span>
+                                </label>
+                                <label class="flex items-center cursor-pointer">
+                                    <input type="checkbox" name="worktype-filter" value="编制"
+                                        class="form-checkbox h-4 w-4 text-primary rounded" checked>
+                                    <span class="ml-2 text-gray-600">编制</span>
+                                </label>
+                                <label class="flex items-center cursor-pointer">
+                                    <input type="checkbox" name="worktype-filter" value="审核"
+                                        class="form-checkbox h-4 w-4 text-primary rounded" checked>
+                                    <span class="ml-2 text-gray-600">审核</span>
+                                </label>
+                                <label class="col-span-3 text-gray-400">管理协调：</label>
+                                <label class="flex items-center cursor-pointer">
+                                    <input type="checkbox" name="worktype-filter" value="流程"
+                                        class="form-checkbox h-4 w-4 text-primary rounded" checked>
+                                    <span class="ml-2 text-gray-600">流程</span>
+                                </label>
+                                <label class="flex items-center cursor-pointer">
+                                    <input type="checkbox" name="worktype-filter" value="委外"
+                                        class="form-checkbox h-4 w-4 text-primary rounded" checked>
+                                    <span class="ml-2 text-gray-600">委外</span>
+                                </label>
+                                <label class="flex items-center cursor-pointer">
+                                    <input type="checkbox" name="worktype-filter" value="沟通"
+                                        class="form-checkbox h-4 w-4 text-primary rounded" checked>
+                                    <span class="ml-2 text-gray-600">沟通</span>
+                                </label>
+                                <label class="col-span-3 text-gray-400">其他：</label>
+                                <label class="flex items-center cursor-pointer">
+                                    <input type="checkbox" name="worktype-filter" value="行政"
+                                        class="form-checkbox h-4 w-4 text-primary rounded" checked>
+                                    <span class="ml-2 text-gray-600">行政</span>
+                                </label>
+                                <label class="flex items-center cursor-pointer">
+                                    <input type="checkbox" name="worktype-filter" value="培训"
+                                        class="form-checkbox h-4 w-4 text-primary rounded" checked>
+                                    <span class="ml-2 text-gray-600">培训</span>
+                                </label>
+                                <label class="flex items-center cursor-pointer">
+                                    <input type="checkbox" name="worktype-filter" value="其他"
+                                        class="form-checkbox h-4 w-4 text-primary rounded" checked>
+                                    <span class="ml-2 text-gray-600">其他</span>
+                                </label>
+                            </div>
+                        </div>
+
+                        <!-- 人员 -->
+                        <div class="mb-5 border-b border-gray-200 pb-5">
+                            <div class="flex flex-col sm:flex-row justify-between items-start gap-2 mb-3">
+                                <h4 class="font-medium font-semibold text-gray-700">人员</h4>
+                                <div class="flex gap-1 mr-3">
+                                    <button id="member-select-all"
+                                        class="h-6 w-6 text-sm bg-gray-200 text-gray-700 rounded hover:bg-gray-300 transition-colors"
+                                        title="全选">
+                                        <i class="fa fa-check-square"></i>
+                                    </button>
+                                    <button id="member-select-none"
+                                        class="h-6 w-6 text-sm bg-gray-200 text-gray-700 rounded hover:bg-gray-300 transition-colors"
+                                        title="全不选">
+                                        <i class="far fa-square"></i>
+                                    </button>
+                                    <button id="member-select-invert"
+                                        class="h-6 w-6 text-sm bg-gray-200 text-gray-700 rounded hover:bg-gray-300 transition-colors"
+                                        title="反选">
+                                        <i class="fa fa-exchange-alt"></i>
+                                    </button>
+                                </div>
+                            </div>
+                            <div id="user-select" class="grid grid-cols-3 space-y-2">
+                                <!-- 根据JS动态添加人员 -->
+                            </div>
+                        </div>
+
+                        <!-- 按钮 -->
+                        <div class="flex gap-3">
+                            <button id="apply-filter-button"
+                                class="flex-1 bg-primary hover:bg-primary/90 text-white py-2 rounded-lg transition-custom">
+                                应用筛选
+                            </button>
+                            <button id="reset-filter-button"
+                                class="flex-1 bg-gray-100 hover:bg-gray-200 text-gray-700 py-2 rounded-lg transition-custom">
+                                重置
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 右侧列表 -->
+                <div id="workCards-container"
+                    class="w-full min-h-screen md:w-5/8 lg:w-7/10 transition-all duration-300 ease-in-out">
+                    <!-- 统计概览 -->
+                    <div class="grid grid-cols-1 md:grid-cols-6 gap-4 mb-6">
+
+                        <!-- 总任务数 -->
+                        <div id="totalTasks-container"
+                            class="bg-white rounded-lg p-4 shadow-md flex items-center transform transition-all duration-300 hover:scale-105 hover:shadow-lg">
+                            <div class="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center mr-4">
+                                <i class="fa fa-tasks text-primary text-xl"></i>
+                            </div>
+                            <div>
+                                <p class="text-gray-500 text-sm">总任务数<span class="text-xl font-bold text-primary ml-1"
+                                        id="totalTasks">0</span></p>
+                                <p class="text-gray-500 text-sm">我的：<span class="text-xl font-bold text-primary ml-1"
+                                        id="myTasks">0</span></p>
+                            </div>
+                        </div>
+
+                        <!-- 已完成 -->
+                        <div id="completedTasks-container"
+                            class="task-container bg-white rounded-lg p-4 shadow-md flex items-center transform transition-all duration-300 hover:scale-105 hover:shadow-lg">
+                            <div class="w-12 h-12 rounded-full bg-green-100 flex items-center justify-center mr-4">
+                                <i class="fa fa-check-circle text-green-600 text-xl"></i>
+                            </div>
+                            <div>
+                                <p class="text-gray-500 text-sm">已完成<span class="text-xl font-bold text-green-600 ml-1"
+                                        id="completedTasks">0</span></p>
+                                <p class="text-gray-500 text-sm">我的：<span class="text-xl font-bold text-green-600 ml-1"
+                                        id="myCompletedTasks">0</span></p>
+                            </div>
+                            <div class="absolute bg-green-600/30 w-full height-[68.06%] bottom-0 ransition-all duration-[1.5s] ease-in-out"></div>
+                        </div>
+
+                        <!-- 进行中 -->
+                        <div id="inProgressTasks-container"
+                            class="task-container bg-white rounded-lg p-4 shadow-md flex items-center transform transition-all duration-300 hover:scale-105 hover:shadow-lg">
+                            <div class="w-12 h-12 rounded-full bg-blue-100 flex items-center justify-center mr-4">
+                                <i class="fa fa-spinner text-blue-600 text-xl"></i>
+                            </div>
+                            <div>
+                                <p class="text-gray-500 text-sm">进行中<span class="text-xl font-bold text-blue-600 ml-1"
+                                        id="inProgressTasks">0</span></p>
+                                <p class="text-gray-500 text-sm">我的：<span class="text-xl font-bold text-blue-600 ml-1"
+                                        id="myInProgressTasks">0</span></p>
+                            </div>
+                        </div>
+
+                        <!-- 已暂停 -->
+                        <div id="pausedTasks-container"
+                            class="task-container bg-white rounded-lg p-4 shadow-md flex items-center transform transition-all duration-300 hover:scale-105 hover:shadow-lg">
+                            <div class="w-12 h-12 rounded-full bg-yellow-100 flex items-center justify-center mr-4">
+                                <i class="fa fa-pause-circle text-yellow-600 text-xl"></i>
+                            </div>
+                            <div>
+                                <p class="text-gray-500 text-sm">已暂停<span class="text-xl font-bold text-yellow-600 ml-1"
+                                        id="pausedTasks">0</span></p>
+                                <p class="text-gray-500 text-sm">我的：<span class="text-xl font-bold text-yellow-600 ml-1"
+                                        id="myPausedTasks">0</span></p>
+                            </div>
+                        </div>
+
+                        <!-- 已终止 -->
+                        <div id="terminaterdTasks-container"
+                            class="task-container bg-white rounded-lg p-4 shadow-md flex items-center transform transition-all duration-300 hover:scale-105 hover:shadow-lg">
+                            <div class="w-12 h-12 rounded-full bg-gray-100 flex items-center justify-center mr-4">
+                                <i class="fa fa-stop-circle text-gray-600 text-xl"></i>
+                            </div>
+                            <div>
+                                <p class="text-gray-500 text-sm">已终止<span class="text-xl font-bold text-gray-600 ml-1"
+                                        id="terminatedTasks">0</span></p>
+                                <p class="text-gray-500 text-sm">我的：<span class="text-xl font-bold text-gray-600 ml-1"
+                                        id="myTerminatedTasks">0</span></p>
+                            </div>
+                        </div>
+
+                        <!-- 已逾期 -->
+                        <div id="overdueTasks-container"
+                            class="bg-white rounded-lg p-4 shadow-md flex items-center transform transition-all duration-300 hover:scale-105 hover:shadow-lg">
+                            <div class="w-12 h-12 rounded-full bg-red-100 flex items-center justify-center mr-4">
+                                <i class="fa fa-exclamation-circle text-red-600 text-xl"></i>
+                            </div>
+                            <div>
+                                <p class="text-gray-500 text-sm">已逾期<span class="text-xl font-bold text-red-600 ml-1"
+                                        id="overdueTasks">0</span></p>
+                                <p class="text-gray-500 text-sm">我的：<span class="text-xl font-bold text-red-600 ml-1"
+                                        id="myOverdueTasks">0</span></p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 周选择器容器 -->
+                    <div class="relative mb-4 mx-4">
+                        <!-- 导航按钮 -->
+                        <button id="scroll-left"
+                            class="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-1/2 bg-white rounded-full w-10 h-10 shadow-md flex items-center justify-center text-primary hover:bg-primary hover:text-white transition-all duration-200 z-10">
+                            <i class="fa fa-chevron-left"></i>
+                        </button>
+
+                        <!-- 周轴容器 -->
+                        <div class="overflow-hidden">
+                            <div class="absolute h-1 bg-gray-500/70 w-full left-0 right-0 top-1/2 transform -translate-y-1/2 z-0"
+                                id="weekAxis-line">
+                            </div>
+                            <div id="week-axis"
+                                class="flex grid grid-cols-9 transition-transform duration-300 ease-out items-center justify-center relative h-24 scrollbar-hide overflow-hidden px-6">
+                                <!-- 周项目将通过JavaScript动态生成 -->
+                            </div>
+                        </div>
+
+                        <button id="scroll-right"
+                            class="absolute right-0 top-1/2 -translate-y-1/2 translate-x-1/2 bg-white rounded-full w-10 h-10 shadow-md flex items-center justify-center text-primary hover:bg-primary hover:text-white transition-all duration-200 z-10">
+                            <i class="fa fa-chevron-right"></i>
+                        </button>
+                    </div>
+
+
+                    <!-- 列表头部 -->
+                    <div
+                        class="bg-white rounded-xl p-4 shadow-sm mb-5 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+                        <div>
+                            <h3 class="text-lg font-semibold">工作项目列表</h3>
+                        </div>
+                        <div class="flex items-center gap-3">
+                            <div class="hidden flex border border-gray-300 rounded-lg overflow-hidden mr-8">
+                                <!-- 视图切换按钮 -->
+                                <button id="list-view-btn"
+                                    class="p-2 w-20 bg-white text-gray-600 hover:bg-gray-100 transition-colors"
+                                    title="列表视图">
+                                    <i class="fa fa-list"></i>
+                                </button>
+                                <button id="grid-view-btn"
+                                    class="p-2 w-20 bg-primary text-white hover:bg-primary/90 transition-colors"
+                                    title="网格视图">
+                                    <i class="fa fa-th-large"></i>
+                                </button>
+                            </div>
+                            <span class="text-gray-600 text-sm">排序方式:</span>
+                            <select id="sort-select"
+                                class="p-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary/50">
+                                <option value="primaryTask">主要任务</option>
+                                <option value="secondaryTask">项目归属</option>
+                                <option value="members">人员归属</option>
+                            </select>
+                            <button id="export-button"
+                                class="flex-1 bg-primary border border-gray-300 hover:bg-primary/60 text-sm text-white font-medium py-2 px-4 rounded-lg transition-all duration-300 flex items-center justify-center">
+                                <i class="fa fa-download mr-2"></i>导出第<span id="current-week"></span>周工作表</button>
+                        </div>
+                    </div>
+
+                    <!-- 工作卡片列表 -->
+                    <div id="workCards-contains" class="grid grid-cols-1 lg:grid-cols-2 gap-5">
+                        <!-- 根据JS动态添加 -->
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 悬浮按钮 -->
+        <button class="ai-content-button" id="deepseek-button" title="AI助手">
+            <img class="h-[1.85rem] mx-auto block" src="../../icon/deepseek.png">
+        </button>
+        <button class="floating-button r-50" id="add-data-button">
+            <i class="fa fa-plus"></i>
+        </button>
+    </main>
+
+    <footer class="bg-white sticky bottom-0 z-50 border-t border-gray-200 py-6 mt-1">
+        <div class="container mx-auto px-4">
+            <div class="flex flex-col md:flex-row items-center justify-between">
+                <div class="flex items-center space-x-4">
+                    <span class="text-sm text-gray-500">© 2024 莱顿-力学测试数据库</span>
+                    <span
+                        class="bg-primary/10 text-primary text-xs px-2 py-1 rounded-full border border-primary/30 cursor-pointer">
+                        <i class="fa fa-flask mr-1"></i>
+                        <span id="version-span">
+                        </span>
+                    </span>
+                </div>
+                <div class="flex space-x-4">
+                    <button id="yuanbao-btn" class="flex hover:border hover:border-primary" title="腾讯元宝">
+                        <img class="h-[1.65rem] mx-auto block" src="../../icon/logo_yuanbao.png">
+                        <span class="ml-1">腾讯元宝</span>
+                    </button>
+                    <button id="naton-btn" class="flex hover:border hover:border-primary" title="智慧办公">
+                        <img class="h-[1.5rem] mx-auto block" src="../../icon/logo_naton.png">
+                        <span class="ml-1">智慧办公</span>
+                    </button>
+                    <a class="text-gray-500 hover:text-primary transition-colors cursor-pointer" id="guide-a">
+                        <i class="fa fa-question-circle"></i>
+                        <span class="ml-1">操作指引</span>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- 添加数据模态框 -->
+    <div id="add-data-modal"
+        class="fixed inset-0 bg-black/50 z-50 flex items-center justify-center opacity-0 pointer-events-none transition-opacity duration-300 flex flex-col">
+        <div
+            class="bg-white rounded-xl items-center justify-center shadow-xl max-w-4xl w-full transform scale-95 transition-transform duration-300 max-h-[90vh] overflow-hidden flex flex-col">
+            <div class="border-b border-gray-100 flex items-center justify-between p-4 mt-2 md-2">
+                <h3 class="text-2xl font-bold text-gray-800" id="data-modal-title">添加工作数据</h3>
+            </div>
+            <div class="overflow-y-auto bg-white border border-gray-300 flex flex-col mt-2">
+                <div class="grid grid-cols-3 space-x-2 flex-grow p-6">
+                    <div class="col-span-3"></div>
+                    <div>
+                        <label class="block text-lg font-bold text-gray-800 mb-1">主要任务<span
+                                class="text-red-600">
+                                *</span></label>
+                        <select id="task-select-modal"
+                            class="w-full p-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-primary/30 focus:border-primary transition-all duration-200">
+                            <option value="">--请选择--</option>
+                            <option value="产品注册">产品注册</option>
+                            <option value="产品生产与试制">产品生产与试制</option>
+                            <option value="产品验证">产品验证</option>
+                            <option value="其他">其他</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-lg font-bold text-gray-800 mb-1">项目归属<span class="text-red-600">
+                                *</label>
+                        <select id="project-select-modal"
+                            class="w-full p-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-primary/30 focus:border-primary transition-all duration-200">
+                            <option value="">--请选择--</option>
+                            <option value="N101: 牙种植体">N101: 牙种植体</option>
+                            <option value="N101: 基台及附件">N101: 基台及附件</option>
+                            <option value="N102: 全仿BB手术器械">N102: 全仿BB手术器械</option>
+                            <option value="N103: 包装改进研发">N103: 包装改进研发</option>
+                            <option value="N104: 超短穿翼种植体研发">N104: 超短穿翼种植体研发</option>
+                            <option value="N107: 切削基台柱研发与注册">N107: 切削基台柱研发与注册</option>
+                            <option value="N108: 支抗钉研发注册">N108: 支抗钉研发注册</option>
+                            <option value="N110: 种植体稳定性测量仪">N110: 种植体稳定性测量仪</option>
+                            <option value="N111: 全口修复基台研发注册">N111: 全口修复基台研发注册</option>
+                            <option value="N112: 人工骨粉">N112: 人工骨粉</option>
+                            <option value="N113: 3.0种植体注册取证">N113: 3.0种植体注册取证</option>
+                            <option value="N114: 人工骨胶研发">N114: 人工骨胶研发</option>
+                            <option value="N115: 预制牙冠研发与注册">N115: 预制牙冠研发与注册</option>
+                            <option value="N116: 医工交互——器械改进">N116: 医工交互——器械改进</option>
+                            <option value="N117: 临时和前沿性产品研究">N117: 临时和前沿性产品研究</option>
+                            <option value="N118: Apollo产品性能提升改进">N118: Apollo产品性能提升改进</option>
+                            <option value="N119: 全仿BB一类附件开发和备案">N119: 全仿BB一类附件开发和备案</option>
+                            <option value="N120: 个性化牙种植体">N120: 个性化牙种植体</option>
+                            <option value="N121: 可切削基台柱和个性化基台研发与注册">N121: 可切削基台柱和个性化基台研发与注册</option>
+                            <option value="N122: 医疗注册">N122: 医疗注册（GI、BB注册验证支持）</option>
+                            <option value="其他">其他</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-lg font-medium text-gray-700 mb-1">处理对象</label>
+                        <input type="text" id="title-modal"
+                            class="w-full p-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-primary/30 focus:border-primary transition-all duration-200"
+                            placeholder="如：'技术要求', '图纸'……">
+                    </div>
+                </div>
+
+                <div class="space-x-2 space-y-2 flex-grow p-5">
+                    <label for="test-tags" class="block text-xl font-bold text-gray-800">选择工作类型<span
+                            class="text-red-600"> *</span></label>
+                    <!-- 复选标签 -->
+                    <div class="grid md:grid-cols-6 mt-1 flex flex-wrap gap-2 md-4">
+                        <label class="flex items-center">技术操作：</label>
+                        <label class="flex items-center cursor-pointer">
+                            <input type="checkbox" class="form-checkbox h-4 w-4 text-primary rounded" name="test-tags"
+                                value="测绘">
+                            <span class="ml-2 text-gray-600">测绘</span>
+                        </label>
+                        <label class="flex items-center cursor-pointer">
+                            <input type="checkbox" class="form-checkbox h-4 w-4 text-primary rounded" name="test-tags"
+                                value="设计">
+                            <span class="ml-2 text-gray-600">设计</span>
+                        </label>
+                        <label class="flex items-center cursor-pointer">
+                            <input type="checkbox" class="form-checkbox h-4 w-4 text-primary rounded" name="test-tags"
+                                value="试验">
+                            <span class="ml-2 text-gray-600">试验</span>
+                        </label>
+                        <label class="flex items-center cursor-pointer">
+                            <input type="checkbox" class="form-checkbox h-4 w-4 text-primary rounded" name="test-tags"
+                                value="加工">
+                            <span class="ml-2 text-gray-600">加工</span>
+                        </label>
+                        <label class="flex items-center cursor-pointer">
+                            <input type="checkbox" class="form-checkbox h-4 w-4 text-primary rounded" name="test-tags"
+                                value="方案规划">
+                            <span class="ml-2 text-gray-600">方案规划</span>
+                        </label>
+                    </div>
+                    <div class="grid md:grid-cols-6 mt-1 flex flex-wrap gap-2 md-4">
+                        <label class="flex items-center">资料管理：</label>
+                        <label class="flex items-center cursor-pointer">
+                            <input type="checkbox" class="form-checkbox h-4 w-4 text-primary rounded" name="test-tags"
+                                value="信息汇总">
+                            <span class="ml-2 text-gray-600">信息汇总</span>
+                        </label>
+                        <label class="flex items-center cursor-pointer">
+                            <input type="checkbox" class="form-checkbox h-4 w-4 text-primary rounded" name="test-tags"
+                                value="编制">
+                            <span class="ml-2 text-gray-600">编制</span>
+                        </label>
+                        <label class="flex items-center cursor-pointer">
+                            <input type="checkbox" class="form-checkbox h-4 w-4 text-primary rounded" name="test-tags"
+                                value="审核">
+                            <span class="ml-2 text-gray-600">审核</span>
+                        </label>
+                    </div>
+                    <div class="grid md:grid-cols-6 mt-1 flex flex-wrap gap-2 md-4">
+                        <label class="flex items-center">管理协调：</label>
+                        <label class="flex items-center cursor-pointer">
+                            <input type="checkbox" class="form-checkbox h-4 w-4 text-primary rounded" name="test-tags"
+                                value="流程">
+                            <span class="ml-2 text-gray-600">流程</span>
+                        </label>
+                        <label class="flex items-center cursor-pointer">
+                            <input type="checkbox" class="form-checkbox h-4 w-4 text-primary rounded" name="test-tags"
+                                value="委外">
+                            <span class="ml-2 text-gray-600">委外</span>
+                        </label>
+                        <label class="flex items-center cursor-pointer">
+                            <input type="checkbox" class="form-checkbox h-4 w-4 text-primary rounded" name="test-tags"
+                                value="沟通">
+                            <span class="ml-2 text-gray-600">沟通</span>
+                        </label>
+                    </div>
+                    <div class="grid md:grid-cols-6 mt-1 flex flex-wrap gap-2 md-4">
+                        <label class="flex items-center">其他：</label>
+                        <label class="flex items-center cursor-pointer">
+                            <input type="checkbox" class="form-checkbox h-4 w-4 text-primary rounded" name="test-tags"
+                                value="行政">
+                            <span class="ml-2 text-gray-600">行政</span>
+                        </label>
+                        <label class="flex items-center cursor-pointer">
+                            <input type="checkbox" class="form-checkbox h-4 w-4 text-primary rounded" name="test-tags"
+                                value="培训">
+                            <span class="ml-2 text-gray-600">培训</span>
+                        </label>
+                        <label class="flex items-center cursor-pointer">
+                            <input type="checkbox" class="form-checkbox h-4 w-4 text-primary rounded" name="test-tags"
+                                value="其他">
+                            <span class="ml-2 text-gray-600">其他</span>
+                        </label>
+                    </div>
+                </div>
+
+                <div class="space-x-2 space-y-2flex-grow p-6">
+                    <label for="member-tags" class="block text-xl font-bold text-gray-800">选择参与人员<span
+                            class="text-red-600"> *</span></label>
+                    <div id="name-select-modal" class="grid md:grid-cols-4 mt-1 flex flex-wrap gap-2 md-4">
+                        <label class="flex items-center cursor-pointer">
+                            <input type="checkbox" class="form-checkbox h-4 w-4 text-primary rounded" name="member-tags"
+                                value="李龙">
+                            <span class="ml-2 text-gray-600">李龙</span>
+                        </label>
+                        <label class="flex items-center cursor-pointer">
+                            <input type="checkbox" class="form-checkbox h-4 w-4 text-primary rounded" name="member-tags"
+                                value="吕高升">
+                            <span class="ml-2 text-gray-600">吕高升</span>
+                        </label>
+                        <label class="flex items-center cursor-pointer">
+                            <input type="checkbox" class="form-checkbox h-4 w-4 text-primary rounded" name="member-tags"
+                                value="刘扩">
+                            <span class="ml-2 text-gray-600">刘扩</span>
+                        </label>
+                        <label class="flex items-center cursor-pointer">
+                            <input type="checkbox" class="form-checkbox h-4 w-4 text-primary rounded" name="member-tags"
+                                value="孙柏立">
+                            <span class="ml-2 text-gray-600">孙柏立</span>
+                        </label>
+                        <label class="flex items-center cursor-pointer">
+                            <input type="checkbox" class="form-checkbox h-4 w-4 text-primary rounded" name="member-tags"
+                                value="徐胜利">
+                            <span class="ml-2 text-gray-600">徐胜利</span>
+                        </label>
+                        <label class="flex items-center cursor-pointer">
+                            <input type="checkbox" class="form-checkbox h-4 w-4 text-primary rounded" name="member-tags"
+                                value="陈江平">
+                            <span class="ml-2 text-gray-600">陈江平</span>
+                        </label>
+                        <label class="flex items-center cursor-pointer">
+                            <input type="checkbox" class="form-checkbox h-4 w-4 text-primary rounded" name="member-tags"
+                                value="潘春昂">
+                            <span class="ml-2 text-gray-600">潘春昂</span>
+                        </label>
+                    </div>
+                </div>
+
+                <div id="remark-content" class="space-x-2 space-y-2 flex-grow p-6">
+                    <label class="block text-lg font-bold text-gray-900 mb-1">详细信息<span class="text-red-600">
+                            *</span></label>
+                    <!-- 富文本编辑输入框 -->
+                    <!-- 使用JS输入 -->
+                    <!-- 隐藏的输入框，用于存储编辑器内容以便表单提交 -->
+                    <div id="editor-modal-div"
+                        class="grid grid-cols-11 space-x-2 space-y-2 items-center justify-center">
+                        <!-- <span id="editor-date-modal"
+                            class="col-span-1 w-8 h-8 bg-primary/50 items-center text-center justify-center border border-gray-200 rounded-full"></span>
+                        <div id="editor-modal"
+                            class="col-span-10 block min-h-[80px] border border-gray-300 w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm rounded-md"
+                            contenteditable="true">
+                        </div>
+                        <input type="hidden" id="editor-content" name="content"> -->
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-3 space-x-2 flex-grow p-6">
+                    <div class="col-span-3"></div>
+                    <div>
+                        <label class="block text-lg font-bold text-gray-800 mb-1">状态<span class="text-red-600">
+                                *</span></label>
+                        <select id="status-modal"
+                            class="w-full p-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-primary/30 focus:border-primary transition-all duration-200">
+                            <option value="">请选择</option>
+                            <option value="completed">✅ 完成</option>
+                            <option value="in_progress">⏳ 进行</option>
+                            <option value="pause">🚧 暂停</option>
+                            <option value="abolish">❌ 终止</option>
+                            <option value="overdue">❗ 逾期</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-lg font-bold text-gray-800 mb-1">完成周期(请填写周数)<span class="text-red-600">
+                                *</span></label>
+                        <input type="text" id="date-modal"
+                            class="w-full p-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-primary/30 focus:border-primary transition-all duration-200"
+                            placeholder="如：'32', '32，33，34'……">
+                    </div>
+                    <div>
+                        <label class="block text-lg font-medium font-bold text-gray-700 mb-1">当前进度</label>
+                        <input type="text" id="progress-modal"
+                            class="w-full p-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-primary/30 focus:border-primary transition-all duration-200"
+                            placeholder="如：'5/13', '70%'……">
+                    </div>
+                </div>
+            </div>
+            <!-- 按钮 -->
+            <div class="w-full justify-end sticky bottom-0 border-t border-gray-100 space-x-2 space-y-2 px-4 pt-4 mb-2">
+                <div class="flex space-x-2">
+                    <button id="submit-modal-button"
+                        class="flex-1 bg-primary hover:bg-primary/90 text-sm text-white font-medium py-2 px-4 rounded-lg transition-all duration-300 flex items-center justify-center">
+                        <i class="fa fa-paper-plane mr-2"></i>
+                        提交
+                    </button>
+                    <button id="create-modal-button"
+                        class="hidden flex-1 bg-blue-100 hover:bg-blue-200 text-sm text-blue-600 font-medium py-2 px-4 rounded-lg transition-all duration-300 flex items-center justify-center"
+                        title="后续任务将与本任务关联">
+                        <i class="fa fa-plus mr-2"></i>
+                        <p id="notPassBtn-txt">新建后续任务</p>
+                    </button>
+                    <button id="cancel-modal-button"
+                        class="flex-1 bg-gray-100 hover:bg-gray-200 text-sm text-gray-600 font-medium py-2 px-4 rounded-lg transition-all duration-300 flex items-center justify-center">
+                        <i class="fa fa-cancel mr-2"></i>
+                        取消
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- 初始化粒子效果 -->
+    <script>
+        particlesJS.load('particles-js', '../../particlesConfig.json', function () {
+        });
+    </script>
+
+    <script src="../JavaScript/showNotification.js"></script>
+    <script src="../JavaScript/api.js"></script>
+    <script src="../JavaScript/workflow.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/showdown@2.1.0/dist/showdown.min.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/highlight.js@11.7.0/styles/github-dark.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/highlight.js@11.7.0/lib/highlight.min.js"></script>
+
+</body>
+
+</html>

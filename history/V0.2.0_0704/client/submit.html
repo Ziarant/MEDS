@@ -1,0 +1,721 @@
+<!DOCTYPE html>
+<meta charset="UTF-8">
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>文件上传系统</title>
+    <!-- 网页图标 -->
+    <link rel="icon" type="image/png" href="../../icon/icons-database.png">
+    <!-- 加载前检查用户是否登录 -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const username = localStorage.getItem('username'); // 模拟获取用户名
+            if (!username) {
+                window.location.href = '../login.html'; // 如果未登录，重定向到登录页面
+            } else {
+                document.getElementById('username-button').textContent = username; // 显示用户名
+            }
+        });
+    </script>
+    <!-- 验证token -->
+    <script src='../../javaScript/verifyToken.js'></script>
+
+    <!-- 引入Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- 引入Font Awesome -->
+    <!-- <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet"> -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" rel="stylesheet">
+
+    <!-- Tailwind配置 -->
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#99774b', // 主色调
+                        secondary: '#f9f8f6', // 橙色强调色
+                        neutral: '#f3f4f6', // 中性色
+                        'neutral-dark': '#4b5563', // 深中性色
+                    },
+                    fontFamily: {
+                        inter: ['Inter', 'sans-serif'],
+                    },
+                },
+            }
+        }
+    </script>
+
+    <!-- 自定义工具类 -->
+    <link rel="stylesheet" href="../../style.css">
+
+    <style>
+        /* 自定义滚动条 */
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: #f1f1f1;
+            border-radius: 3px;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #c1c1c1;
+            border-radius: 3px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: #a8a8a8;
+        }
+
+        /* 灰白条纹 */
+        .pending {
+        background-image: repeating-linear-gradient(
+            -45deg,
+            #e0d999,    /* 白色条纹 */
+            #f5f5f5 10px, /* 条纹宽度 */
+            #e0e0e09f 10px, /* 灰色条纹 */
+            #e0e0e0 20px  /* 条纹周期 */
+        );
+        background-size: 28px 28px; /* 控制条纹密度 */
+        }
+
+        /* 动画效果 */
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .animate-fade-in {
+            animation: fadeIn 0.3s ease-out forwards;
+        }
+    </style>
+</head>
+
+<body class="bg-gray-50 font-inter min-h-screen flex flex-col">
+    <!-- 顶部导航栏 -->
+    <header class="bg-white shadow-md sticky top-0 z-50 transition-all duration-300" id="navbar">
+        <div class="container mx-auto px-4 py-3 flex items-center justify-between">
+            <div class="flex items-center space-x-2">
+                <i class="fa fa-cloud text-primary text-2xl"></i>
+                <h1 class="text-xl font-bold text-gray-800">文件上传系统</h1>
+                <div class="hidden md:flex items-center space-x-6"></div>
+                <div class="hidden md:flex items-center space-x-6">
+                    <button onClick="javascript:history.back(-1);"
+                        class="flex items-center bg-gray-200 hover:bg-primary text-black font-medium py-2 px-4 rounded-lg transition duration-300 ease-in-out shadow-md hover:shadow-lg transform hover:-translate-y-0.5">
+                        <i class="fa fa-arrow-left text-gray-600 text-2xl hover:text-primary transition-colors"></i>
+                        <span
+                            class="hidden md:inline-block text-xl text-gray-800 hover:text-primary transition-colors">返回</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- 用户名信息 -->
+            <div class="hidden md:flex items-center space-x-6">
+                <button id="user-button"
+                    class="flex items-center bg-gray-200 hover:bg-primary text-black font-medium py-2 px-4 rounded-lg transition duration-300 ease-in-out shadow-md hover:shadow-lg transform hover:-translate-y-0.5">
+                    <div class="w-8 h-8 rounded-full bg-gray-300 flex items-center justify-center">
+                        <i id="user-icon" class="fa fa-user text-gray-600 "></i>
+                    </div>
+                    <span id="username-button" class="text-sm font-medium hidden md:inline-block ml-2">用户名</span>
+                </button>
+                <button
+                    class="flex items-center bg-gray-200 hover:bg-primary text-black font-medium py-2 px-4 rounded-lg transition duration-300 ease-in-out shadow-md hover:shadow-lg transform hover:-translate-y-0.5">
+                    <div class="w-8 h-8 rounded-full bg-gray-300 flex items-center justify-center">
+                        <i class="fa fa-envelope"></i>
+                    </div>
+                    <span class="text-sm font-medium hidden md:inline-block ml-2">消息</span>
+                    <span
+                        class="hidden ml-2 bg-gray-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">0</span>
+                </button>
+            </div>
+    </header>
+
+    <!-- 主内容区 -->
+    <main class="flex-grow container mx-auto px-4 py-8">
+        <!-- 粒子效果容器 -->
+        <div id="particles-js"></div>
+        <!-- 引入粒子效果配置 -->
+        <script src="https://cdn.jsdelivr.net/gh/VincentGarreau/particles.js@2.0.0/particles.min.js"></script>
+
+        <!-- 文件上传区域 -->
+        <div id="upload-section">
+            <!-- 上传状态卡片 -->
+            <div class="bg-white rounded-xl shadow-soft p-6 mb-6 transition-all duration-300 hover:shadow-lg">
+                <div class="flex items-center justify-between mb-4">
+                    <h2 class="text-xl font-bold text-gray-800">上传文件</h2>
+                    <div class="text-sm text-gray-500">
+                        <span>请填写测试信息</span>
+                    </div>
+                </div>
+
+                <!-- 上传文件说明:
+                 左栏：器械类型，
+                 右栏：备注信息 -->
+                <div class="bg-white rounded-xl shadow-soft p-6 mb-6 transition-all duration-300 hover:shadow-lg">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div class="flex-1">
+                            <div>
+                                <label for="device-type" class="block text-sm font-medium text-gray-700 mb-1">器械类别</label>
+                                <select id="device-type"
+                                    class="block w-full border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary/50 focus:border-primary transition-all duration-200 mb-2">
+                                    <option value="种植体">种植体</option>
+                                    <option value="基台">基台</option>
+                                    <option value="支抗钉">支抗钉</option>
+                                    <option value="钻类">钻类</option>
+                                    <option value="植入器">植入器</option>
+                                    <option value="扳手">扳手</option>
+                                    <option value="牙科材料">牙科材料</option>
+                                    <option value="其他">其他</option>
+                                </select>
+                            </div>
+                            <div class="grid grid-cols-1 md:grid-cols-3 mb-1">
+                                <div>
+                                    <label for="test-model"
+                                        class="block text-sm font-medium text-gray-700 mb-2">型号</label>
+                                    <textarea id="test-model" rows="1"
+                                        class="block w-full border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary/50 focus:border-primary transition-all duration-200 mb-2"
+                                        placeholder="请输入型号..."></textarea>
+                                </div>
+                                <div>
+                                    <label for="test-specification"
+                                        class="block text-sm font-medium text-gray-700 mb-2">规格</label>
+                                    <textarea id="test-specification" rows="1"
+                                        class="block w-full border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary/50 focus:border-primary transition-all duration-200 mb-2"
+                                        placeholder="请输入规格..."></textarea>
+                                </div>
+                                <div>
+                                    <label for="test-batch"
+                                        class="block text-sm font-medium text-gray-700 mb-2">批次/阶段</label>
+                                    <select id="test-batch"
+                                        class="block w-full border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary/50 focus:border-primary transition-all duration-200 mb-2">
+                                        <option value="">--见文件--</option>
+                                        <option value="研发试制">研发试制</option>
+                                        <option value="生产试制">生产试制</option>
+                                        <option value="上市产品">上市产品</option>
+                                        <option value="其他">其他</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <label for="test-type" class="block text-sm font-medium text-gray-700 mb-2">测试类型</label>
+                            <select id="test-type"
+                                class="block w-full border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary/50 focus:border-primary transition-all duration-200 mb-2">
+                                <option value="">--见文件--</option>
+                                <option value="标准疲劳">标准疲劳</option>
+                                <option value="拉伸强度">拉伸强度</option>
+                                <option value="抗扭强度">抗扭强度</option>
+                                <option value="抗压强度">抗压强度</option>
+                                <option value="切削性能">切削性能</option>
+                                <option value="表面粗糙度">表面粗糙度</option>
+                                <option value="耐腐蚀性">耐腐蚀性</option>
+                                <option value="其他">其他</option>
+                            </select>
+                            <label for="test-standard"
+                                class="block text-sm font-medium text-gray-700 mb-1">测试标准与方法</label>
+                            <select id="test-standard"
+                                class="block w-full border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary/50 focus:border-primary transition-all duration-200 mb-2">
+                                <option value="">--见文件--</option>
+                                <option value="YY/T 0521">YY/T 0521:种植体动态疲劳试验</option>
+                                <option value="YY 0315">YY 0315:钛及钛合金牙种植体</option>
+                                <option value="GB/T 16886">GB/T 16886:医疗器械生物学评价</option>
+                                <option value="YY/T 0874"> YY/T 0874:旋转器械实验方法</option>
+                                <option value="ISO TS 13498">ISO TS 13498:连接部分接头扭力试验</option>
+                                <option value="其他">其他</option>
+                            </select>
+                            <label for="test-member" class="block text-sm font-medium text-gray-700 mb-2">测试人员</label>
+                            <textarea id="test-member" rows="1"
+                                class="block w-full border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary/50 focus:border-primary transition-all duration-200 mb-2"
+                                placeholder="请输入测试人员..."></textarea>
+                            <div id="feedback-member-div" class="hidden">
+                                <label for="feedback-member" class="block text-sm font-medium text-gray-700 mb-2">反馈人员</label>
+                                <textarea id="feedback-member" rows="1"
+                                    class="block w-full border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary/50 focus:border-primary transition-all duration-200 mb-2"
+                                    placeholder="请输入反馈人员..."></textarea>
+                            </div>
+                        </div>
+
+                        <div class="flex-2 mt-4 md:mt-0">
+                            <label for="remarks" class="block text-sm font-medium text-gray-700 mb-2">备注信息</label>
+                            <textarea id="remarks" rows="6"
+                                class="block w-full border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary/50 focus:border-primary transition-all duration-200 mb-2"
+                                placeholder="请输入备注信息..."></textarea>
+                            <div class="grid grid-cols-1 md:grid-cols-3">
+                                <label for="test-time"
+                                    class="block text-sm font-medium text-gray-700 mb-2">测试时间:</label>
+                                <input type="date" id="test-time"
+                                    class="col-span-2 w-full p-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-primary/30 focus:border-primary transition-all duration-200 mb-4">
+                            </div>
+                            <label for="test-result" class="block text-sm font-medium text-gray-700 mb-2">测试结果</label>
+                            <select id="test-result"
+                                class="block w-full border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary/50 focus:border-primary transition-all duration-200">
+                                <option value="通过">通过</option>
+                                <option value="未通过">未通过</option>
+                                <option value="待确认">待确认</option>
+                                <option value="其他">其他</option>
+                            </select>
+                            <div id="feedback-time-div" class="grid grid-cols-1 md:grid-cols-3 mt-3 hidden">
+                                <label for="feedback-time"
+                                    class="block text-sm font-medium text-gray-700 mb-2">反馈时间:</label>
+                                <input type="date" id="feedback-time"
+                                    class="col-span-2 w-full p-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-primary/30 focus:border-primary transition-all duration-200 mb-4">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 拖放上传区域 -->
+                <div id="drop-area"
+                    class="border-2 border-dashed border-gray-300 rounded-lg p-8 text-center transition-all duration-300 hover:border-primary/70 hover:bg-primary/5">
+                    <i class="fa fa-cloud-upload text-4xl text-gray-400 mb-4"></i>
+                    <h3 class="text-lg font-medium text-gray-700 mb-2">拖放文件到这里</h3>
+                    <p class="text-gray-500 mb-4">或者</p>
+                    <label
+                        class="inline-block bg-primary/10 hover:bg-primary/20 text-primary font-medium py-3 px-8 rounded-lg transition-all duration-300 cursor-pointer">
+                        <i class="fa fa-folder-open-o mr-2"></i>
+                        选择文件
+                        <input type="file" id="file-input" class="hidden" multiple>
+                    </label>
+                    <p class="text-xs text-gray-400 mt-4">支持格式包括但不限于: PDF, DOCX, XLSX, PPTX, JPG, PNG, MP4 (最大单个文件: 2GB,
+                        可上传加密文件)</p>
+                </div>
+
+                <div class="bg-white rounded-xl shadow-card hover:shadow-card-hover transition-shadow duration-300">
+                    <div class="p-4 sm:p-2">
+                        <div class="flex justify-between items-center mb-4">
+                            <h2 class="text-xl font-bold text-gray-900">待上传文件</h2>
+                            <div class="flex space-x-2">
+                                <button id="clear-btn"
+                                    class="px-4 py-2 text-sm text-gray-600 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors duration-200 flex items-center">
+                                    <i class="fa fa-trash-o mr-2"></i> 清空
+                                </button>
+                                <button id="upload-btn"
+                                    class="px-4 py-2 text-sm text-white bg-primary rounded-lg hover:bg-primary/90 transition-colors duration-200 flex items-center disabled:opacity-50 disabled:cursor-not-allowed"
+                                    disabled>
+                                    <i class="fa fa-upload mr-2"></i> 开始上传
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- 待上传文件列表 -->
+                        <div id="empty-files-preview" class="text-center py-8 text-gray-500">
+                            <!-- 文件行将通过JavaScript动态添加 -->
+                            <i class="fa fa-file text-5xl text-gray-300 mb-4"></i>
+                            <h3 class="text-lg font-medium text-gray-700 mb-2">暂无待上传的文件</h3>
+                            <p class="text-gray-500 max-w-md mx-auto">选择文件后，它们将显示在这里。</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 上传进度条 -->
+                <div id="upload-progress-container" class="mt-6 hidden">
+                    <div class="flex justify-between text-sm mb-1">
+                        <span id="progress-filename" class="font-medium"></span>
+                        <span id="progress-percentage">0%</span>
+                    </div>
+                    <div class="w-full bg-gray-200 rounded-full h-2.5">
+                        <div id="progress-bar" class="bg-primary h-2.5 rounded-full" style="width: 0%"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 文件列表 -->
+            <div class="bg-white rounded-xl shadow-soft p-6 transition-all duration-300 hover:shadow-lg">
+                <div class="flex items-center justify-between mb-6">
+                    <h2 class="text-xl font-bold text-gray-800">我的文件</h2>
+                    <div class="flex space-x-2">
+                        <div class="relative">
+                            <input type="text" id="file-search"
+                                class="pl-9 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary/50 focus:border-primary transition-all duration-200 text-sm"
+                                placeholder="按名称搜索我的文件...">
+                            <i
+                                class="fa fa-search absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
+                        </div>
+                        <button id="refresh-btn" class="p-2 rounded-lg bg-gray-100 hover:bg-gray-200 transition-colors">
+                            <i class="fa fa-sync"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- 空文件状态 -->
+                <div id="empty-files-state" class="py-12 text-center">
+                    <i class="fa fa-file text-5xl text-gray-300 mb-4"></i>
+                    <h3 class="text-lg font-medium text-gray-700 mb-2">暂无已上传的文件</h3>
+                    <p class="text-gray-500 max-w-md mx-auto">上传文件后，它们将显示在这里。</p>
+                </div>
+
+                <!-- 文件列表（初始隐藏） -->
+                <div id="files-list" class="hidden">
+                    <div class="overflow-x-auto">
+                        <table class="sortable-table min-w-full" id="sortableTable">
+                            <thead>
+                                <tr class="border-b border-gray-200">
+                                    <th
+                                        class="sortable-header py-3 px-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                        文件名<i class="fa fa-sort ml-1"></i></th>
+                                    <th
+                                        class="sortable-header py-3 px-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                        器械类别<i class="fa fa-sort ml-1"></i></th>
+                                    <th
+                                        class="sortable-header py-3 px-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                        大小<i class="fa fa-sort ml-1"></i></th>
+                                    <th
+                                        class="sortable-header py-3 px-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                        上传人<i class="fa fa-sort ml-1"></i></th>
+                                    <th
+                                        class="sortable-header py-3 px-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                        上传时间<i class="fa fa-sort ml-1"></i></th>
+                                    <th
+                                        class="sortable-header py-3 px-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                        处理状态<i class="fa fa-sort ml-1"></i></th>
+                                    <th
+                                        class="py-3 px-4 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                        操作</th>
+                                </tr>
+                            </thead>
+                            <tbody id="files-body">
+                                <!-- 文件行将通过JavaScript动态添加 -->
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <!-- 分页控件 -->
+                    <div class="flex items-center justify-between pt-4 border-t border-gray-200">
+                        <div class="text-sm text-gray-500">
+                            显示 <span id="file-count">0</span> 个文件（其中<span id="nopass-file-count">0</span>条未录入，仅自己/管理员可见）
+                        </div>
+                        <div class="flex space-x-1">
+                            <button
+                                class="px-3 py-1 rounded-lg bg-gray-100 hover:bg-gray-200 text-gray-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                                disabled>
+                                <i class="fa fa-angle-left"></i>
+                            </button>
+                            <button class="px-3 py-1 rounded-lg bg-primary text-white">1</button>
+                            <button
+                                class="px-3 py-1 rounded-lg bg-gray-100 hover:bg-gray-200 text-gray-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                                disabled>
+                                <i class="fa fa-angle-right"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 文件列表结束 -->
+
+            </div>
+            <!-- 所有文件列表 -->
+            <div class="bg-white rounded-xl shadow-soft p-6 transition-all duration-300 hover:shadow-lg mt-6">
+                <!-- 所有文件列表 -->
+                <div class=" flex items-center justify-between mb-6" s="toggleTask('all-files-list')">
+                    <h2 class="text-xl font-bold text-gray-800">所有文件 <i
+                            class="fa fa-chevron-down text-gray-500 transition-transform duration-200"
+                            onclick="toggleTask('all-files-list')"></i></h2>
+
+                    <div class="flex space-x-2">
+                        <div class="relative">
+                            <input type="text" id="all-file-search"
+                                class="pl-9 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary/50 focus:border-primary transition-all duration-200 text-sm"
+                                placeholder="按名称搜索所有文件...">
+                            <i
+                                class="fa fa-search absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
+                        </div>
+                        <button id="refresh-btn" class="p-2 rounded-lg bg-gray-100 hover:bg-gray-200 transition-colors">
+                            <i class="fa fa-sync"></i>
+                        </button>
+                    </div>
+                </div>
+                <div id="all-files-list">
+                    <div class="overflow-x-auto">
+                        <table class="sortable-table min-w-full" id="all-sortableTable">
+                            <thead>
+                                <tr class="border-b border-gray-200">
+                                    <th
+                                        class="sortable-header py-3 px-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                        文件名<i class="fa fa-sort ml-1"></i></th>
+                                    <th
+                                        class="sortable-header py-3 px-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                        器械类别<i class="fa fa-sort ml-1"></i></th>
+                                    <th
+                                        class="sortable-header py-3 px-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                        大小<i class="fa fa-sort ml-1"></i></th>
+                                    <th
+                                        class="sortable-header py-3 px-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                        上传人<i class="fa fa-sort ml-1"></i></th>
+                                    <th
+                                        class="sortable-header py-3 px-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                        上传时间<i class="fa fa-sort ml-1"></i></th>
+                                    <th
+                                        class="sortable-header py-3 px-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                        处理状态<i class="fa fa-sort ml-1"></i></th>
+                                    <th
+                                        class="py-3 px-4 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                        操作</th>
+                                </tr>
+                            </thead>
+                            <tbody id="all-files-body">
+                                <!-- 文件行将通过JavaScript动态添加 -->
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="flex items-center justify-between pt-4 border-t border-gray-200">
+                        <div class="text-sm text-gray-500">
+                            显示 <span id="all-file-count">0</span> 个文件（其中<span id="nopass-allfile-count">0</span>条未录入，仅自己/管理员可见）
+                        </div>
+                        <div class="flex space-x-1">
+                            <button
+                                class="px-3 py-1 rounded-lg bg-gray-100 hover:bg-gray-200 text-gray-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                                disabled>
+                                <i class="fa fa-angle-left"></i>
+                            </button>
+                            <button class="px-3 py-1 rounded-lg bg-primary text-white">1</button>
+                            <button
+                                class="px-3 py-1 rounded-lg bg-gray-100 hover:bg-gray-200 text-gray-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                                disabled>
+                                <i class="fa fa-angle-right"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+    </main>
+
+    <!-- 页脚 -->
+    <footer class="bg-white sticky bottom-0 z-50 border-t border-gray-200 py-6">
+        <div class="container mx-auto px-4">
+            <div class="flex flex-col md:flex-row items-center justify-between">
+                <div class="flex items-center space-x-4">
+                    <span class="text-sm text-gray-500">© 2024 莱顿-力学测试数据库</span>
+                    <span class="bg-primary/10 text-primary text-xs px-2 py-1 rounded-full border border-primary/30 cursor-pointer">
+                        <i class="fa fa-flask mr-1"></i>
+                        <span id="version-span">
+                        </span>
+                    </span>
+                </div>
+                <div class="flex space-x-4">
+                    <a class="text-gray-500 hover:text-primary transition-colors cursor-pointer" id="guide-a">
+                        <i class="fa fa-question-circle"></i>
+                        <span class="ml-1">操作指引</span>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- 模态框（用于文件详情和操作） -->
+    <div id="file-modal"
+        class="fixed inset-0 bg-black/50 z-50 flex items-center justify-center opacity-0 pointer-events-none transition-opacity duration-300">
+        <div
+            class="bg-white rounded-xl shadow-xl max-w-md w-full mx-4 transform scale-95 transition-transform duration-300">
+            <div class="p-6">
+                <div class="flex items-center justify-between mb-4">
+                    <h3 class="text-lg font-bold text-gray-800" id="modal-title">文件详情</h3>
+                    <button id="close-modal" class="text-gray-400 hover:text-gray-600 transition-colors">
+                        <i class="fa fa-times"></i>
+                    </button>
+                </div>
+
+                <div id="modal-content" class="space-y-4">
+                    <div class="flex items-center space-x-4">
+                        <div id="modal-file-icon"
+                            class="w-12 h-12 rounded-lg bg-gray-100 flex items-center justify-center">
+                            <i class="fa fa-file text-2xl text-gray-400"></i>
+                        </div>
+                        <div>
+                            <h4 id="modal-filename" class="font-medium text-gray-800 truncate max-w-xs">filename.pdf
+                            </h4>
+                            <p id="modal-filesize" class="text-sm text-gray-500">2.4 MB</p>
+                        </div>
+                    </div>
+
+                    <div class="border-t border-gray-100 pt-4">
+                        <div class="space-y-3">
+                            <div class="flex justify-between">
+                                <span class="text-sm text-gray-500">上传时间</span>
+                                <span id="modal-upload-time" class="text-sm font-medium text-gray-700">2025-06-04
+                                    14:30:25</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span class="text-sm text-gray-500">文件类型</span>
+                                <span id="modal-filetype" class="text-sm font-medium text-gray-700">PDF文档</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span class="text-sm text-gray-500">下载次数</span>
+                                <span id="modal-downloads" class="text-sm font-medium text-gray-700">0</span>
+                            </div>
+                            <hr class="" />
+                            <div class="flex justify-between">
+                                <span class="text-sm text-gray-500">器械类别</span>
+                                <span id="modal-dataGroup" class="text-sm font-medium text-gray-700">-</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span class="text-sm text-gray-500">器械型号</span>
+                                <span id="modal-model" class="text-sm font-medium text-gray-700">-</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span class="text-sm text-gray-500">器械规格</span>
+                                <span id="modal-specification" class="text-sm font-medium text-gray-700">-</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span class="text-sm text-gray-500">器械批次</span>
+                                <span id="modal-batch" class="text-sm font-medium text-gray-700">-</span>
+                            </div>
+
+                            <div class="flex justify-between">
+                                <span class="text-sm text-gray-500">测试类型</span>
+                                <span id="modal-testType" class="text-sm font-medium text-gray-700">-</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span class="text-sm text-gray-500">测试标准</span>
+                                <span id="modal-testStandard" class="text-sm font-medium text-gray-700">-</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span class="text-sm text-gray-500">测试结果</span>
+                                <span id="modal-testResult" class="text-sm font-medium text-gray-700">-</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span class="text-sm text-gray-500">测试人员</span>
+                                <span id="modal-testMember" class="text-sm font-medium text-gray-700">-</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span class="text-sm text-gray-500">测试时间</span>
+                                <span id="modal-testTime" class="text-sm font-medium text-gray-700">-</span>
+                            </div>
+                            <hr class="" />
+                            <div class="flex justify-between">
+                                <span class="text-sm text-gray-500">备注信息</span>
+                                <!-- 文本框 -->
+                            </div>
+                            <div>
+                                <textarea id="modal-remarks" name="modal-remarks" rows="3"
+                                    class="block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm rounded-md"
+                                    placeholder="备注信息..."></textarea>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="border-t border-gray-100 pt-4">
+                        <div class="flex space-x-2">
+                            <button id="download-btn"
+                                class="flex-1 bg-primary hover:bg-primary/90 text-white font-medium py-2 px-4 rounded-lg transition-all duration-300 flex items-center justify-center">
+                                <i class="fa fa-download mr-2"></i>
+                                下载
+                            </button>
+                            <!-- <button id="delete-btn"
+                                class="flex-1 bg-red-100 hover:bg-red-200 text-red-600 font-medium py-2 px-4 rounded-lg transition-all duration-300 flex items-center justify-center">
+                                <i class="fa fa-trash mr-2"></i>
+                                删除
+                            </button> -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 模态框（用于文件审批） -->
+    <div id="approval-modal"
+        class="fixed inset-0 bg-black/50 z-50 flex items-center justify-center opacity-0 pointer-events-none transition-opacity duration-300">
+        <div
+            class="bg-white rounded-xl shadow-xl max-w-md w-full mx-4 px-2 transform scale-95 transition-transform duration-300">
+            <div class="p-6">
+                <div class="flex items-center justify-between mb-4">
+                    <h3 class="text-lg font-bold text-gray-800" id="approval-modal-title">文件审批</h3>
+                    <button id="close-approval-modal" class="text-gray-400 hover:text-gray-600 transition-colors">
+                        <i class="fa fa-times"></i>
+                    </button>
+                </div>
+            </div>
+            <div id="approval-container" class="space-y-4">
+                <div class="flex items-center space-x-4">
+                    <div id="approval-file-icon"
+                        class="w-18 h-18 rounded-lg bg-gray-100 flex items-center justify-center">
+                        <i class="fa fa-file text-2xl text-gray-400"></i>
+                    </div>
+                    <div>
+                        <h4 id="approval-filename" class="font-medium text-gray-800 truncate max-w-xs">filename.pdf</h4>
+                        <p id="approval-filesize" class="text-sm text-gray-500">2.4 MB</p>
+                        <h4 id="approval-uploader" class="font-medium text-gray-800 truncate max-w-xs">uploader</h4>
+                    </div>
+                </div>
+            </div>
+
+            <div class="border-t border-gray-100 pt-4">
+                <!-- 反馈信息框 -->
+                <div class="space-y-3 border-t">
+                    <textarea id="approval-feedback" rows="3"
+                        class="hidden block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm rounded-md"
+                        placeholder="请输入审批意见..."></textarea>
+                </div>
+            </div>
+            <div class="border-t border-gray-100 pt-4">
+                <div class="flex space-x-2">
+                    <button id="pass-button"
+                        class="flex-1 bg-green-600 hover:bg-green-600/70 text-sm text-white font-medium py-2 px-4 rounded-lg transition-all duration-300 flex items-center justify-center">
+                        <i class="fa fa-check mr-2"></i>
+                        录入
+                    </button>
+                    <button id="not-pass-button"
+                        class="flex-1 bg-red-100 hover:bg-red-200 text-sm text-red-600 font-medium py-2 px-4 rounded-lg transition-all duration-300 flex items-center justify-center">
+                        <i class="fa fa-times mr-2"></i>
+                        <p>拒绝</p>
+                    </button>
+                    <button id="cancel-button"
+                        class="flex-1 bg-gray-100 hover:bg-gray-200 text-sm text-gray-600 font-medium py-2 px-4 rounded-lg transition-all duration-300 flex items-center justify-center">
+                        <i class="fa fa-cancel mr-2"></i>
+                        取消
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- JavaScript -->
+    <!-- 初始化粒子效果 -->
+    <script>
+        particlesJS.load('particles-js', '../../particlesConfig.json', function () {
+        });
+    </script>
+    <script src="../JavaScript/verifyGroup.js"></script>
+    <script src="../JavaScript/submit.js"></script>
+    <script src="../JavaScript/showNotification.js"></script>
+    <script src="../JavaScript/api.js"></script>
+    <!-- 从后端获取文件列表 -->
+    <script src="../javaScript/getFileData.js"></script>
+    <script>
+        // 任务折叠/展开功能
+        function toggleTask(taskId) {
+            const content = document.getElementById(`${taskId}`);
+            const chevron = document.querySelector(`[s="toggleTask('${taskId}')"] i`);
+
+            content.classList.toggle('hidden');
+            chevron.classList.toggle('rotate-180');
+        }
+
+        // 复选框状态变化处理
+    </script>
+
+    <!-- 版本按钮跳转日志界面 -->
+    <script>
+        document.getElementById("version-span").addEventListener("click", function () {
+            window.location.href = "../client/devlog.html";
+        });
+        document.getElementById("guide-a").addEventListener("click", function () {
+            window.location.href = "../client/guide.html";
+        });
+
+        version = localStorage.getItem('version')
+        const versionSpan = document.getElementById("version-span")
+        versionSpan.textContent = version
+    </script>
+</body>
+
+</html>

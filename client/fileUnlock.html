@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Word文件内容复制工具</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
+    <!-- 引入处理Word的库 -->
+    <script src="https://cdn.jsdelivr.net/npm/mammoth@1.6.0/mammoth.browser.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/docx@8.5.0/build/index.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/file-saver@2.0.5/dist/FileSaver.min.js"></script>
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#3B82F6',
+                        secondary: '#10B981',
+                        neutral: '#64748B',
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'system-ui', 'sans-serif'],
+                    },
+                }
+            }
+        }
+    </script>
+    
+    <style type="text/tailwindcss">
+        @layer utilities {
+            .content-auto {
+                content-visibility: auto;
+            }
+            .shadow-soft {
+                box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+            }
+            .transition-custom {
+                transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            }
+        }
+    </style>
+</head>
+<body class="bg-gray-50 min-h-screen font-sans">
+    <div class="container mx-auto px-4 py-12 max-w-4xl">
+        <header class="text-center mb-12">
+            <h1 class="text-[clamp(1.8rem,4vw,2.5rem)] font-bold text-gray-800 mb-3">Word文件内容复制工具</h1>
+            <p class="text-neutral text-lg">上传Word文件，复制内容到新文件并下载</p>
+        </header>
+        
+        <main class="bg-white rounded-xl shadow-soft p-6 md:p-8 mb-8">
+            <div class="mb-8">
+                <label for="wordFile" class="block text-gray-700 font-medium mb-3">选择Word文件 (.docx)</label>
+                <div class="flex flex-col md:flex-row gap-4">
+                    <div class="flex-1">
+                        <label class="flex flex-col items-center justify-center w-full h-32 border-2 border-dashed border-gray-300 rounded-lg cursor-pointer bg-gray-50 hover:bg-gray-100 transition-custom">
+                            <div class="flex flex-col items-center justify-center pt-5 pb-6 w-full text-center">
+                                <i class="fa fa-cloud-upload text-3xl text-primary mb-2"></i>
+                                <p class="mb-1 text-sm text-gray-600"><span class="font-semibold">点击上传</span> 或拖放文件</p>
+                                <p class="text-xs text-gray-500">支持 .docx 格式</p>
+                            </div>
+                            <input id="wordFile" type="file" class="hidden" accept=".docx" />
+                        </label>
+                    </div>
+                    <div class="flex items-end">
+                        <button id="processBtn" class="bg-primary hover:bg-primary/90 text-white font-medium py-3 px-6 rounded-lg transition-custom flex items-center disabled:opacity-50 disabled:cursor-not-allowed" disabled>
+                            <i class="fa fa-copy mr-2"></i> 复制并生成新文件
+                        </button>
+                    </div>
+                </div>
+            </div>
+            
+            <div id="previewSection" class="hidden">
+                <h2 class="text-xl font-semibold text-gray-800 mb-4">内容预览</h2>
+                <div id="contentPreview" class="border border-gray-200 rounded-lg p-4 h-64 overflow-y-auto mb-6 prose max-w-none"></div>
+                
+                <div id="downloadSection" class="hidden">
+                    <div class="bg-green-50 border border-green-200 rounded-lg p-4 mb-6">
+                        <div class="flex items-start">
+                            <i class="fa fa-check-circle text-green-500 mt-1 mr-3 text-xl"></i>
+                            <div>
+                                <h3 class="font-medium text-green-800">处理完成！</h3>
+                                <p class="text-green-700 text-sm mt-1">新的Word文件已准备好，点击下方按钮下载</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="flex justify-center">
+                        <button id="downloadBtn" class="bg-secondary hover:bg-secondary/90 text-white font-medium py-3 px-8 rounded-lg transition-custom flex items-center">
+                            <i class="fa fa-download mr-2"></i> 下载新文件
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </main>
+        
+        <div id="statusMessage" class="hidden fixed bottom-4 right-4 p-4 rounded-lg shadow-lg z-50 max-w-xs"></div>
+        
+        <footer class="text-center text-neutral text-sm">
+            <p>注意：此工具在浏览器中运行，不会将您的文件上传到服务器</p>
+        </footer>
+    </div>
+
+    <script>
+        // 获取DOM元素
+        const fileInput = document.getElementById('wordFile');
+        const processBtn = document.getElementById('processBtn');
+        const previewSection = document.getElementById('previewSection');
+        const contentPreview = document.getElementById('contentPreview');
+        const downloadSection = document.getElementById('downloadSection');
+        const downloadBtn = document.getElementById('downloadBtn');
+        const statusMessage = document.getElementById('statusMessage');
+        
+        let documentContent = null;
+        let originalFileName = '';
+        
+        // 显示状态消息
+        function showStatus(message, isError = false) {
+            statusMessage.textContent = message;
+            statusMessage.className = `fixed bottom-4 right-4 p-4 rounded-lg shadow-lg z-50 max-w-xs transition-custom transform translate-y-0 opacity-100`;
+            
+            if (isError) {
+                statusMessage.classList.add('bg-red-50', 'border', 'border-red-200', 'text-red-700');
+            } else {
+                statusMessage.classList.add('bg-blue-50', 'border', 'border-blue-200', 'text-blue-700');
+            }
+            
+            setTimeout(() => {
+                statusMessage.classList.add('transform', 'translate-y-20', 'opacity-0');
+                setTimeout(() => {
+                    statusMessage.classList.add('hidden');
+                }, 300);
+            }, 3000);
+        }
+        
+        // 当选择文件时启用处理按钮
+        fileInput.addEventListener('change', (e) => {
+            if (e.target.files.length > 0) {
+                const file = e.target.files[0];
+                if (file.name.endsWith('.docx')) {
+                    processBtn.disabled = false;
+                    originalFileName = file.name.replace('.docx', '');
+                    showStatus(`已选择文件: ${file.name}`);
+                } else {
+                    showStatus('请选择.docx格式的Word文件', true);
+                    processBtn.disabled = true;
+                }
+            } else {
+                processBtn.disabled = true;
+            }
+        });
+        
+        // 处理文件
+        processBtn.addEventListener('click', async () => {
+            if (!fileInput.files || fileInput.files.length === 0) return;
+            
+            const file = fileInput.files[0];
+            showStatus('正在处理文件...');
+            
+            try {
+                // 读取并解析Word文件
+                const arrayBuffer = await readFileAsArrayBuffer(file);
+                const result = await mammoth.extractRawText({ arrayBuffer });
+                
+                // 显示预览
+                previewSection.classList.remove('hidden');
+                contentPreview.innerHTML = result.value.replace(/\n/g, '<br>');
+                
+                // 保存内容用于创建新文件
+                documentContent = result.value;
+                
+                // 准备下载
+                downloadSection.classList.remove('hidden');
+                showStatus('文件处理完成，可以生成新文件了');
+            } catch (error) {
+                console.error('处理文件时出错:', error);
+                showStatus('处理文件时出错，请尝试其他文件', true);
+            }
+        });
+        
+        // 下载新文件
+        downloadBtn.addEventListener('click', async () => {
+            if (!documentContent) return;
+            
+            showStatus('正在生成新文件...');
+            
+            try {
+                // 创建新的Word文档
+                const doc = new docx.Document({
+                    sections: [{
+                        properties: {},
+                        children: [
+                            new docx.Paragraph({
+                                children: [
+                                    new docx.TextRun({
+                                        text: documentContent,
+                                        size: 24, // 12pt = 24 half-points
+                                    }),
+                                ],
+                            }),
+                        ],
+                    }],
+                });
+                
+                // 生成文档并下载
+                const packer = new docx.Packer();
+                const blob = await packer.toBlob(doc);
+                saveAs(blob, `${originalFileName}_复制版.docx`);
+                
+                showStatus('新文件已生成并开始下载');
+            } catch (error) {
+                console.error('生成新文件时出错:', error);
+                showStatus('生成新文件时出错，请重试', true);
+            }
+        });
+        
+        // 辅助函数：将文件读为ArrayBuffer
+        function readFileAsArrayBuffer(file) {
+            return new Promise((resolve, reject) => {
+                const reader = new FileReader();
+                reader.onload = () => resolve(reader.result);
+                reader.onerror = reject;
+                reader.readAsArrayBuffer(file);
+            });
+        }
+        
+        // 拖放功能
+        const dropArea = document.querySelector('label[for="wordFile"]');
+        
+        ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+            dropArea.addEventListener(eventName, preventDefaults, false);
+        });
+        
+        function preventDefaults(e) {
+            e.preventDefault();
+            e.stopPropagation();
+        }
+        
+        ['dragenter', 'dragover'].forEach(eventName => {
+            dropArea.addEventListener(eventName, highlight, false);
+        });
+        
+        ['dragleave', 'drop'].forEach(eventName => {
+            dropArea.addEventListener(eventName, unhighlight, false);
+        });
+        
+        function highlight() {
+            dropArea.classList.add('border-primary', 'bg-blue-50');
+        }
+        
+        function unhighlight() {
+            dropArea.classList.remove('border-primary', 'bg-blue-50');
+        }
+        
+        dropArea.addEventListener('drop', handleDrop, false);
+        
+        function handleDrop(e) {
+            const dt = e.dataTransfer;
+            const file = dt.files[0];
+            
+            if (file) {
+                fileInput.files = dt.files;
+                if (file.name.endsWith('.docx')) {
+                    processBtn.disabled = false;
+                    originalFileName = file.name.replace('.docx', '');
+                    showStatus(`已选择文件: ${file.name}`);
+                } else {
+                    showStatus('请选择.docx格式的Word文件', true);
+                    processBtn.disabled = true;
+                }
+            }
+        }
+    </script>
+</body>
+</html>

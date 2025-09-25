@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>音频频谱分析器</title>
+    <!-- 网页图标 -->
+    <link rel="icon" type="image/png" href="../../icon/icons-database.png">
+    <!-- 加载前检查用户是否登录 -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const username = localStorage.getItem('username'); // 模拟获取用户名
+            if (!username) {
+                window.location.href = '../login.html'; // 如果未登录，重定向到登录页面
+            } else {
+                document.getElementById('username-button').textContent = username; // 显示用户名
+            }
+        });
+    </script>
+    <!-- 验证token -->
+    <script src='../../javaScript/verifyToken.js'></script>
+    <!-- 引入Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- 引入Font Awesome -->
+    <!-- <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet"> -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" rel="stylesheet">
+    <!-- 引入SheetJS库 -->
+    <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+
+
+    <!-- Tailwind配置 -->
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#99774b',
+                        secondary: '#f9f8f6',
+                        neutral: '#F2F3F5',
+                        'neutral-dark': '#4E5969',
+                        success: '#00B42A',
+                        warning: '#FF7D00',
+                        danger: '#F53F3F',
+                        info: '#86909C'
+                    },
+                    fontFamily: {
+                        inter: ['Inter', 'system-ui', 'sans-serif'],
+                    },
+                },
+            }
+        }
+    </script>
+
+    <!-- 自定义工具类 -->
+    <link rel="stylesheet" href="../../style.css">
+
+    <style>
+
+        /* 自定义滚动条 */
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: #f1f1f1;
+            border-radius: 3px;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #c1c1c1;
+            border-radius: 3px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: #a8a8a8;
+        }
+
+        /* 动画效果 */
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .animate-fade-in {
+            animation: fadeIn 0.3s ease-out forwards;
+        }
+
+        /* 表格行悬停效果 */
+        .table-row-hover {
+            transition: background-color 0.2s ease;
+        }
+
+        .table-row-hover:hover {
+            background-color: rgba(22, 93, 255, 0.05);
+        }
+
+        /* 卡片阴影效果 */
+        .card-shadow {
+            transition: box-shadow 0.3s ease, transform 0.3s ease;
+        }
+
+        .card-shadow:hover {
+            box-shadow: 0 8px 24px rgba(22, 93, 255, 0.12);
+            transform: translateY(-2px);
+
+        }
+
+        span {
+            white-space: normal;
+            /* 允许换行 */
+            word-wrap: break-word;
+            /* 允许单词换行 */
+        }
+    </style>
+</head>
+<body class="bg-gray-50 font-inter text-dark min-h-screen">
+    <!-- 粒子效果容器 -->
+    <div id="particles-js"></div>
+    <!-- 引入粒子效果配置 -->
+    <script src="https://cdn.jsdelivr.net/gh/VincentGarreau/particles.js@2.0.0/particles.min.js"></script>
+
+    <!-- 顶部导航 -->
+     <header class="bg-white shadow-sm sticky top-0 z-50">
+        <div class="container mx-auto px-4 py-3 flex items-center justify-between">
+            <div class="flex items-center space-x-3">
+                <div class="bg-primary text-white p-2 rounded-lg">
+                    <i class="fa fa-headphones text-xl"></i>
+                </div>
+                <h1 class="text-xl font-bold text-gray-800">音频频谱分析器</h1>
+                <div class="hidden md:flex items-center space-x-6"></div>
+                <div class="hidden md:flex items-center space-x-6">
+                    <button onClick="javascript:history.back(-1);"
+                        class="flex items-center bg-gray-100 hover:bg-primary text-black font-medium py-2 px-4 rounded-lg transition duration-300 ease-in-out shadow-md hover:shadow-lg transform hover:-translate-y-0.5">
+                        <i class="fa fa-arrow-left text-gray-600 text-2xl transition-colors"></i>
+                        <span
+                            class="hidden md:inline-block text-xl text-gray-800 transition-colors">返回</span>
+                    </button>
+                </div>
+            </div>
+
+            <div class="flex items-center space-x-4">
+                <div class="hidden md:flex items-center space-x-6">
+                    <button id="user-button"
+                        class="flex items-center bg-gray-200 hover:bg-primary text-black font-medium py-2 px-4 rounded-lg transition duration-300 ease-in-out shadow-md hover:shadow-lg transform hover:-translate-y-0.5">
+                        <div class="w-8 h-8 rounded-full bg-gray-300 flex items-center justify-center">
+                            <i id="user-icon" class="fa fa-user text-gray-600 "></i>
+                        </div>
+                        <span id="username-button" class="text-sm font-medium hidden md:inline-block ml-2">用户名</span>
+                    </button>
+                    <button
+                        class="flex items-center bg-gray-200 hover:bg-primary text-black font-medium py-2 px-4 rounded-lg transition duration-300 ease-in-out shadow-md hover:shadow-lg transform hover:-translate-y-0.5">
+                        <div class="w-8 h-8 rounded-full bg-gray-300 flex items-center justify-center">
+                            <i class="fa fa-envelope"></i>
+                        </div>
+                        <span class="text-sm font-medium hidden md:inline-block ml-2">消息</span>
+                        <span
+                            class="hidden ml-2 bg-gray-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">0</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- 主要内容 -->
+    <main class="container mx-auto px-4 py-8">
+        <div class="max-w-4xl mx-auto">
+            <!-- 上传区域 -->
+            <div class="bg-white rounded-xl p-6 mb-8 card-shadow">
+                <h2 class="text-xl font-semibold mb-4 flex items-center">
+                    <i class="fa fa-upload text-primary mr-2"></i>上传M4A音频文件
+                </h2>
+                
+                <div id="upload-area" class="border-2 border-dashed border-gray-300 rounded-lg p-8 text-center transition-custom hover:border-primary">
+                    <i class="fa fa-file-audio text-5xl text-gray-400 mb-4"></i>
+                    <p class="mb-2">拖放(单个)M4A文件到此处，或点击选择文件</p>
+                    <p class="text-sm text-gray-500 mb-4">本工具使用浏览器API完成音频分析，文件不会上传;</p>
+                    <label class="inline-block bg-primary hover:bg-primary/90 text-white font-medium py-2 px-6 rounded-lg cursor-pointer transition-custom">
+                        <i class="fa fa-folder-open mr-2"></i>选择文件
+                        <input type="file" id="audio-file" accept="audio/m4a" class="hidden">
+                    </label>
+                    <p id="file-name" class="mt-4 text-sm text-gray-500 hidden"></p>
+                </div>
+            </div>
+            
+            <!-- 音频播放器 -->
+            <div id="player-container" class="bg-white rounded-xl p-6 mb-8 card-shadow">
+                <h2 class="text-xl font-semibold mb-4 flex items-center">
+                    <i class="fa fa-play-circle text-primary mr-2"></i>音频播放
+                </h2>
+                <audio id="audio-player" controls class="w-full">
+                    您的浏览器不支持音频播放
+                </audio>
+                <div class="mt-6 flex justify-center">
+                    <button id="analyze-btn" class="bg-primary text-white font-medium py-2 px-6 rounded-lg cursor-pointer transition-custom flex items-center  disabled:opacity-50 disabled:cursor-not-allowed" disabled>
+                        <i class="fa fa-bar-chart mr-2"></i>分析频谱
+                    </button>
+                </div>
+            </div>
+            
+            <!-- 频谱显示区域 -->
+            <div id="spectrum-container" class="bg-white rounded-xl p-6 card-shadow">
+                <h2 class="text-xl font-semibold mb-4 flex items-center">
+                    <i class="fa fa-line-chart text-primary mr-2"></i>音频频谱图
+                </h2>
+                
+                <div class="mb-4 flex flex-wrap gap-2">
+                    <button id="waveform-btn" class="bg-primary text-white px-4 py-2 rounded-lg text-sm font-medium">
+                        <i class="fa fa-wave-square mr-1"></i>波形图
+                    </button>
+                    <button id="frequency-btn" class="bg-gray-200 hover:bg-gray-300 px-4 py-2 rounded-lg text-sm font-medium transition-custom">
+                        <i class="fa fa-tasks mr-1"></i>频谱图
+                    </button>
+                    <button id="spectrogram-btn" class="hidden bg-gray-200 hover:bg-gray-300 px-4 py-2 rounded-lg text-sm font-medium transition-custom">
+                        <i class="fa fa-th mr-1"></i> 声谱图
+                    </button>
+                    <span id="explain-span" class="w-full bg-gray-100 text-sm text-gray-500 mt-2 mb-2">振幅（响度相关）与时间的关系</span>
+                </div>
+
+                <div class="relative">
+                    <canvas id="spectrum-canvas" class="w-full h-[300px] md:h-[400px] border border-gray-200 rounded-lg"></canvas>
+                    <div id="loading-indicator" class="absolute inset-0 flex items-center justify-center bg-white/80 rounded-lg hidden">
+                        <div class="flex flex-col items-center">
+                            <i class="fa fa-circle-o-notch fa-spin text-3xl text-primary mb-2"></i>
+                            <p class="text-gray-600">正在分析音频...</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="mt-4 grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
+                    <div class="bg-gray-50 p-3 rounded-lg">
+                        <p class="text-gray-500">采样率</p>
+                        <p id="sample-rate" class="font-medium">-</p>
+                    </div>
+                    <div class="bg-gray-50 p-3 rounded-lg">
+                        <p class="text-gray-500">时长</p>
+                        <p id="duration" class="font-medium">-</p>
+                    </div>
+                    <div class="bg-gray-50 p-3 rounded-lg" hidden>
+                        <p class="text-gray-500">高频能量占比</p>
+                        <p id="high-frequency-ratio" class="font-medium">-</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+     <!-- 页脚 -->
+    <footer class="bg-white sticky bottom-0 z-50 border-t border-gray-200 py-6 mt-8">
+        <div class="container mx-auto px-4">
+            <div class="flex flex-col md:flex-row items-center justify-between">
+                <div class="flex items-center space-x-4">
+                    <span class="text-sm text-gray-500">© 2024 莱顿-力学测试数据库</span>
+                    <span
+                        class="bg-primary/10 text-primary text-xs px-2 py-1 rounded-full border border-primary/30 cursor-pointer">
+                        <i class="fa fa-flask mr-1"></i>
+                        <span id="version-span">
+                        </span>
+                    </span>
+                </div>
+                <div class="flex space-x-4">
+                    <a class="text-gray-500 hover:text-primary transition-colors cursor-pointer" id="guide-a">
+                        <i class="fa fa-question-circle"></i>
+                        <span class="ml-1">操作指引</span>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        particlesJS.load('particles-js', '../../particlesConfig.json', function () {
+        });
+    </script>
+
+    <script src="../JavaScript/verifyGroup.js"></script>
+    <script src="../JavaScript/showNotification.js"></script>
+    <script src='../../javaScript/audio-spectrum-analyzer.js'></script>
+</body>
+</html>

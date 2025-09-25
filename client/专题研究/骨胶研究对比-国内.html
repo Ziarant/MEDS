@@ -1,0 +1,485 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>骨胶研究对比 - 国内</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
+
+    <!-- Tailwind 配置 -->
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#99774b',
+                        secondary: '#f9f8f6',
+                        accent: '#0FC6C2',
+                        neutral: '#F5F7FA',
+                        dark: '#1D2129',
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'system-ui', 'sans-serif'],
+                    },
+                }
+            }
+        }
+    </script>
+
+    <style type="text/tailwindcss">
+        @layer utilities {
+      .content-auto {
+        content-visibility: auto;
+      }
+      .table-shadow {
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+      }
+      .cell-hover {
+        transition: all 0.2s ease;
+      }
+      .scrollbar-thin {
+        scrollbar-width: thin;
+      }
+      .scrollbar-thin::-webkit-scrollbar {
+        width: 6px;
+        height: 6px;
+      }
+      .scrollbar-thin::-webkit-scrollbar-thumb {
+        background-color: rgba(100, 116, 139, 0.5);
+        border-radius: 3px;
+      }
+      .highlight {
+        background-color: rgba(165, 42, 42, 0.589);
+      }
+    }
+  </style>
+</head>
+
+<body class="bg-gray-50 font-sans text-dark">
+    <div class="container mx-auto px-4 py-8 max-w-[95%] cursor-pointer">
+        <!-- 页面标题 -->
+        <header class="mb-8 text-center">
+            <h1 class="text-[clamp(1.8rem,4vw,2.5rem)] font-bold text-dark mb-2">骨胶研究对比 - 国内</h1>
+            <p class="text-neutral text-lg">各类骨胶材料的性能与应用对比分析</p>
+        </header>
+
+        <!-- 表格控制面板 -->
+        <div class="flex flex-wrap justify-between items-center mb-6 gap-4">
+            <div class="flex items-center space-x-2">
+                <button id="toggleFilter"
+                    class="flex items-center space-x-1 bg-white px-4 py-2 rounded-lg shadow-sm hover:shadow transition-shadow">
+                    <i class="fa fa-filter text-primary"></i>
+                    <span>筛选</span>
+                </button>
+            </div>
+
+            <div class="relative">
+                <input type="text" id="searchInput" placeholder="搜索..."
+                    class="pl-10 pr-4 py-2 rounded-lg border border-gray-200 focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary w-full md:w-64">
+                <i class="fa fa-search absolute left-3 top-1/2 -translate-y-1/2 text-neutral"></i>
+            </div>
+        </div>
+
+        <!-- 筛选面板 (默认隐藏) -->
+        <div id="filterPanel" class="hidden bg-white rounded-xl p-6 mb-6 shadow-md">
+            <h3 class="font-semibold text-lg mb-4">筛选条件</h3>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div>
+                    <label class="block text-sm font-medium text-neutral mb-1">发表年份</label>
+                    <select class="w-full p-2 border border-gray-200 rounded-lg">
+                        <option value="">全部</option>
+                        <option value="2020">2020</option>
+                        <option value="2021">2021</option>
+                        <option value="2022">2022</option>
+                        <option value="2023">2023</option>
+                        <option value="2024">2024</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-neutral mb-1">影响因子分区</label>
+                    <select class="w-full p-2 border border-gray-200 rounded-lg">
+                        <option value="">全部</option>
+                        <option value="Q1">Q1</option>
+                        <option value="Q2">Q2</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-neutral mb-1">特性</label>
+                    <select class="w-full p-2 border border-gray-200 rounded-lg">
+                        <option value="">全部</option>
+                        <option value="注射性">注射性</option>
+                        <option value="自修复特性">自修复特性</option>
+                    </select>
+                </div>
+            </div>
+            <div class="mt-4 flex justify-end space-x-3">
+                <button class="px-4 py-2 border border-gray-200 rounded-lg hover:bg-gray-50">重置</button>
+                <button class="px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary/90">应用筛选</button>
+            </div>
+        </div>
+
+        <!-- 表格容器 -->
+        <div class="bg-white rounded-xl shadow-md overflow-hidden table-shadow">
+            <div class="overflow-x-auto scrollbar-thin">
+                <table class="w-full text-sm">
+                    <!-- 表头 -->
+                    <thead>
+                        <tr class="text-center text-white bg-primary/70">
+                            <th class="px-4 py-3 font-semibold sticky left-0 z-10">项目</th>
+                            <th class="px-4 py-3 font-semibold">RevBio:Tetranite®</th>
+                            <th class="px-4 py-3 font-semibold">纳通人工骨胶2</th>
+                            <th class="px-4 py-3 font-semibold">L-DPZ</th>
+                            <th class="px-4 py-3 font-semibold">GelDex-AMBGN</th>
+                            <th class="px-4 py-3 font-semibold">GelMa-oDex-AMBGN</th>
+                            <th class="px-4 py-3 font-semibold">BDRAs</th>
+                            <th class="px-4 py-3 font-semibold">O-BDSG</th>
+                            <th class="px-4 py-3 font-semibold">A-O水凝胶</th>
+                            <th class="px-4 py-3 font-semibold">柔性再生支架(HCLS)</th>
+                            <th class="px-4 py-3 font-semibold">CPC/FG蛋白胶</th>
+                            <th class="px-4 py-3 font-semibold">SF-TA-HA</th>
+                            <th class="px-4 py-3 font-semibold">SF-HG-HA</th>
+                            <th class="px-4 py-3 font-semibold">PSC/PEG/OCA</th>
+                        </tr>
+                    </thead>
+
+                    <!-- 表格内容 -->
+                    <tbody class="divide-y divide-gray-100">
+                        <!-- 机构行 -->
+                        <tr class="hover:bg-gray-50 transition-colors">
+                            <th class="px-4 py-3 font-bold sticky left-0 bg-white border-r border-gray-100">机构</th>
+                            <td class="px-4 py-3 cell-hover hover:bg-primary/20">Revio</td>
+                            <td class="px-4 py-3 cell-hover hover:bg-primary/20">纳通-材料组</td>
+                            <td class="px-4 py-3 cell-hover hover:bg-primary/20">重庆医科大学附属口腔医院、杭州诚徵医疗科技有限公司</td>
+                            <td class="px-4 py-3 cell-hover hover:bg-primary/20">苏州大学附属第一医院、上海交通大学医学院</td>
+                            <td class="px-4 py-3 cell-hover hover:bg-primary/20">苏州大学附属第一医院、上海交通大学医学院</td>
+                            <td class="px-4 py-3 cell-hover hover:bg-primary/20">长春应化所</td>
+                            <td class="px-4 py-3 cell-hover hover:bg-primary/20">长春应化所</td>
+                            <td class="px-4 py-3 cell-hover hover:bg-primary/20">四川大学华西口腔医学院</td>
+                            <td class="px-4 py-3 cell-hover hover:bg-primary/20">四川大学、华西口腔医院</td>
+                            <td class="px-4 py-3 cell-hover hover:bg-primary/20">西安第四军医大学西京医院骨科研究所</td>
+                            <td class="px-4 py-3 cell-hover hover:bg-primary/20">福州大学</td>
+                            <td class="px-4 py-3 cell-hover hover:bg-primary/20">福州大学</td>
+                            <td class="px-4 py-3 cell-hover hover:bg-primary/20">中科院化学所</td>
+                        </tr>
+
+                        <!-- 团队行 -->
+                        <tr class="hover:bg-gray-50 transition-colors">
+                            <td class="px-4 py-3 font-medium sticky left-0 bg-white border-r border-gray-100">团队</td>
+                            <td class="px-4 py-3 text-neutral cell-hover hover:bg-primary/20">NaN</td>
+                            <td class="px-4 py-3 text-neutral cell-hover hover:bg-primary/20">NaN</td>
+                            <td class="px-4 py-3 cell-hover hover:bg-primary/20">陈陶教授、季平教授、胡杉杉副研究员</td>
+                            <td class="px-4 py-3 cell-hover hover:bg-primary/20">顾勇副教授、陈亮教授；崔文国教授</td>
+                            <td class="px-4 py-3 cell-hover hover:bg-primary/20">顾勇副教授、陈亮教授；崔文国教授</td>
+                            <td class="px-4 py-3 cell-hover hover:bg-primary/20">栾世方、陈炳刚</td>
+                            <td class="px-4 py-3 cell-hover hover:bg-primary/20">栾世方、陈炳刚</td>
+                            <td class="px-4 py-3 cell-hover hover:bg-primary/20">王剑教授、张鑫助理研究员</td>
+                            <td class="px-4 py-3 cell-hover hover:bg-primary/20">樊渝江教授、孙勇研究员</td>
+                            <td class="px-4 py-3 cell-hover hover:bg-primary/20">Dong J, Cui G, Bi L, et al</td>
+                            <td class="px-4 py-3 cell-hover hover:bg-primary/20">杨黄浩研究员、白树猛教授</td>
+                            <td class="px-4 py-3 cell-hover hover:bg-primary/20">杨黄浩研究员、白树猛教授</td>
+                            <td class="px-4 py-3 cell-hover hover:bg-primary/20">研究员乔燕、北医三院周方教授</td>
+                        </tr>
+
+                        <!-- 论文题目行 -->
+                        <tr class="hover:bg-gray-50 transition-colors">
+                            <td class="px-4 py-3 font-medium sticky left-0 bg-white border-r border-gray-100">论文题目</td>
+                            <td class="px-4 py-3 text-neutral cell-hover hover:bg-primary/20">NaN</td>
+                            <td class="px-4 py-3 text-neutral cell-hover hover:bg-primary/20">NaN</td>
+                            <td class="px-4 py-3 cell-hover hover:bg-primary/20">A Mechanically Reinforced Super Bone
+                                Glue Makes a Leap in Hard Tissue Strong Adhesion and Augmented Bone Regeneration</td>
+                            <td class="px-4 py-3 cell-hover hover:bg-primary/20">Flexible Osteogenic Glue as an
+                                All-In-One Solution to Assist Fracture Fixation and Healing</td>
+                            <td class="px-4 py-3 cell-hover hover:bg-primary/20">Biodegradable dual-crosslinked adhesive
+                                glue for fixation and promotion of osteogenesis</td>
+                            <td class="px-4 py-3 cell-hover hover:bg-primary/20">Tunable backbone-degradable robust
+                                tissue adhesives via in situ radical ring-opening polymerization</td>
+                            <td class="px-4 py-3 cell-hover hover:bg-primary/20">Degradable
+                                nanohydroxyapatite-reinforced superglue for rapid bone fixation and promoted
+                                osteogenesis</td>
+                            <td class="px-4 py-3 cell-hover hover:bg-primary/20">Double-Cross-Linked Hydrogel with
+                                Long-Lasting Underwater Adhesion: Enhancement of Maxillofacial In Situ and Onlay Bone
+                                Retention</td>
+                            <td class="px-4 py-3 text-neutral cell-hover hover:bg-primary/20">NaN</td>
+                            <td class="px-4 py-3 cell-hover hover:bg-primary/20">The mechanical and biological studies
+                                of calcium phosphate cement-fibrin glue for bone reconstruction of rabbit femoral
+                                defects</td>
+                            <td class="px-4 py-3 cell-hover hover:bg-primary/20">Bioinspired Mineral–Organic Bone
+                                Adhesives for Stable Fracture Fixation and Accelerated Bone Regeneration</td>
+                            <td class="px-4 py-3 cell-hover hover:bg-primary/20">A bioinspired mineral-organic composite
+                                hydrogel as a self-healable and mechanically robust bone graft for promoting bone
+                                regeneration</td>
+                            <td class="px-4 py-3 cell-hover hover:bg-primary/20">Bioactive Pore-Forming Bone Adhesives
+                                Facilitating Cell Ingrowth for Fracture Healing</td>
+                        </tr>
+
+                        <!-- 发表杂志/年份行 -->
+                        <tr class="hover:bg-gray-50 transition-colors">
+                            <td class="px-4 py-3 font-medium sticky left-0 bg-white border-r border-gray-100">发表杂志/年份
+                            </td>
+                            <td class="px-4 py-3 text-neutral cell-hover hover:bg-primary/20">NaN</td>
+                            <td class="px-4 py-3 text-neutral cell-hover hover:bg-primary/20">NaN</td>
+                            <td class="px-4 py-3 cell-hover hover:bg-primary/20">Advanced Science, 2023, 10(11)</td>
+                            <td class="px-4 py-3 cell-hover hover:bg-primary/20">Advanced Functional Materials, 2021,
+                                31(38)</td>
+                            <td class="px-4 py-3 cell-hover hover:bg-primary/20">Chemical Engineering Journal, 2022</td>
+                            <td class="px-4 py-3 cell-hover hover:bg-primary/20">Nature Communications, 2023, 14(1)</td>
+                            <td class="px-4 py-3 cell-hover hover:bg-primary/20">ACS nano, 2024, 18(11)</td>
+                            <td class="px-4 py-3 cell-hover hover:bg-primary/20">ACS Applied Materials & Interfaces,
+                                2023, 15(40)</td>
+                            <td class="px-4 py-3 text-neutral cell-hover hover:bg-primary/20">NaN</td>
+                            <td class="px-4 py-3 cell-hover hover:bg-primary/20">International Journal of Nanomedicine,
+                                2013</td>
+                            <td class="px-4 py-3 cell-hover hover:bg-primary/20">Advanced Functional Materials, 2020,
+                                30(5)</td>
+                            <td class="px-4 py-3 cell-hover hover:bg-primary/20">Chemical Engineering Journal, 2021, 413
+                            </td>
+                            <td class="px-4 py-3 cell-hover hover:bg-primary/20">Advanced Functional Materials, 2020,
+                                30(5)</td>
+                        </tr>
+
+                        <!-- 影响因子/分区行 -->
+                        <tr class="hover:bg-gray-50 transition-colors">
+                            <td class="px-4 py-3 font-medium sticky left-0 bg-white border-r border-gray-100">影响因子/分区
+                            </td>
+                            <td class="px-4 py-3 text-neutral cell-hover hover:bg-primary/20">NaN</td>
+                            <td class="px-4 py-3 text-neutral cell-hover hover:bg-primary/20">NaN</td>
+                            <td class="px-4 py-3 cell-hover hover:bg-primary/20">IF 14.3/Q1</td>
+                            <td class="px-4 py-3 cell-hover hover:bg-primary/20">IF 18.5 /Q1</td>
+                            <td class="px-4 py-3 cell-hover hover:bg-primary/20">IF 13.3/Q1</td>
+                            <td class="px-4 py-3 cell-hover hover:bg-primary/20">IF 14.7/Q1</td>
+                            <td class="px-4 py-3 cell-hover hover:bg-primary/20">IF 15.8/Q1</td>
+                            <td class="px-4 py-3 cell-hover hover:bg-primary/20">IF 8.2/Q2</td>
+                            <td class="px-4 py-3 text-neutral cell-hover hover:bg-primary/20">NaN</td>
+                            <td class="px-4 py-3 cell-hover hover:bg-primary/20">IF 6.6/Q1</td>
+                            <td class="px-4 py-3 cell-hover hover:bg-primary/20">IF 18.5/Q1</td>
+                            <td class="px-4 py-3 cell-hover hover:bg-primary/20">IF 13.3/Q1</td>
+                            <td class="px-4 py-3 cell-hover hover:bg-primary/20">IF 18.5 /Q1</td>
+                        </tr>
+
+                        <!-- 主要成分行 -->
+                        <tr class="hover:bg-gray-50 transition-colors">
+                            <td class="px-4 py-3 font-medium sticky left-0 bg-white border-r border-gray-100">主要成分</td>
+                            <td class="px-4 py-3 cell-hover hover:bg-primary/20">磷酸四钙(TTCP)，O-磷酸-L-丝氨酸(OPLS)</td>
+                            <td class="px-4 py-3 cell-hover hover:bg-primary/20">磷酸钙、氨基酸</td>
+                            <td class="px-4 py-3 cell-hover hover:bg-primary/20">聚乙烯醇(PVA)，ZIF-8纳米颗粒，L-多巴 (L-DOPA)</td>
+                            <td class="px-4 py-3 cell-hover hover:bg-primary/20">
+                                介孔生物活性玻璃纳米颗粒（AMBGN）与生物粘附明胶-右旋糖网络（GelDex）</td>
+                            <td class="px-4 py-3 cell-hover hover:bg-primary/20">
+                                氧化葡聚糖（oDex）甲基丙烯酰化明胶（GelMa）、氨基化介孔生物玻璃（AMBGN）</td>
+                            <td class="px-4 py-3 cell-hover hover:bg-primary/20">2-亚甲基-1,3-二氧丙烷(MDO)、丙烯酸酯共聚单体；</td>
+                            <td class="px-4 py-3 text-neutral cell-hover hover:bg-primary/20">NaN</td>
+                            <td class="px-4 py-3 text-neutral cell-hover hover:bg-primary/20">NaN</td>
+                            <td class="px-4 py-3 cell-hover hover:bg-primary/20">用多巴胺修饰的HAD、I型胶原蛋白(Col I)和微米羟基磷灰石μHAp浆液
+                            </td>
+                            <td class="px-4 py-3 cell-hover hover:bg-primary/20">磷酸钙骨水泥（CPC）粉末、纤维蛋白胶（FG）溶液</td>
+                            <td class="px-4 py-3 cell-hover hover:bg-primary/20">单宁酸（TA）、丝素蛋白（SF）和羟基磷灰石（HA）</td>
+                            <td class="px-4 py-3 cell-hover hover:bg-primary/20">丝素蛋白（SF）、β-环糊精和胆固醇主客体络合物交联、羟基磷灰石（HA）
+                            </td>
+                            <td class="px-4 py-3 cell-hover hover:bg-primary/20">中性生物活性玻璃(PSC)、聚乙二醇（PEG)、氰基丙烯酸酯2-辛酯（OCA）
+                            </td>
+                        </tr>
+
+                        <!-- 特性行 -->
+                        <tr class="hover:bg-gray-50 transition-colors">
+                            <td class="px-4 py-3 font-medium sticky left-0 bg-white border-r border-gray-100">特性</td>
+                            <td class="px-4 py-3 text-neutral cell-hover hover:bg-primary/20">NaN</td>
+                            <td class="px-4 py-3 cell-hover hover:bg-primary/20">
+                                <div class="flex flex-col space-y-1">
+                                    <span>✅注射性(混合3-5min内)</span>
+                                    <span>✅低反应热(＜42℃)</span>
+                                    <span>✅低溶胀率</span>
+                                    <span>✅固化产物多孔(孔隙率45±5%)</span>
+                                </div>
+                            </td>
+                            <td class="px-4 py-3 cell-hover hover:bg-primary/20">
+                                <div class="flex flex-col space-y-1">
+                                    <span>✅注射性</span>
+                                    <span>✅自修复特性(可逆粘附性)</span>
+                                </div>
+                            </td>
+                            <td class="px-4 py-3 cell-hover hover:bg-primary/20">
+                                <div class="flex flex-col space-y-1">
+                                    <span>✅注射性</span>
+                                    <span>✅自修复特性(可逆粘附性)</span>
+                                </div>
+                            </td>
+                            <td class="px-4 py-3 cell-hover hover:bg-primary/20">
+                                <div class="flex flex-col space-y-1">
+                                    <span>✅注射性</span>
+                                    <span>✅自修复特性(可逆粘附性)</span>
+                                </div>
+                            </td>
+                            <td class="px-4 py-3 text-neutral cell-hover hover:bg-primary/20">NaN</td>
+                            <td class="px-4 py-3 cell-hover hover:bg-primary/20">
+                                <span>✅自修复特性(可逆粘附性)</span>
+                            </td>
+                            <td class="px-4 py-3 cell-hover hover:bg-primary/20">
+                                <div class="flex flex-col space-y-1">
+                                    <span>✅注射性</span>
+                                    <span>✅自修复特性(可逆粘附性)</span>
+                                </div>
+                            </td>
+                            <td class="px-4 py-3 cell-hover hover:bg-primary/20">
+                                <div class="flex flex-col space-y-1">
+                                    <span>✅热稳定性</span>
+                                    <span>✅高孔隙率（87±9%)</span>
+                                    <span>✅低溶胀率(DPBS)</span>
+                                </div>
+                            </td>
+                            <td class="px-4 py-3 cell-hover hover:bg-primary/20">
+                                <span>✅注射性</span>
+                            </td>
+                            <td class="px-4 py-3 cell-hover hover:bg-primary/20">
+                                <div class="flex flex-col space-y-1">
+                                    <span>✅注射性</span>
+                                    <span>✅自修复特性(可逆粘附性)</span>
+                                    <span>✅无反应热</span>
+                                    <span>✅低溶胀率(水，60.8%)</span>
+                                    <span>✅抑菌性(源于TA)</span>
+                                </div>
+                            </td>
+                            <td class="px-4 py-3 cell-hover hover:bg-primary/20">
+                                <span>✅自修复特性(可逆粘附性)</span>
+                            </td>
+                            <td class="px-4 py-3 cell-hover hover:bg-primary/20">
+                                <span>✅注射性</span>
+                            </td>
+                        </tr>
+
+                        <!-- 粘结强度行 -->
+                        <tr class="hover:bg-gray-50 transition-colors">
+                            <td class="px-4 py-3 font-medium sticky left-0 bg-white border-r border-gray-100">粘结强度（剪切测试）
+                            </td>
+                            <td class="px-4 py-3 cell-hover hover:bg-primary/20">3MPa(抛光钛试样)<br>>1MPa(松质骨)</td>
+                            <td class="px-4 py-3 cell-hover hover:bg-primary/20">5-6MPa(钛)<br>0.7MPa(湿骨)</td>
+                            <td class="px-4 py-3 cell-hover hover:bg-primary/20">~900KPa(玻璃)<br>10MPa(牛骨)<br>453.5±64.6
+                                kPa (瞬时湿粘结强度)</td>
+                            <td class="px-4 py-3 cell-hover hover:bg-primary/20">猪股骨松质：<br>38.33±15.78kPa(+MBGN,
+                                7%)<br>108.48±8.45kPa(+AMBGN, 5%)<br>85.00±6.89 kPa(+AMBGN,
+                                7%)<br>均弱于CA(231.50±18.16kPa)</td>
+                            <td class="px-4 py-3 cell-hover hover:bg-primary/20">-</td>
+                            <td class="px-4 py-3 cell-hover hover:bg-primary/20">~130kPa(猪皮)<br>>16MPa(湿骨)</td>
+                            <td class="px-4 py-3 cell-hover hover:bg-primary/20">
+                                ＞4MPa(干燥牛骨)<br>＞2MPa(湿润牛骨)<br>~2MPa(骨-Ti)<br>&lt;2MPa(Ti-Ti)<br>&lt;2MPa(骨-PLA)<br>~0.5MPa(PPLA-PLA)
+                            </td>
+                            <td class="px-4 py-3 cell-hover hover:bg-primary/20">2.32±0.21MPa (骨块，PSB浸泡0.5h);</td>
+                            <td class="px-4 py-3 text-neutral cell-hover hover:bg-primary/20">NaN</td>
+                            <td class="px-4 py-3 text-neutral cell-hover hover:bg-primary/20">NaN</td>
+                            <td class="px-4 py-3 cell-hover hover:bg-primary/20">922.83kPa(湿猪骨)<br>607.18kPa(血液覆盖猪骨块)
+                            </td>
+                            <td class="px-4 py-3 text-neutral cell-hover hover:bg-primary/20">NaN</td>
+                            <td class="px-4 py-3 cell-hover hover:bg-primary/20">
+                                4.4±0.2MPa(铝板，15min);<br>4.6±0.3MPa(铝板，24h)</td>
+                        </tr>
+
+                        <!-- 成骨效果评价行 -->
+                        <tr class="hover:bg-gray-50 transition-colors">
+                            <td class="px-4 py-3 font-medium sticky left-0 bg-white border-r border-gray-100">成骨效果评价
+                            </td>
+                            <td class="px-4 py-3 cell-hover hover:bg-primary/20">
+                                <div class="flex flex-col space-y-1">
+                                    <span>✅可以实现种植体的即刻稳定性；</span>
+                                    <span>✅良好的新骨生长；</span>
+                                    <span>✅良好的骨水平维持能力</span>
+                                </div>
+                            </td>
+                            <td class="px-4 py-3 text-neutral cell-hover hover:bg-primary/20">NaN</td>
+                            <td class="px-4 py-3 cell-hover hover:bg-primary/20">
+                                <span>✅显著优于Bio-Oss(4周)</span>
+                            </td>
+                            <td class="px-4 py-3 cell-hover hover:bg-primary/20">
+                                <span><i
+                                        class="fa fa-check text-secondary mr-1"></i>GelDex-AMBGN&gt;GelDex-MBGN&gt;空白对照组&gt;GelDex&gt;CA(8周)</span>
+                            </td>
+                            <td class="px-4 py-3 cell-hover hover:bg-primary/20">
+                                <span><i
+                                        class="fa fa-check text-secondary mr-1"></i>GelMa-oDex-AMBGN&gt;GelMA-AMBGN&gt;GelMA&gt;GelDex-oDex&gt;空白对照组(8周)</span>
+                            </td>
+                            <td class="px-4 py-3 cell-hover hover:bg-primary/20">
+                                <span>✅BDRAs&gt;空白对照组&gt;CA(8周)</span>
+                            </td>
+                            <td class="px-4 py-3 cell-hover hover:bg-primary/20">
+                                <span>✅良好</span>
+                            </td>
+                            <td class="px-4 py-3 text-neutral cell-hover hover:bg-primary/20">NaN</td>
+                            <td class="px-4 py-3 cell-hover hover:bg-primary/20">
+                                <div class="flex flex-col space-y-1">
+                                    <span>✅12周骨覆盖面积：</span>
+                                    <span>兔(Φ9mm)97%；</span>
+                                    <span>比格犬(Φ12mm)72%</span>
+                                </div>
+                            </td>
+                            <td class="px-4 py-3 cell-hover hover:bg-primary/20">
+                                <span><i
+                                        class="fa fa-check text-secondary mr-1"></i>1:1&gt;3:1&gt;5:1&gt;纯CPC(12周)</span>
+                            </td>
+                            <td class="px-4 py-3 cell-hover hover:bg-primary/20">
+                                <span>✅SF-TA-HA &gt; 纯SF &gt; 空白对照组</span>
+                            </td>
+                            <td class="px-4 py-3 cell-hover hover:bg-primary/20">
+                                <span>✅骨密度（BMD）和骨体积（BV）显著高于空白对照组</span>
+                            </td>
+                            <td class="px-4 py-3 text-neutral cell-hover hover:bg-primary/20">NaN</td>
+                        </tr>
+
+                        <!-- 其他行可以按照相同格式继续添加 -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- 页脚 -->
+        <footer class="mt-12 text-center text-neutral text-sm">
+            <p>骨胶研究对比数据整理 © 2024</p>
+        </footer>
+    </div>
+
+    <script>
+        // 筛选面板切换
+        document.getElementById('toggleFilter').addEventListener('click', function () {
+            const panel = document.getElementById('filterPanel');
+            panel.classList.toggle('hidden');
+        });
+
+        // 搜索功能
+        document.getElementById('searchInput').addEventListener('input', function (e) {
+            const searchTerm = e.target.value.toLowerCase();
+
+            // 去除首尾空白字符
+            const trimmedTerm = searchTerm.trim();
+            // 判断是否包含有效文字信息
+            if (trimmedTerm.length === 0) {
+                // 如果没有有效文字，清除所有高亮
+                document.querySelectorAll('tbody tr.highlight').forEach(row => {
+                    row.classList.remove('highlight');
+                });
+                return;
+            }
+            
+            // 获取单元格：
+            const cells = document.querySelectorAll('td')
+            cells.forEach(cell => {
+                const content = cell.textContent.toLowerCase()
+                if(content.includes(trimmedTerm)) {
+                    cell.classList.add('highlight')
+                } else {
+                    cell.classList.remove('highlight')
+                }
+            })
+        });
+
+        // 表格行悬停效果增强
+        document.querySelectorAll('tbody tr').forEach(row => {
+            row.addEventListener('mouseenter', function () {
+                this.classList.add('shadow-sm');
+            });
+            row.addEventListener('mouseleave', function () {
+                this.classList.remove('shadow-sm');
+            });
+        });
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,621 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>操作指引</title>
+    <!-- 网页图标 -->
+    <link rel="icon" type="image/png" href="../../icon/icons-database.png">
+
+    <!-- 加载前检查用户是否登录 -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            console.log('Checking login status...');
+            const username = localStorage.getItem('username'); // 模拟获取用户名
+            if (!username) {
+                window.location.href = '../login.html'; // 如果未登录，重定向到登录页面
+            } else {
+                document.getElementById('username-button').textContent = username; // 显示用户名
+            }
+        });
+    </script>
+    <!-- 验证token -->
+    <script src='../../javaScript/verifyToken.js'></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" rel="stylesheet">
+    <!-- Tailwind 配置 -->
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#99774b',
+                        secondary: '#f9f8f6',
+                        neutral: {
+                            100: '#F5F7FA',
+                            200: '#E4E6EB',
+                            300: '#C9CDD4',
+                            400: '#86909C',
+                            500: '#4E5969',
+                            600: '#1D2129',
+                        }
+                    },
+                    fontFamily: {
+                        inter: ['Inter', 'system-ui', 'sans-serif'],
+                    },
+                    boxShadow: {
+                        'card': '0 10px 30px -5px rgba(0, 0, 0, 0.1)',
+                        'card-hover': '0 20px 40px -5px rgba(0, 0, 0, 0.15)',
+                    }
+                },
+            }
+        }
+    </script>
+    <style type="text/tailwindcss">
+        @layer utilities {
+            .content-auto {
+                content-visibility: auto;
+            }
+            .text-shadow {
+                text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            }
+            .strikethrough {
+                text-decoration: line-through;
+            }
+            .text-highlight {
+                background-color: #fff7d6; /* 浅黄色背景 */
+                padding: 2px 5px; /* 上下2px，左右5px的内边距 */
+                border-radius: 4px; /* 圆角 */
+            }
+
+            /* 设置粒子容器样式 */
+            #particles-js {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            }
+
+            .panel-toggle {
+                transition: transform 0.3s ease;
+            }
+            
+            .panel-content {
+                max-height: 0;
+                overflow: hidden;
+                transition: max-height 0.5s ease;
+            }
+        }
+
+    </style>
+    <!-- 自定义工具类 -->
+    <link rel="stylesheet" href="../../style.css">
+</head>
+
+<body class="font-inter bg-neutral-100 min-h-screen flex flex-col">
+    <!-- 粒子效果容器 -->
+    <div id="particles-js"></div>
+    <!-- 引入粒子效果配置 -->
+    <script src="https://cdn.jsdelivr.net/gh/VincentGarreau/particles.js@2.0.0/particles.min.js"></script>
+
+    <!-- 导航栏 -->
+    <nav class="bg-white shadow-md sticky top-0 z-50 transition-all duration-300">
+        <div class="container mx-auto px-4 py-3 flex justify-between items-center">
+            <div class="flex items-center space-x-2">
+                <i class="fa fa-info-circle text-primary text-2xl"></i>
+                <h1 class="text-xl font-bold text-gray-800">操作指引</h1>
+                <div class="hidden md:flex items-center space-x-6"></div>
+                <div class="hidden md:flex items-center space-x-6">
+                    <button onClick="javascript:history.back(-1);"
+                        class="flex items-center bg-gray-200 hover:bg-primary text-black font-medium py-2 px-4 rounded-lg transition duration-300 ease-in-out shadow-md hover:shadow-lg transform hover:-translate-y-0.5">
+                        <i class="fa fa-arrow-left text-gray-600 text-2xl transition-colors"></i>
+                        <span
+                            class="hidden md:inline-block text-xl text-gray-800 transition-colors">返回</span>
+                    </button>
+                </div>
+            </div>
+
+            <div class="hidden md:flex items-center space-x-6">
+                <button id="user-button"
+                    class="flex items-center bg-gray-200 hover:bg-primary text-black font-medium py-2 px-4 rounded-lg transition duration-300 ease-in-out shadow-md hover:shadow-lg transform hover:-translate-y-0.5">
+                    <div class="w-8 h-8 rounded-full bg-gray-300 flex items-center justify-center">
+                        <i id="user-icon" class="fa fa-user text-gray-600 "></i>
+                    </div>
+                    <span id="username-button" class="text-sm font-medium hidden md:inline-block ml-2">用户名</span>
+                </button>
+                <button
+                    class="flex items-center bg-gray-200 hover:bg-primary text-black font-medium py-2 px-4 rounded-lg transition duration-300 ease-in-out shadow-md hover:shadow-lg transform hover:-translate-y-0.5">
+                    <div class="w-8 h-8 rounded-full bg-gray-300 flex items-center justify-center">
+                        <i class="fa fa-envelope"></i>
+                    </div>
+                    <span class="text-sm font-medium hidden md:inline-block ml-2">消息</span>
+                    <span
+                        class="hidden ml-2 bg-gray-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">0</span>
+                </button>
+            </div>
+
+            <div class="md:hidden">
+                <button class="text-neutral-500 focus:outline-none">
+                    <i class="fa fa-bars text-xl"></i>
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- 导引栏 -->
+    <div id="guide-bar"
+        class="grid md:grid-cols-2 bg-gray-100 shadow-md sticky top-10 z-50 transition-all duration-300">
+        <div class="grid md:grid-cols-8 items-center justify-center text-primary text-xl ml-12">
+            <p></p>
+            <a class="hover:underline hover:bg-primary/10 hover:scale-105" href='http://A012050-1.naton.cn:8080/client/selection.html/?token='>系统选择</a>
+        </div>
+        <div class="grid md:grid-cols-8 items-center justify-end text-primary text-xl">
+            <a class="hover:underline hover:bg-primary/10 hover:scale-105" href="#section0">解决方案</a>
+            <a class="hover:underline hover:bg-primary/10 hover:scale-105" href="#section1">安全策略</a>
+            <a class="hover:underline hover:bg-primary/10 hover:scale-105" href="#section2">数据权限</a>
+            <a class="hover:underline hover:bg-primary/10 hover:scale-105" href="#section3">设计框架</a>
+        </div>
+    </div>
+
+    <!-- 主内容 -->
+    <main class="flex-grow container mx-auto px-4 py-12">
+        <!-- 数据孤岛问题展示 -->
+        <div id="section0" class="text-center mb-2">
+            <h2 class="text-[clamp(2rem,5vw,3rem)] font-bold text-dark mb-4 text-shadow">
+                打破数据孤岛，<span class="text-primary">构建统一数据生态</span>
+            </h2>
+        </div>
+        <div class="bg-white rounded-2xl shadow-lg p-8 mb-8 transform transition-all duration-500 hover:shadow-xl">
+            <div class="flex flex-col md:flex-row items-center gap-8">
+                <div class="md:w-1/2">
+                    <i class="far fa-island-tropical text-red-500"></i>
+                    <h3 class="text-2xl font-bold text-dark mb-4">
+                        什么是数据孤岛？</h3>
+                    <p class="text-gray-700 mb-4">
+                        传统研发过程中，测试数据通常分散存储在不同的个体或设备中，形成了一个个"数据孤岛"。这些孤岛导致：
+                    </p>
+                    <ul class="space-y-3">
+                        <li class="flex items-start">
+                            <i class="fa fa-exclamation-circle text-red-500 mt-1 mr-3"></i>
+                            <span>经验缺少沉淀与复用，人力物力重复浪费；</span>
+                        </li>
+                        <li class="flex items-start">
+                            <i class="fa fa-exclamation-circle text-red-500 mt-1 mr-3"></i>
+                            <span>数据格式不统一，缺乏规范和可追溯性，难以整合分析；</span>
+                        </li>
+                        <li class="flex items-start">
+                            <i class="fa fa-exclamation-circle text-red-500 mt-1 mr-3"></i>
+                            <span>信息不对称，造成沟通不畅，影响决策效率；</span>
+                        </li>
+                        <li class="flex items-start">
+                            <i class="fa fa-exclamation-circle text-red-500 mt-1 mr-3"></i>
+                            <span>数据维度单一，依赖经验驱动决策。</span>
+                        </li>
+                    </ul>
+                    <hr class="mt-2 mb-2"/>
+                    <h3 class="text-2xl font-bold text-dark mt-2 mb-4">
+                        数据集成方案</h3>
+                    <p class="text-gray-700 mb-4">
+                        支持多种数据源接入，实现数据的集中管理。
+                    </p>
+                    <ul class="space-y-3">
+                        <li class="flex items-start">
+                            <i class="fa fa-link text-primary mt-1 mr-3"></i>
+                            <span>支持多种格式的数据源文件录入，提供统一形式的表单记录数据，便于后续分析。</span>
+                        </li>
+                        <li class="flex items-start">
+                            <i class="fa fa-search text-primary mt-1 mr-3"></i>
+                            <span>提供灵活的查询接口和搜索功能，用户可以快速定位所需数据，打破信息壁垒。</span>
+                        </li>
+                    </ul>
+                </div>
+                <div class="md:w-1/2 scale-90">
+                    <svg viewBox="0 0 200 150" class="w-full h-auto">
+                        <!-- 孤岛示意图 -->
+                        <circle cx="50" cy="70" r="20" fill="#FF6B6B" opacity="0.7" />
+                        <circle cx="80" cy="60" r="17" fill="#FFD166" opacity="0.7" />
+                        <circle cx="30" cy="45" r="22" fill="#06D6A0" opacity="0.7" />
+                        <circle cx="75" cy="100" r="15" fill="#118AB2" opacity="0.7" />
+                        <circle cx="20" cy="110" r="10" fill="#722ED1" opacity="0.7" />
+
+                        <!-- 分隔线 -->
+                        <line x1="100" y1="10" x2="100" y2="140" stroke="#E5E7EB" stroke-width="2"
+                            stroke-dasharray="5,5" />
+
+                        <!-- 数据孤岛文字 -->
+                        <text x="50" y="25" text-anchor="middle" font-size="8" font-weight="bold">数据孤岛</text>
+                        <text x="150" y="25" text-anchor="middle" font-size="8" font-weight="bold">统一数据</text>
+
+                        <!-- 统一数据示意图 -->
+                        <circle cx="150" cy="85" r="45" fill="#165DFF" opacity="0.2" />
+                        <circle cx="150" cy="85" r="35" fill="#165DFF" opacity="0.3" />
+                        <circle cx="150" cy="85" r="25" fill="#165DFF" opacity="0.4" />
+                        <circle cx="150" cy="85" r="15" fill="#165DFF" opacity="0.5" />
+                    </svg>
+                </div>
+            </div>
+        </div>
+
+        <!-- section1 安全策略 -->
+        <div id='section1' class="text-center mb-6">
+            <h2 class="text-3xl md:text-4xl font-bold text-neutral-800 mb-4">局域网访问限制</h2>
+            <p class="text-lg text-neutral-600 max-w-3xl mx-auto">系统通过局域网访问限制保护敏感数据，仅支持naton.cn内网访问。</p>
+        </div>
+        <div class="grid md:grid-cols-1 gap-8 mb-6">
+            <div class="bg-white rounded-2xl shadow-card hover:shadow-card-hover transition-all p-6 md:p-8">
+                <div class="h-16 rounded-xl flex text-primary text-2xl mb-6">
+                    <div
+                        class="w-16 h-16 rounded-xl bg-primary/10 flex items-center justify-center text-primary text-2xl mb-6">
+                        <i class="fa fa-wifi"></i>
+                    </div>
+                    <div class="h-16 flex grid md:grid-cols-1 items-center justify-center ml-4">
+                        <h3 class="text-xl font-bold text-neutral-800 mb-1">什么是局域网访问限制？</h3>
+                        <p class="text-neutral-600 mb-4 text-lg">
+                            局域网访问限制是一种安全措施，确保系统只能在特定的局域网环境内被访问。通过这种限制，可以防止未授权的外部网络访问，保护数据安全。
+                        </p>
+                    </div>
+                </div>
+                <div>
+                    <ul class="space-y-3">
+                        <li class="flex items-start gap-3">
+                            <i class="fa fa-check-circle text-primary mt-1"></i>
+                            <div class="rounded-full bg-primary/10 text-xl">
+                                <i class="fa fa-server text-primary"></i>
+                            </div>
+                            <span>使用本地 HTTP 服务器，限制系统仅在<span class="text-highlight">公司网络</span>内可用；</span>
+                        </li>
+                        <li class="flex items-start gap-3">
+                            <i class="fa fa-check-circle text-primary mt-1"></i>
+                            <div class="rounded-full bg-primary/10 text-xl">
+                                <i class="fa fa-ban text-primary"></i>
+                            </div>
+                            <span>防止外部网络通过公共IP地址访问系统；</span>
+                        </li>
+                        <li class="flex items-start gap-3">
+                            <i class="fa fa-check-circle text-primary mt-1"></i>
+                            <div class="rounded-full bg-primary/10 text-xl">
+                                <i class="fa fa-lock text-primary"></i>
+                            </div>
+                            <span>服务器<span class="text-highlight">本地部署</span>，仅开启时允许访问，确保数据不外泄。</span>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <div class="text-center mb-6 mt-12">
+            <h2 class="text-3xl md:text-4xl font-bold text-neutral-800 mb-4">密码保护策略</h2>
+            <p class="text-lg text-neutral-600 max-w-3xl mx-auto">为了保障密码安全，系统采用了前后端双重加密策略，不会以明文形式保存密码。</p>
+        </div>
+        <div class="grid md:grid-cols-1 gap-8 mb-6">
+            <div class="bg-white rounded-2xl shadow-card hover:shadow-card-hover transition-all p-6 md:p-8">
+                <div class="h-16 rounded-xl flex text-primary text-2xl mb-6">
+                    <div
+                        class="w-16 h-16 rounded-xl bg-primary/10 flex items-center justify-center text-primary text-2xl mb-6">
+                        <i class="fa fa-lock"></i>
+                    </div>
+                    <div class="h-16 flex grid md:grid-cols-1 items-center justify-center ml-4">
+                        <h3 class="text-xl font-bold text-neutral-800 mb-1">Salt动态更新与密码哈希加密</h3>
+                        <p class="text-neutral-600 mb-4 text-lg">
+                            系统在用户登录时，会先从服务器获取 salt 值，然后对输入的密码进行哈希加密，处理后的哈希密码会被发送到服务器进行验证，随后更新 salt 。
+                        </p>
+                    </div>
+                </div>
+                <div>
+                    <ul class="space-y-3">
+                        <li class="flex items-start gap-3">
+                            <i class="fa fa-check-circle text-primary mt-1"></i>
+                            <span>每次登录都会触发 salt 和哈希密码的更新，防止因旧的 salt 被破解而导致密码泄露。</span>
+                        </li>
+                        <li class="flex items-start gap-3">
+                            <i class="fa fa-check-circle text-primary mt-1"></i>
+                            <span>后台不会保存用户的明文密码，而是保存经过哈希处理后的密码，避免密码直接泄露。</span>
+                        </li>
+                        <li class="flex items-start gap-3">
+                            <i class="fa fa-check-circle text-primary mt-1"></i>
+                            <span>即使已知 salt 值和哈希密码，由于算法的不可逆性，也无法直接反解原始密码。</span>
+                        </li>
+                        <li class="flex items-start gap-3">
+                            <i class="fa fa-check-circle text-primary mt-1"></i>
+                            <span>每个用户都有一个独立的 salt 值，这使得相同的密码在不同用户之间的哈希结果也不同，增加了密码的安全性。</span>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- section2：数据权限 -->
+        <div id="section2" class="text-center mb-6">
+            <h2 class="text-3xl md:text-4xl font-bold text-neutral-800 mb-4">数据权限策略</h2>
+        </div>
+        <div class="grid md:grid-cols-2 space-x-2 mb-6">
+            <div class="bg-white rounded-2xl shadow-card hover:shadow-card-hover transition-all p-6 md:p-8">
+                <div class="h-16 rounded-xl flex text-primary text-2xl mb-6">
+                    <div
+                        class="w-16 h-16 rounded-xl bg-primary/10 flex items-center justify-center text-primary text-2xl mb-6">
+                        <i class="fa fa-user"></i>
+                    </div>
+                    <div class="h-16 flex grid md:grid-cols-1 items-center justify-center ml-4">
+                        <h3 class="text-xl font-bold text-neutral-800 mb-1">普通用户权限</h3>
+                        <p class="text-neutral-600 mb-4 text-lg">
+                            普通用户权限主要用于日常的基本操作，具有以下权限：
+                        </p>
+                    </div>
+                </div>
+                <div>
+                    <ul class="space-y-3">
+                        <li class="flex items-start gap-3">
+                            <i class="fa fa-check-circle text-primary mt-1"></i>
+                            <span>查看已授权的数据和信息；</span>
+                        </li>
+                        <li class="flex items-start gap-3">
+                            <i class="fa fa-check-circle text-primary mt-1"></i>
+                            <span>进行常规的文件及数据提交、查询操作；</span>
+                        </li>
+                        <li class="flex items-start gap-3">
+                            <i class="fa fa-check-circle text-primary mt-1"></i>
+                            <span>下载公开文件、数据；</span>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+            <div class="bg-white rounded-2xl shadow-card hover:shadow-card-hover transition-all p-6 md:p-8">
+                <div class="h-16 rounded-xl flex text-primary text-2xl mb-6">
+                    <div
+                        class="w-16 h-16 rounded-xl bg-primary/10 flex items-center justify-center text-primary text-2xl mb-6">
+                        <i class="fa fa-user-shield"></i>
+                    </div>
+                    <div class="h-16 flex grid md:grid-cols-1 items-center justify-center ml-4">
+                        <h3 class="text-xl font-bold text-neutral-800 mb-1">管理员权限</h3>
+                        <p class="text-neutral-600 mb-4 text-lg">
+                            管理员权限用于数据进行管理和维护，具有以下权限：
+                        </p>
+                    </div>
+                </div>
+                <div>
+                    <ul class="space-y-3">
+                        <li class="flex items-start gap-3">
+                            <!-- <i class="fa fa-check-circle text-primary mt-1"></i> -->
+                            <i class="fa fa-times-circle text-primary mt-1"></i>
+                            <span class="strikethrough">管理用户账号，包括创建、修改和删除用户，重置用户密码；</span>
+                        </li>
+                        <li class="flex items-start gap-3">
+                            <!-- <i class="fa fa-check-circle text-primary mt-1"></i> -->
+                            <i class="fa fa-times-circle text-primary mt-1"></i>
+                            <span class="strikethrough">设置用户权限，根据用户角色分配不同的操作权限；</span>
+                        </li>
+                        <li class="flex items-start gap-3">
+                            <i class="fa fa-check-circle text-primary mt-1"></i>
+                            <span>审核用户提交的文件及数据；</span>
+                        </li>
+                        <li class="flex items-start gap-3">
+                            <i class="fa fa-check-circle text-primary mt-1"></i>
+                            <span>监控系统运行状态，及时处理异常情况；</span>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+        </div>
+
+        <div class="text-center mb-6">
+            <h2 class="text-3xl md:text-4xl font-bold text-neutral-800 mb-4">数据处理流程</h2>
+        </div>
+        <div class="grid md:grid-cols-3 space-x-2 mb-6">
+            <div class="bg-white rounded-2xl shadow-card hover:shadow-card-hover transition-all p-6 md:p-4">
+                <div class="h-16 rounded-xl flex text-primary text-2xl mb-2">
+                    <div
+                        class="w-16 h-16 rounded-xl bg-primary/10 flex items-center justify-center text-primary text-2xl mb-6">
+                        <i class="fa fa-paper-plane"></i>
+                    </div>
+                    <div class="h-16 flex grid md:grid-cols-1 items-center justify-center ml-4">
+                        <h3 class="text-xl font-bold text-neutral-800 mb-1">用户编辑提交</h3>
+                        <p class="text-neutral-600 text-lg">
+                            提交后的文件/数据处于<span class="pending">待审阅状态(黄色条纹底纹标记)</span>;仅用户自己/管理员可查看、编辑。
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-white rounded-2xl shadow-card hover:shadow-card-hover transition-all p-6 md:p-4">
+                <div class="h-16 rounded-xl flex text-primary text-2xl mb-2">
+                    <div
+                        class="w-16 h-16 rounded-xl bg-primary/10 flex items-center justify-center text-primary text-2xl mb-6">
+                        <i class="fa fa-file-signature"></i>
+                    </div>
+                    <div class="h-16 flex grid md:grid-cols-1 items-center justify-center ml-4">
+                        <h3 class="text-xl font-bold text-neutral-800 mb-1">管理员审阅</h3>
+                        <p class="text-neutral-600 text-lg">
+                            审阅通过后，文件/数据录入系统；
+                        </p>
+                        <p class="text-neutral-600 text-lg">
+                            审阅不通过，则使用<span class="rejected">红色条纹底纹标记</span>。
+                        </p>
+                    </div>
+                </div>
+            </div>
+            <div class="bg-white rounded-2xl shadow-card hover:shadow-card-hover transition-all p-6 md:p-4">
+                <div class="h-16 rounded-xl flex text-primary text-2xl mb-2">
+                    <div
+                        class="w-16 h-16 rounded-xl bg-primary/10 flex items-center justify-center text-primary text-2xl mb-6">
+                        <i class="fa fa-book-open"></i>
+                    </div>
+                    <div class="h-16 flex grid md:grid-cols-1 items-center justify-center ml-4">
+                        <h3 class="text-xl font-bold text-neutral-800 mb-1">用户公开查阅</h3>
+                        <p class="text-neutral-600 mb-4 text-lg">
+                            文件/数据一旦批准，即变为<span class="text-highlight">全员可见、可下载</span>，且<span
+                                class="text-highlight">不可编辑</span>。
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- section3:设计框架 -->
+        <div id='section3' class="text-center mb-6">
+            <h2 class="text-3xl md:text-4xl font-bold text-neutral-800 mb-4">设计框架</h2>
+            <p class="text-lg text-neutral-600 max-w-4xl mx-auto">
+                本系统使用HTTP服务进行数据传输，服务器后端采用Node.js框架，二者共同支撑系统的高效运行。</p>
+        </div>
+        <div class="bg-white rounded-2xl shadow-card hover:shadow-card-hover transition-all p-6 md:p-8">
+            <div class="h-16 rounded-xl flex text-primary text-2xl mb-6">
+                <div
+                    class="w-16 h-16 rounded-xl bg-primary/10 flex items-center justify-center text-primary text-2xl mb-6">
+                    <i class="fa fa-network-wired"></i>
+                </div>
+                <div class="h-16 flex grid md:grid-cols-1 items-center justify-center ml-4">
+                    <h3 class="text-xl font-bold text-neutral-800 mb-1">什么是HTTP服务？</h3>
+                    <p class="text-neutral-600 mb-4 text-lg">
+                        HTTP服务是基于超文本传输协议（HTTP）的服务器程序，负责接收客户端请求并返回响应，是网页数据交互的核心载体。
+                    </p>
+                </div>
+            </div>
+            <div>
+                <ul class="space-y-3">
+                    <li class="flex items-start gap-3">
+                        <i class="fa fa-check-circle text-primary mt-1"></i>
+                        <div class="rounded-full bg-primary/10 text-xl">
+                            <i class="fa fa-recycle text-primary"></i>
+                        </div>
+                        <span>处理客户端与服务器间的<span class="text-highlight">请求-响应</span>循环；</span>
+                    </li>
+                    <li class="flex items-start gap-3">
+                        <i class="fa fa-check-circle text-primary mt-1"></i>
+                        <div class="rounded-full bg-primary/10 text-xl">
+                            <i class="fa fa-file-code text-primary"></i>
+                        </div>
+                        <span>支持传输HTML、CSS、JavaScript等<span class="text-highlight">网页资源</span>；</span>
+                    </li>
+                    <li class="flex items-start gap-3">
+                        <i class="fa fa-check-circle text-primary mt-1"></i>
+                        <div class="rounded-full bg-primary/10 text-xl">
+                            <i class="fa fa-globe text-primary"></i>
+                        </div>
+                        <span>基于TCP/IP协议栈，是互联网数据传输的<span class="text-highlight">基础协议服务</span>。</span>
+                    </li>
+                </ul>
+            </div>
+            <hr class="mt-3" />
+            <div class="h-16 rounded-xl flex text-primary text-2xl mb-6 mt-3">
+                <div
+                    class="w-16 h-16 rounded-xl bg-primary/10 flex items-center justify-center text-primary text-2xl mb-6">
+                    <i class="fa fa-code"></i>
+                </div>
+                <div class="h-16 flex grid md:grid-cols-1 items-center justify-center ml-4">
+                    <h3 class="text-xl font-bold text-neutral-800 mb-1">什么是Node.js框架？</h3>
+                    <p class="text-neutral-600 mb-4 text-lg">
+                        Node.js框架是基于Node.js运行时环境的开发工具集，提供模块化架构和丰富API，简化服务器端应用的开发与维护。
+                    </p>
+                </div>
+            </div>
+            <div>
+                <ul class="space-y-3">
+                    <li class="flex items-start gap-3">
+                        <i class="fa fa-check-circle text-primary mt-1"></i>
+                        <div class="rounded-full bg-primary/10 text-xl">
+                            <i class="fa fa-bolt text-primary"></i>
+                        </div>
+                        <span>采用<span class="text-highlight">非阻塞I/O模型</span>，高效处理并发请求；</span>
+                    </li>
+                    <li class="flex items-start gap-3">
+                        <i class="fa fa-check-circle text-primary mt-1"></i>
+                        <div class="rounded-full bg-primary/10 text-xl">
+                            <i class="fa fa-cubes text-primary"></i>
+                        </div>
+                        <span>主流框架如Express、Koa提供<span class="text-highlight">路由管理</span>和中间件机制；</span>
+                    </li>
+                    <li class="flex items-start gap-3">
+                        <i class="fa fa-check-circle text-primary mt-1"></i>
+                        <div class="rounded-full bg-primary/10 text-xl">
+                            <i class="fa fa-plug text-primary"></i>
+                        </div>
+                        <span>支持海量npm包扩展，快速实现数据库交互、身份验证等功能。</span>
+                    </li>
+                </ul>
+            </div>
+        </div>
+
+    </main>
+    <!-- 页脚 -->
+    <footer class="bg-white sticky bottom-0 z-50 border-t border-gray-200 py-6">
+        <div class="container mx-auto px-4">
+            <div class="flex flex-col md:flex-row items-center justify-between">
+                <div class="flex items-center space-x-4">
+                    <span class="text-sm text-gray-500">© 2024 莱顿-力学测试数据库</span>
+                    <span
+                        class="bg-primary/10 text-primary text-xs px-2 py-1 rounded-full border border-primary/30 cursor-pointer">
+                        <i class="fa fa-flask mr-1"></i>
+                        <span id="version-span"></span>
+                    </span>
+                </div>
+                <div class="flex space-x-4">
+                    <a class="text-gray-500 hover:text-primary transition-colors cursor-pointer" id="guide-a">
+                        <i class="fa fa-question-circle"></i>
+                        <span class="ml-1">操作指引</span>
+                    </a>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // 获取导航栏和导引栏元素
+        const nav = document.querySelector('nav');
+        const stickyDiv = document.getElementById('guide-bar');
+
+        // 定义一个函数来更新导引栏的top值
+        function updateStickyTop() {
+            const navHeight = nav.offsetHeight;
+            stickyDiv.style.top = `${navHeight}px`;
+        }
+
+        // 页面加载完成时更新一次
+        window.addEventListener('load', updateStickyTop);
+
+        // 窗口大小改变时也更新
+        window.addEventListener('resize', updateStickyTop);
+    </script>
+
+    <script>
+        // 导航栏滚动效果
+        window.addEventListener('scroll', function () {
+            const nav = document.querySelector('nav');
+            if (window.scrollY > 10) {
+                nav.classList.add('py-2');
+                nav.classList.remove('py-3');
+            } else {
+                nav.classList.add('py-3');
+                nav.classList.remove('py-2');
+            }
+        });
+    </script>
+
+    <script src="../JavaScript/verifyGroup.js"></script>
+
+    <!-- 初始化粒子效果 -->
+    <script>
+        particlesJS.load('particles-js', '../../particlesConfig.json', function () {
+        });
+    </script>
+
+    <!-- 版本按钮跳转日志界面 -->
+    <script>
+        document.getElementById("version-span").addEventListener("click", function () {
+            window.location.href = "../client/devlog.html";
+        });
+        document.getElementById("guide-a").addEventListener("click", function () {
+            window.location.href = "../client/guide.html";
+        });
+
+        version = localStorage.getItem('version')
+        const versionSpan = document.getElementById("version-span")
+        versionSpan.textContent = version
+    </script>
+</body>
+
+</html>

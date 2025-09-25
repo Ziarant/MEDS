@@ -1,0 +1,446 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>文献资料</title>
+    <!-- 网页图标 -->
+    <link rel="icon" type="image/png" href="../../icon/logo_literature.png">
+    <!-- 加载前检查用户是否登录 -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            console.log('Checking login status...');
+            const username = localStorage.getItem('username'); // 模拟获取用户名
+            if (!username) {
+                window.location.href = '../login.html'; // 如果未登录，重定向到登录页面
+            } else {
+                document.getElementById('username-button').textContent = username; // 显示用户名
+            }
+        });
+    </script>
+    <!-- 验证token -->
+    <script src='../../javaScript/verifyToken.js'></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- 引入Font Awesome -->
+    <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
+    <!-- 配置Tailwind自定义颜色和字体 -->
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#99774b',
+                        secondary: '#f9f8f6',
+                        accent: '#0FC6C2',
+                        neutral: '#F5F7FA',
+                        dark: '#1D2129',
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'system-ui', 'sans-serif'],
+                    },
+                }
+            }
+        }
+    </script>
+    <!-- 自定义工具类 -->
+    <link rel="stylesheet" href="../../style.css">
+    <style type="text/tailwindcss">
+        @layer utilities {
+            .content-auto {
+                content-visibility: auto;
+            }
+            .card-shadow {
+                box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+            }
+            .transition-custom {
+                transition: all 0.3s ease;
+            }
+        }
+    </style>
+</head>
+
+<body class="bg-gray-50 font-sans text-dark">
+    <!-- 粒子效果容器 -->
+    <div id="particles-js"></div>
+    <!-- 引入粒子效果配置 -->
+    <script src="https://cdn.jsdelivr.net/gh/VincentGarreau/particles.js@2.0.0/particles.min.js"></script>
+
+    <!-- 顶部导航栏 -->
+    <nav class="bg-white shadow-md sticky top-0 z-50 transition-all duration-300">
+        <div class="container mx-auto px-4 py-3 flex justify-between items-center">
+            <div class="flex items-center space-x-2">
+                <!-- <i class="fa fa-medkit text-primary text-2xl"></i> -->
+                <img class="h-[2rem] mx-auto block text-xl" src="../../icon/logo_literature.png">
+                <h1 class="text-xl font-bold text-neutral-600">文献资料</h1>
+                <div class="hidden md:flex items-center space-x-6"></div>
+                <div class="hidden md:flex items-center space-x-6">
+                    <button onClick="javascript:history.back(-1);"
+                        class="flex items-center bg-gray-100 hover:bg-primary text-black font-medium py-2 px-4 rounded-lg transition duration-300 ease-in-out shadow-md hover:shadow-lg transform hover:-translate-y-0.5">
+                        <i class="fa fa-arrow-left text-gray-600 text-2xl transition-colors"></i>
+                        <span class="hidden md:inline-block text-xl text-gray-800 transition-colors">返回</span>
+                    </button>
+                </div>
+            </div>
+
+            <div class="hidden md:flex items-center space-x-6">
+                <button id="user-button"
+                    class="flex items-center bg-gray-200 hover:bg-primary text-black font-medium py-2 px-4 rounded-lg transition duration-300 ease-in-out shadow-md hover:shadow-lg transform hover:-translate-y-0.5">
+                    <div class="w-8 h-8 rounded-full bg-gray-300 flex items-center justify-center">
+                        <i id="user-icon" class="fa fa-user text-gray-600"></i>
+                    </div>
+                    <span id="username-button" class="text-sm font-medium hidden md:inline-block ml-2">用户名</span>
+                </button>
+                <button
+                    class="flex items-center bg-gray-200 hover:bg-primary text-black font-medium py-2 px-4 rounded-lg transition duration-300 ease-in-out shadow-md hover:shadow-lg transform hover:-translate-y-0.5">
+                    <div class="w-8 h-8 rounded-full bg-gray-300 flex items-center justify-center">
+                        <i class="fa fa-envelope"></i>
+                    </div>
+                    <span class="text-sm font-medium hidden md:inline-block ml-2">消息</span>
+                    <span
+                        class="hidden ml-2 bg-gray-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">0</span>
+                </button>
+            </div>
+
+            <div class="md:hidden">
+                <button class="text-neutral-500 focus:outline-none">
+                    <i class="fa fa-bars text-xl"></i>
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    <main class="container mx-auto px-4 py-8">
+        <!-- 搜索区域 -->
+        <section class="mb-12 bg-gradient-to-r from-primary/90 to-secondary rounded-2xl p-6 md:p-10 shadow-lg">
+            <div class="max-w-3xl mx-auto text-center mb-6">
+                <h2 class="text-[clamp(1.5rem,3vw,2.5rem)] font-bold text-white mb-3">文献查询</h2>
+                <p class="text-white/90 text-lg">快速检索资料库中已有文献</p>
+            </div>
+
+            <div class="max-w-3xl mx-auto relative">
+                <div class="flex flex-col md:flex-row gap-3">
+                    <div class="relative flex-grow">
+                        <i class="fa fa-search absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
+
+                        <input type="text" id="search-input" placeholder="输入关键词，匹配范围：文件名、标签、摘要..."
+                            class="w-full pl-10 pr-4 py-3 rounded-lg border-0 focus:ring-2 focus:ring-white/50 outline-none text-gray-800">
+                    </div>
+                    <button id="search-btn"
+                        class="bg-white text-primary hover:bg-gray-100 font-medium px-6 py-3 rounded-lg transition-custom flex items-center justify-center">
+                        <i class="fa fa-search mr-2"></i> 搜索
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <!-- 筛选和列表区域 -->
+        <section id="literatures" class="mb-16">
+            <div class="flex flex-col md:flex-row gap-6">
+                <!-- 左侧筛选面板 -->
+                <div class="w-full md:w-1/4 lg:w-1/5">
+                    <div class="bg-white rounded-xl p-5 shadow-sm sticky top-24">
+                        <h3 class="text-lg font-semibold mb-4 flex items-center">
+                            <i class="fa fa-filter text-primary mr-2"></i> 筛选条件
+                        </h3>
+
+                        <!-- 文章类型 -->
+                        <div class="mb-5">
+                            <h4 class="font-medium font-semibold text-gray-700 mb-3">学科</h4>
+                            <div class="space-y-2">
+                                <label class="flex items-center cursor-pointer">
+                                    <input type="checkbox" name="subject-filter"
+                                        class="form-checkbox h-4 w-4 text-primary rounded" value="力学" checked>
+                                    <span class="ml-2 text-gray-600">力学</span>
+                                </label>
+                                <label class="flex items-center cursor-pointer">
+                                    <input type="checkbox" name="subject-filter"
+                                        class="form-checkbox h-4 w-4 text-primary rounded" value="材料学" checked>
+                                    <span class="ml-2 text-gray-600">材料学</span>
+                                </label>
+                                <label class="flex items-center cursor-pointer">
+                                    <input type="checkbox" name="subject-filter"
+                                        class="form-checkbox h-4 w-4 text-primary rounded" value="计算机科学" checked>
+                                    <span class="ml-2 text-gray-600">计算机科学</span>
+                                </label>
+                                <label class="flex items-center cursor-pointer">
+                                    <input type="checkbox" name="subject-filter"
+                                        class="form-checkbox h-4 w-4 text-primary rounded" value="其他" checked>
+                                    <span class="ml-2 text-gray-600">其他</span>
+                                </label>
+                            </div>
+                        </div>
+
+                        <!-- 领域分类 -->
+                        <div class="mb-5">
+                            <h4 class="font-medium font-semibold text-gray-700 mb-3">领域分类</h4>
+                            <div class="space-y-2">
+                                <label class="flex items-center cursor-pointer">
+                                    <input type="checkbox" name="classification-filter"
+                                        class="form-checkbox h-4 w-4 text-primary rounded" value="通用" checked>
+                                    <span class="ml-2 text-gray-600">通用</span>
+                                </label>
+                                <label class="flex items-center cursor-pointer">
+                                    <input type="checkbox" name="classification-filter"
+                                        class="form-checkbox h-4 w-4 text-primary rounded" value="种植体及基台" checked>
+                                    <span class="ml-2 text-gray-600">种植体及基台</span>
+                                </label>
+                                <label class="flex items-center cursor-pointer">
+                                    <input type="checkbox" name="classification-filter"
+                                        class="form-checkbox h-4 w-4 text-primary rounded" value="种植器械" checked>
+                                    <span class="ml-2 text-gray-600">种植器械</span>
+                                </label>
+                                <label class="flex items-center cursor-pointer">
+                                    <input type="checkbox" name="classification-filter"
+                                        class="form-checkbox h-4 w-4 text-primary rounded" value="医用材料" checked>
+                                    <span class="ml-2 text-gray-600">医用材料</span>
+                                </label>
+                                <label class="flex items-center cursor-pointer">
+                                    <input type="checkbox" name="classification-filter"
+                                        class="form-checkbox h-4 w-4 text-primary rounded" value="其他" checked>
+                                    <span class="ml-2 text-gray-600">其他</span>
+                                </label>
+                            </div>
+                        </div>
+
+                        <!-- 发布年份 -->
+                        <div class="mb-5">
+                            <h4 class="font-medium font-semibold text-gray-700 mb-3">发表年份</h4>
+                            <select id="issue-year-filter"
+                                class="w-full p-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/50">
+                                <option value="">全部年份</option>
+                                <option value="2024">2024年及以后</option>
+                                <option value="2023">2023年</option>
+                                <option value="2022">2022年</option>
+                                <option value="2021">2021年</option>
+                                <option value="2020">2020年</option>
+                                <option value="2019">2019年</option>
+                                <option value="2018">2018年及以前</option>
+                            </select>
+                        </div>  
+
+                        <!-- 按钮 -->
+                        <div class="flex gap-3">
+                            <button id="apply-filter-btn"
+                                class="flex-1 bg-primary hover:bg-primary/90 text-white py-2 rounded-lg transition-custom">
+                                应用筛选
+                            </button>
+                            <button id="reset-filter-btn"
+                                class="flex-1 bg-gray-100 hover:bg-gray-200 text-gray-700 py-2 rounded-lg transition-custom">
+                                重置
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 右侧文章列表 -->
+                <div class="w-full md:w-3/4 lg:w-4/5">
+                    <!-- 列表头部 -->
+                    <div
+                        class="bg-white border border-gray-300 rounded-xl p-4 shadow-sm mb-5 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+                        <div>
+                            <h3 class="text-lg font-semibold">文章列表</h3>
+                            <p class="text-gray-500 text-sm">共找到
+                                <span class="text-primary font-medium" id="count-literature">0</span> 条相关文章
+                            </p>
+                        </div>
+                        <div class="flex items-center gap-3">
+                            <div class="flex border border-gray-300 rounded-lg overflow-hidden mr-8">
+                                <!-- 视图切换按钮 -->
+                                <button id="list-view-btn"
+                                    class="p-2 w-20 bg-white text-gray-600 hover:bg-gray-100 transition-colors"
+                                    title="列表视图">
+                                    <i class="fa fa-list"></i>
+                                </button>
+                                <button id="grid-view-btn"
+                                    class="p-2 w-20 bg-primary text-white hover:bg-primary/90 transition-colors"
+                                    title="网格视图">
+                                    <i class="fa fa-th-large"></i>
+                                </button>
+                            </div>
+                            <span class="text-gray-600 text-sm">排序方式:</span>
+                            <select id="sort-select"
+                                class="p-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary/50">
+                                <option value="updateDate">上传日期</option>
+                                <option value="subject">文章学科</option>
+                                <option value="name">文章名称</option>
+                                <option value="implementDate">发表日期</option>
+                                
+                            </select>
+                            <button id="sort-order-btn"
+                                    class="p-2 w-12 bg-primary text-white border border-gray-300 hover:bg-primary/90 transition-colors rounded-lg overflow-hidden"
+                                    title="升序排列">
+                                    <i class="fa fa-sort-amount-asc"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- 文章卡片列表 -->
+                    <div id="cards-contain" class="grid grid-cols-1 lg:grid-cols-2 gap-5">
+                        <!-- 根据JS动态添加 -->
+                    </div>
+                    <!-- 详细信息列表 -->
+                    <div id="list-contain" class="grid grid-cols-1 lg:grid-cols-1 gap-3 hidden">
+                        <!-- 根据JS动态添加 -->
+                    </div>
+
+                    <!-- 分页 -->
+                    <!-- 分页控件 -->
+                    <div class="px-6 py-4 flex items-center justify-between border-t border-gray-200">
+                        <div class="flex-1 flex justify-between">
+                            <div class="justify-center">
+                                <span class="text-sm text-gray-700">
+                                    每页显示<input type="numer" id="show-items-num" value=10
+                                        class="w-10 p-1 font-medium text-center border border-gray-200 rounded-lg focus:ring-2 focus:ring-primary/30 focus:border-primary transition-all duration-200">
+                                    条
+                                </span>
+                            </div>
+                        </div>
+                        <nav class="relative z-0 inline-flex rounded-md shadow-sm -space-x-px" aria-label="Pagination">
+                            <button
+                                class="relative inline-flex items-center px-2 py-2 rounded-l-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50"
+                                id="pagination-prev">
+                                <i class="fa fa-chevron-left text-xs"></i><span class="px-2"> 上一页</span>
+                            </button>
+                            <div id="pagination-numbers" class="flex space-x-1">
+                                <!-- 分页按钮将通过JavaScript动态插入 -->
+                            </div>
+
+                            <button
+                                class="relative inline-flex items-center px-2 py-2 rounded-r-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50"
+                                id="pagination-next">
+                                <span class="px-2">下一页</span><i class="fa fa-chevron-right text-xs"></i>
+                            </button>
+                        </nav>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 相关链接 -->
+        <section class="space-y-3">
+            <label class="font-semibold text-xl ml-2">相关链接：</label>
+            <div class="flex items-center justify-center px-2 space-x-6">
+                <a href="https://scholar.google.com/" target="_blank" title="谷歌学术">
+                    <img class="h-[3.6rem] mx-auto block text-xl" src="../../icon/logo_google.png">
+                </a>
+                <a href="https://www.sciencedirect.com/" target="_blank" title="sciencedirect">
+                    <img class="h-[3.5rem] mx-auto block text-xl" src="../../icon/logo_sciencedirect.png">
+                </a>
+                <a href="https://xueshu.baidu.com/" target="_blank" title="百度学术">
+                    <img class="h-[3.5rem] mx-auto block text-xl" src="../../icon/logo_baiduxueshu.png">
+                </a>
+            </div>
+        </section>
+    </main>
+
+    <!-- 悬浮AI按钮 -->
+    <button class="ai-content-button" id="deepseek-button" title="AI助手">
+        <img class="h-[1.85rem] mx-auto block" src="../../icon/deepseek.png">
+    </button>
+    <!-- 悬浮：添加数据按钮 -->
+    <button class="floating-button" id="add-data-button">
+        <i class="fa fa-plus"></i>
+    </button>
+
+    <footer class="bg-white sticky bottom-0 z-50 border-t border-gray-200 py-6 mt-1">
+        <div class="container mx-auto px-4">
+            <div class="flex flex-col md:flex-row items-center justify-between">
+                <div class="flex items-center space-x-4">
+                    <span class="text-sm text-gray-500">© 2024 莱顿-力学测试数据库</span>
+                    <span
+                        class="bg-primary/10 text-primary text-xs px-2 py-1 rounded-full border border-primary/30 cursor-pointer">
+                        <i class="fa fa-flask mr-1"></i>
+                        <span id="version-span">
+                        </span>
+                    </span>
+                </div>
+                <div class="flex space-x-4">
+                    <button id="yuanbao-btn" class="flex hover:border hover:border-primary" title="腾讯元宝">
+                        <img class="h-[1.65rem] mx-auto block" src="../../icon/logo_yuanbao.png">
+                        <span class="ml-1">腾讯元宝</span>
+                    </button>
+                    <button id="naton-btn" class="flex hover:border hover:border-primary" title="智慧办公">
+                        <img class="h-[1.5rem] mx-auto block" src="../../icon/logo_naton.png">
+                        <span class="ml-1">智慧办公</span>
+                    </button>
+                    <a class="text-gray-500 hover:text-primary transition-colors cursor-pointer" id="guide-a">
+                        <i class="fa fa-question-circle"></i>
+                        <span class="ml-1">操作指引</span>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- 文章详情模态框 -->
+    <div id="literature-modal" class="fixed inset-0 z-50 hidden">
+        <div class="absolute inset-0 bg-black/50 backdrop-blur-sm" id="modal-backdrop"></div>
+        <div
+            class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-full max-w-4xl max-h-[90vh] bg-white rounded-xl shadow-xl overflow-hidden flex flex-col">
+            <!-- 模态框头部 -->
+            <div class="p-3 border-b flex justify-between items-center">
+                <div class="mt-2">
+                    <h3 class="text-xl font-bold" id="modal-title">文章详情</h3>
+                    <p class="text-gray-500 mb-4" id="modal-doi">DOI</p>
+                </div>
+                <div>
+                    <button id="close-modal" class="text-gray-400 hover:text-gray-600 transition-custom">
+                        <i class="fa fa-times text-xl"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- 模态框内容 -->
+            <div class="flex-grow overflow-y-auto p-6" id="modal-content">
+                <!-- 内容将通过JavaScript动态填充 -->
+            </div>
+
+            <!-- 模态框底部 -->
+            <div class="p-5 border-t flex justify-end gap-3">
+                <button id="preview-button"
+                    class="border border-gray-300 bg-primary/30 text-gray-700 hover:bg-primary/80 hover:text-white px-4 py-2 rounded-lg transition-custom">
+                    <i class="fa fa-eye mr-2 text-black"></i> 预览
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- PDF阅读器模态框 -->
+    <div id="pdf-modal" class="fixed inset-0 z-50 hidden">
+        <div class="absolute inset-0 bg-black/50 backdrop-blur-sm" id="pdf-modal-backdrop"></div>
+        <!-- 主容器：居中显示+响应式限制 -->
+        <div
+            class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-full max-w-7xl max-h-[92vh] bg-white rounded-xl shadow-2xl overflow-hidden flex flex-col">
+            <div class="p-2 border-b flex justify-between items-center bg-gray-50">
+                <h3 class="text-xl font-bold" id="pdf-modal-title">文件详情</h3>
+                <div class="flex items-center text-gray-600 gap-3">
+                    <button id="close-pdf-modal" class="p-2 text-gray-600 hover:text-gray-600 transition-custom">
+                        <i class="fa fa-times text-xl"></i>
+                    </button>
+                </div>
+            </div>
+
+            <div class="flex-grow overflow-hidden relative">
+                <embed id="pdf-embed" type="application/pdf"
+                    class="hidden bg-white w-full min-h-[90vh] border border-gray-400">
+            </div>
+        </div>
+    </div>
+
+    <!-- 初始化粒子效果 -->
+    <script>
+        particlesJS.load('particles-js', '../../particlesConfig.json', function () {
+        });
+    </script>
+
+    <script src="https://cdn.jsdelivr.net/npm/showdown@2.1.0/dist/showdown.min.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/highlight.js@11.7.0/styles/github-dark.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/highlight.js@11.7.0/lib/highlight.min.js"></script>
+    <script src="../JavaScript/showNotification.js"></script>
+    <script src="../JavaScript/api.js"></script>
+    <script src="../JavaScript/literature.js"></script>
+    
+</body>
+
+</html>

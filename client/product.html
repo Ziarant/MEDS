@@ -1,0 +1,581 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>产品信息管理</title>
+    <!-- 网页图标 -->
+    <link rel="icon" type="image/png" href="../../icon/icons-database.png">
+    <!-- 登录检查 -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const username = localStorage.getItem('username');
+            if (!username) {
+                window.location.href = '../login.html';
+            } else {
+                document.getElementById('username-button').textContent = username;
+            }
+        });
+    </script>
+    <!-- 验证token -->
+    <script src='../../javaScript/verifyToken.js'></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- 引入Font Awesome -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" rel="stylesheet">
+    <!-- 引入SheetJS库 -->
+    <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+
+    <!-- 配置Tailwind自定义颜色和字体 -->
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#99774b',
+                        secondary: '#b3946d',
+                        accent: '#0FC6C2',
+                        neutral: '#F5F7FA',
+                        dark: '#1D2129',
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'system-ui', 'sans-serif'],
+                    },
+                }
+            }
+        }
+    </script>
+    <!-- 自定义工具类 -->
+    <link rel="stylesheet" href="../../style.css">
+    <style type="text/tailwindcss">
+        @layer utilities {
+            .content-auto {
+                content-visibility: auto;
+            }
+            .card-shadow {
+                box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+            }
+            .transition-custom {
+                transition: all 0.3s ease;
+            }
+            .folder-active {
+                background-color: rgba(153, 119, 75, 0.1);
+                border-left: 3px solid #99774b;
+            }
+
+            /* 设置粒子容器样式 */
+            #particles-js {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            }
+        } 
+    </style>
+</head>
+
+<body class="bg-gray-50 font-sans text-dark">
+    <!-- 粒子效果容器 -->
+    <div id="particles-js"></div>
+    <!-- 引入粒子效果配置 -->
+    <script src="https://cdn.jsdelivr.net/gh/VincentGarreau/particles.js@2.0.0/particles.min.js"></script>
+
+    <!-- 顶部导航栏 -->
+    <nav class="bg-white shadow-md sticky top-0 z-50 transition-all duration-300">
+        <div class="container mx-auto px-4 py-3 flex justify-between items-center">
+            <div class="flex items-center space-x-2">
+                <i class="fa fa-cubes text-primary text-2xl"></i>
+                <h1 class="text-xl font-bold text-neutral-600">产品信息管理</h1>
+                <div class="hidden md:flex items-center space-x-6">
+                    <button onClick="javascript:history.back(-1);"
+                        class="flex items-center bg-gray-100 hover:bg-primary text-black font-medium py-2 px-4 rounded-lg transition duration-300 ease-in-out shadow-md hover:shadow-lg transform hover:-translate-y-0.5">
+                        <i class="fa fa-arrow-left text-gray-600 text-2xl transition-colors"></i>
+                        <span class="hidden md:inline-block text-xl text-gray-800 transition-colors">返回</span>
+                    </button>
+                </div>
+            </div>
+
+            <div class="hidden md:flex items-center space-x-6">
+                <button id="user-button"
+                    class="flex items-center bg-gray-200 hover:bg-primary text-black font-medium py-2 px-4 rounded-lg transition duration-300 ease-in-out shadow-md hover:shadow-lg transform hover:-translate-y-0.5">
+                    <div class="w-8 h-8 rounded-full bg-gray-300 flex items-center justify-center">
+                        <i id="user-icon" class="fa fa-user text-gray-600"></i>
+                    </div>
+                    <span id="username-button" class="text-sm font-medium hidden md:inline-block ml-2">用户名</span>
+                </button>
+                <button
+                    class="flex items-center bg-gray-200 hover:bg-primary text-black font-medium py-2 px-4 rounded-lg transition duration-300 ease-in-out shadow-md hover:shadow-lg transform hover:-translate-y-0.5">
+                    <div class="w-8 h-8 rounded-full bg-gray-300 flex items-center justify-center">
+                        <i class="fa fa-envelope"></i>
+                    </div>
+                    <span class="text-sm font-medium hidden md:inline-block ml-2">消息</span>
+                    <span
+                        class="hidden ml-2 bg-gray-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">0</span>
+                </button>
+            </div>
+
+            <div class="md:hidden">
+                <button class="text-neutral-500 focus:outline-none">
+                    <i class="fa fa-bars text-xl"></i>
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    <main class="container mx-auto px-4 py-8">
+        <!-- 筛选和列表区域 -->
+        <section id="products" class="mb-1">
+            <div class="flex flex-col md:flex-row gap-6">
+                <!-- 左侧产品类型文件夹 -->
+                <div id="sidebar" class="rounded-xl md:w-3/8 lg:w-1/4 z-20 transition-all duration-300 ease-in-out">
+                    <div class="bg-white p-3 border-b border-gray-400 flex items-center justify-between sticky top-24">
+                        <h1 id="sidebar-title"
+                            class="text-xl font-bold text-primary/90 transition-opacity duration-300"><i
+                                class="fa fa-folder-open text-primary mr-2"></i> 产品类型</h1>
+                        <button id="toggle-btn" class="p-2 rounded-full hover:bg-gray-100 transition-colors">
+                            <i class="fa fa-angle-double-left text-xl text-gray-600" title="收起"></i>
+                        </button>
+                    </div>
+
+                    <!-- 搜索产品 -->
+                    <div class="bg-white shadow-sm mt-2 ml-4 mb-2">
+                        <div class="relative">
+                            <input type="text" placeholder="搜索产品"
+                                class="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/50">
+                            <i class="fa fa-search absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"></i>
+                        </div>
+                    </div>
+
+                    <div id="product-categories" class="bg-white p-5 shadow-sm sticky top-[6.5rem] border-t border-gray-400">
+                        <!-- 产品类型文件夹列表 -->
+                        <ul class="space-y-1">
+                            <li>
+                                <button class="folder-item w-full text-left px-4 py-3 rounded-lg flex items-center justify-between hover:bg-gray-100 transition-custom folder-active">
+                                    <div class="flex items-center">
+                                        <i class="fa fa-folder text-primary mr-3"></i>
+                                        <span>牙种植体</span>
+                                    </div>
+                                    <span id="implant-count" class="bg-gray-200 text-gray-700 text-xs px-2 py-1 rounded-full">0</span>
+                                </button>
+                            </li>
+                            <li>
+                                <button class="folder-item w-full text-left px-4 py-3 rounded-lg flex items-center justify-between hover:bg-gray-100 transition-custom">
+                                    <div class="flex items-center">
+                                        <i class="fa fa-folder text-primary mr-3"></i>
+                                        <span>基台及附件</span>
+                                    </div>
+                                    <span id="abutment-count" class="bg-gray-200 text-gray-700 text-xs px-2 py-1 rounded-full">0</span>
+                                </button>
+                            </li>
+                            <li>
+                                <button class="folder-item w-full text-left px-4 py-3 rounded-lg flex items-center justify-between hover:bg-gray-100 transition-custom">
+                                    <div class="flex items-center">
+                                        <i class="fa fa-folder text-primary mr-3"></i>
+                                        <span>手术器械</span>
+                                    </div>
+                                    <span id="instrument-count" class="bg-gray-200 text-gray-700 text-xs px-2 py-1 rounded-full">0</span>
+                                </button>
+                            </li>
+                            <li>
+                                <button class="folder-item w-full text-left px-4 py-3 rounded-lg flex items-center justify-between hover:bg-gray-100 transition-custom">
+                                    <div class="flex items-center">
+                                        <i class="fa fa-folder text-primary mr-3"></i>
+                                        <span>骨粉与骨胶</span>
+                                    </div>
+                                    <span id="glue-count" class="bg-gray-200 text-gray-700 text-xs px-2 py-1 rounded-full">0</span>
+                                </button>
+                            </li>
+                            <li>
+                                <button class="folder-item w-full text-left px-4 py-3 rounded-lg flex items-center justify-between hover:bg-gray-100 transition-custom">
+                                    <div class="flex items-center">
+                                        <i class="fa fa-folder text-primary mr-3"></i>
+                                        <span>其他产品</span>
+                                    </div>
+                                    <span id="other-product-count" class="bg-gray-200 text-gray-700 text-xs px-2 py-1 rounded-full">0</span>
+                                </button>
+                            </li>
+                        </ul>
+                        <hr class="my-4">
+                        <!-- 企业筛选 -->
+                         <div class="flex flex-col sm:flex-row justify-between items-start gap-2 mb-3">
+                                <h4 class="font-medium font-semibold text-gray-700">企业</h4>
+                                <div class="flex gap-1 mr-3">
+                                    <button id="company-select-all"
+                                        class="h-6 w-6 text-sm bg-gray-200 text-gray-700 rounded hover:bg-gray-300 transition-colors"
+                                        title="全选">
+                                        <i class="fa fa-check-square"></i>
+                                    </button>
+                                    <button id="company-select-none"
+                                        class="h-6 w-6 text-sm bg-gray-200 text-gray-700 rounded hover:bg-gray-300 transition-colors"
+                                        title="全不选">
+                                        <i class="far fa-square"></i>
+                                    </button>
+                                    <button id="company-select-invert"
+                                        class="h-6 w-6 text-sm bg-gray-200 text-gray-700 rounded hover:bg-gray-300 transition-colors"
+                                        title="反选">
+                                        <i class="fa fa-exchange-alt"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        <div id="company-select" class="grid grid-cols-1 space-y-2 ml-4">
+                            <!-- 根据JS动态添加人员 -->
+                        </div>
+
+                        <hr class="my-4">
+                        <!-- 状态筛选 -->
+                         <div class="flex flex-col sm:flex-row justify-between items-start gap-2 mb-3">
+                                <h4 class="font-medium font-semibold text-gray-700">状态</h4>
+                                <div class="flex gap-1 mr-3">
+                                    <button id="status-select-all"
+                                        class="h-6 w-6 text-sm bg-gray-200 text-gray-700 rounded hover:bg-gray-300 transition-colors"
+                                        title="全选">
+                                        <i class="fa fa-check-square"></i>
+                                    </button>
+                                    <button id="status-select-none"
+                                        class="h-6 w-6 text-sm bg-gray-200 text-gray-700 rounded hover:bg-gray-300 transition-colors"
+                                        title="全不选">
+                                        <i class="far fa-square"></i>
+                                    </button>
+                                    <button id="status-select-invert"
+                                        class="h-6 w-6 text-sm bg-gray-200 text-gray-700 rounded hover:bg-gray-300 transition-colors"
+                                        title="反选">
+                                        <i class="fa fa-exchange-alt"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        <div id="status-select" class="grid grid-cols-1 space-y-2 ml-4">
+                            <!-- 根据JS动态添加人员 -->
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 右侧产品信息表格 -->
+                <div id="product-table-container"
+                    class="w-full min-h-screen md:w-5/8 lg:w-4/5 transition-all duration-300 ease-in-out">
+                    <!-- 统计概览 -->
+                    <div class="grid grid-cols-1 md:grid-cols-5 gap-4 mb-6">
+                        <!-- 总产品数 -->
+                        <div
+                            class="bg-white rounded-lg p-4 shadow-md flex items-center transform transition-all duration-300 hover:scale-105 hover:shadow-lg">
+                            <div class="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center mr-4">
+                                <i class="fa fa-cube text-primary text-xl"></i>
+                            </div>
+                            <div>
+                                <p class="text-gray-500 text-sm">总产品数</p>
+                                <p class="text-xl font-bold text-primary" id="total-products">0</p>
+                            </div>
+                        </div>
+
+                        <!-- 图纸数量 -->
+                        <div
+                            class="bg-white rounded-lg p-4 shadow-md flex items-center transform transition-all duration-300 hover:scale-105 hover:shadow-lg">
+                            <div class="w-12 h-12 rounded-full bg-blue-100 flex items-center justify-center mr-4">
+                                <i class="fa fa-file-pdf text-blue-600 text-xl"></i>
+                            </div>
+                            <div>
+                                <p class="text-gray-500 text-sm">图纸文件</p>
+                                <p class="text-xl font-bold text-blue-600" id="total-drawing-files">0</p>
+                            </div>
+                        </div>
+
+                        <!-- 3D模型数量 -->
+                        <div
+                            class="bg-white rounded-lg p-4 shadow-md flex items-center transform transition-all duration-300 hover:scale-105 hover:shadow-lg">
+                            <div class="w-12 h-12 rounded-full bg-green-100 flex items-center justify-center mr-4">
+                                <i class="fa fa-cubes text-green-600 text-xl"></i>
+                            </div>
+                            <div>
+                                <p class="text-gray-500 text-sm">3D模型</p>
+                                <p class="text-xl font-bold text-green-600" id="total-model-files">0</p>
+                            </div>
+                        </div>
+
+                        <!-- 加工程序数量 -->
+                        <div
+                            class="bg-white rounded-lg p-4 shadow-md flex items-center transform transition-all duration-300 hover:scale-105 hover:shadow-lg">
+                            <div class="w-12 h-12 rounded-full bg-purple-100 flex items-center justify-center mr-4">
+                                <i class="fa fa-code text-purple-600 text-xl"></i>
+                            </div>
+                            <div>
+                                <p class="text-gray-500 text-sm">加工程序</p>
+                                <p class="text-xl font-bold text-purple-600" id="total-program-files">0</p>
+                            </div>
+                        </div>
+
+                        <!-- 产品手册数量 -->
+                        <div
+                            class="bg-white rounded-lg p-4 shadow-md flex items-center transform transition-all duration-300 hover:scale-105 hover:shadow-lg">
+                            <div class="w-12 h-12 rounded-full bg-yellow-100 flex items-center justify-center mr-4">
+                                <i class="fa fa-book text-yellow-600 text-xl"></i>
+                            </div>
+                            <div>
+                                <p class="text-gray-500 text-sm">产品手册</p>
+                                <p class="text-xl font-bold text-yellow-600" id="total-manual-files">0</p>
+                            </div> 
+                        </div> 
+                    </div>
+
+                    <!-- 表格头部 -->
+                    <div
+                        class="bg-white rounded-xl p-4 shadow-sm mb-5 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+                        <div>
+                            <h3 class="text-lg font-semibold">产品信息列表</h3>
+                        </div>
+                    </div>
+
+                    <!-- 产品信息表格 -->
+                    <div class="bg-white rounded-xl shadow-sm">
+                        <div class="overflow-x-auto">
+                            <table id="product-table"
+                                class="min-w-full divide-y divide-gray-200">
+                                <thead class="bg-gray-100">
+                                    <tr>
+                                        <th scope="col"
+                                            class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                            企业
+                                        </th>
+                                        <th scope="col"
+                                            class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                            编号
+                                        </th>
+                                        <th scope="col"
+                                            class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                            名称
+                                        </th>
+                                        <th scope="col"
+                                            class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                            注册证号
+                                        </th>
+                                        <th scope="col"
+                                            class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                            规格
+                                        </th>
+                                        <th scope="col"
+                                            class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                            资源
+                                        </th>
+                                        <th scope="col"
+                                            class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                            操作
+                                        </th>
+                                    </tr>
+                                </thead>
+                                <tbody class="bg-white divide-y divide-gray-200">
+                                <!-- 产品数据行 : 根据JS动态添加 -->
+                                </tbody>
+                            </table>
+                        </div>
+                        <!-- 分页 -->
+                        <div class="bg-white px-4 py-3 flex items-center justify-between border-t border-gray-200 sm:px-6">
+                            <!-- 使用JS动态添加 -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 悬浮按钮 -->
+        <button class="ai-content-button" id="deepseek-button" title="AI助手">
+            <img class="h-[1.85rem] mx-auto block" src="../../icon/deepseek.png">
+        </button>
+        <button class="floating-button r-50" id="add-data-button">
+            <i class="fa fa-plus"></i>
+        </button>
+    </main>
+
+    <footer class="bg-white sticky bottom-0 z-50 border-t border-gray-200 py-6 mt-1">
+        <div class="container mx-auto px-4">
+            <div class="flex flex-col md:flex-row items-center justify-between">
+                <div class="flex items-center space-x-4">
+                    <span class="text-sm text-gray-500">© 2024 莱顿-产品信息数据库</span>
+                    <span
+                        class="bg-primary/10 text-primary text-xs px-2 py-1 rounded-full border border-primary/30 cursor-pointer">
+                        <i class="fa fa-flask mr-1"></i>
+                        <span id="version-span">v1.0.0</span>
+                    </span>
+                </div>
+                <div class="flex space-x-4">
+                    <button id="yuanbao-btn" class="flex hover:border hover:border-primary" title="腾讯元宝">
+                        <img class="h-[1.65rem] mx-auto block" src="../../icon/logo_yuanbao.png">
+                        <span class="ml-1">腾讯元宝</span>
+                    </button>
+                    <button id="naton-btn" class="flex hover:border hover:border-primary" title="智慧办公">
+                        <img class="h-[1.5rem] mx-auto block" src="../../icon/logo_naton.png">
+                        <span class="ml-1">智慧办公</span>
+                    </button>
+                    <a class="text-gray-500 hover:text-primary transition-colors cursor-pointer" id="guide-a">
+                        <i class="fa fa-question-circle"></i>
+                        <span class="ml-1">操作指引</span>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- 添加产品模态框 (默认隐藏) -->
+    <div id="add-product-modal"
+        class="fixed inset-0 bg-black/50 z-50 flex items-center justify-center opacity-0 pointer-events-none transition-opacity duration-300 flex flex-col">
+        <div class="absolute inset-0 bg-black/50 backdrop-blur-sm" id="modal-backdrop"></div>
+        <div
+            class="bg-white rounded-xl items-center justify-center shadow-xl max-w-[75%] w-full transform scale-95 transition-transform duration-300 max-h-[90vh] overflow-hidden flex flex-col">
+            <div class="flex p-3 justify-between items-center w-full">
+                <div></div>
+                <div class="mt-2">
+                    <h3 class="text-2xl font-bold text-gray-800" id="product-modal-title">添加产品信息</h3>
+                </div>
+                <div>
+                    <button id="close-modal" class="text-gray-400 hover:text-gray-600 transition-custom mr-2">
+                        <i class="fa fa-times text-xl"></i>
+                    </button>
+                </div>
+            </div>
+            <div class="overflow-y-auto bg-white w-full flex flex-col mt-2">
+                <div class="grid grid-cols-3 space-x-2 space-y-1 flex-grow p-6">
+                    <div class="col-span-3"></div>
+                    <div class="col-span-3 grid grid-cols-3 space-x-2 block mb-1">
+                        <div class="col-span-1 flex flex-row text-lg font-bold text-gray-800 justify-between">
+                            <label id="our-company" class="flex items-center cursor-pointer">
+                                <input type="checkbox" class="rounded mr-2" checked>
+                                <span class="ml-2">我司产品</span>
+                            </label>
+                            <div class="text-lg font-bold mr-1">企业名称:</div>
+                        </div>
+                        <div class="col-span-2">
+                            <input type="text" id="company" class="text-lg bg-gray-100 w-full" value="北京莱顿" disabled>
+                        </div>
+                        
+                    </div>
+                    <div>
+                        <label class="block text-lg font-bold text-gray-800 mb-1">产品类型<span class="text-red-600">*</span></label>
+                        <select id="product-type-select"
+                            class="w-full p-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-primary/30 focus:border-primary transition-all duration-200">
+                            <option value="">--请选择--</option>
+                            <option value="牙种植体">牙种植体</option>
+                            <option value="基台及附件">基台及附件</option>
+                            <option value="手术器械">手术器械</option>
+                            <option value="骨粉与骨胶">骨粉与骨胶</option>
+                            <option value="其他产品">其他产品</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-lg font-bold text-gray-800 mb-1">产品编号</label>
+                        <input type="text" id="product-code"
+                            class="w-full p-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-primary/30 focus:border-primary transition-all duration-200">
+                    </div>
+                    <div>
+                        <label class="block text-lg font-bold text-gray-800 mb-1">产品名称</label>
+                        <input type="text" id="product-name"
+                            class="w-full p-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-primary/30 focus:border-primary transition-all duration-200">
+                    </div>
+                    <div>
+                        <label class="block text-lg font-bold text-gray-800 mb-1">规格参数</label>
+                        <input type="text" id="product-spec"
+                            class="w-full p-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-primary/30 focus:border-primary transition-all duration-200">
+                    </div>
+                    <div>
+                        <label class="block text-lg font-bold text-gray-800 mb-1">材料</label>
+                        <input type="text" id="product-material"
+                            class="w-full p-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-primary/30 focus:border-primary transition-all duration-200">
+                    </div>
+                    <div>
+                        <label class="block text-lg font-bold text-gray-800 mb-1">状态<span class="text-red-600">*</span></label>
+                        <select id="product-status-select"
+                            class="w-full p-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-primary/30 focus:border-primary transition-all duration-200">
+                            <option value="">--请选择--</option>
+                            <option value="研发中">研发中</option>
+                            <option value="试生产">试生产</option>
+                            <option value="已上市">已上市</option>
+                            <option value="已停产">已停产</option>
+                        </select>
+                    </div>
+                    <div class="col-span-3 grid grid-cols-3">
+                        <label class="col-span-3 block text-lg font-bold text-gray-800 mb-1">注册证号:<span class="text-red-600">*</span></label>
+                        <select id="registration-select"
+                            class="col-span-1 w-full p-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-primary/30 focus:border-primary transition-all duration-200 mr-1">
+                            <option value="">--请选择--</option>
+                            <option value="国械注准">国械注准</option>
+                            <option value="国械注进">国械注进</option>
+                            <option value="国械注许">国械注许</option>
+                            <option value="FDA">FDA</option>
+                            <option value="其他">其他</option>
+                            <option value="无">无</option>
+                        </select>
+                        <input type="number" id="registration-code" 
+                            class="col-span-2 w-full p-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-primary/30 focus:border-primary transition-all duration-200 ml-1">
+                    </div>
+                    <div class="col-span-3">
+                        <label class="block text-lg font-bold text-gray-800 mb-1">产品介绍</label>
+                        <input type="url" id="product-url" placeholder="添加网站链接"
+                            class="w-full p-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-primary/30 focus:border-primary transition-all duration-200">
+                    </div>
+                    <div class="col-span-3">
+                        <label class="block text-lg font-bold text-gray-800 mb-1">图纸文件</label>
+                        <input type="file" id="drawing-file" accept=".pdf,.dwg,.dxf"
+                            class="w-full p-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-primary/30 focus:border-primary transition-all duration-200">
+                    </div>
+                    <div class="col-span-3">
+                        <label class="block text-lg font-bold text-gray-800 mb-1">3D模型</label>
+                        <input type="file" id="model-file" accept=".stl,.step,.iges,.obj,.prt,.sldprt"
+                            class="w-full p-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-primary/30 focus:border-primary transition-all duration-200">
+                    </div>
+                    <div class="col-span-3">
+                        <label class="block text-lg font-bold text-gray-800 mb-1">产品手册</label>
+                        <input type="file" id="manual-file" accept=".pdf"
+                            class="w-full p-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-primary/30 focus:border-primary transition-all duration-200">
+                    </div>
+                    <div class="col-span-3">
+                        <label class="block text-lg font-bold text-gray-800 mb-1">备注信息</label>
+                        <textarea id="remarks" rows="3"
+                            class="w-full p-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-primary/30 focus:border-primary transition-all duration-200"></textarea>
+                    </div>
+                </div>
+            </div>
+            <div class="border-t border-gray-100 p-4 flex justify-end space-x-3">
+                <button id="cancel-product"
+                    class="px-6 py-2 bg-gray-200 hover:bg-gray-300 text-gray-800 rounded-lg transition-custom">
+                    取消
+                </button>
+                <button id="submit-product"
+                    class="px-6 py-2 bg-primary hover:bg-primary/90 text-white rounded-lg transition-custom">
+                    提交
+                </button>
+            </div>
+        </div>
+    </div>
+
+        <!-- 预览阅读器模态框 -->
+    <div id="preview-modal" class="fixed inset-0 z-50 hidden">
+        <div class="absolute inset-0 bg-black/50 backdrop-blur-sm" id="preview-modal-backdrop"></div>
+        <!-- 主容器：居中显示+响应式限制 -->
+        <div class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-full max-w-[95%] bg-white rounded-xl shadow-2xl overflow-hidden flex flex-col">
+            <div class="p-2 border-b flex justify-between items-center bg-gray-50">
+                <h3 class="text-xl font-bold" id="preview-modal-title">文件预览</h3>
+                <div class="flex items-center gap-3">
+                    <button id="close-preview-modal" class="p-2 text-gray-400 hover:text-gray-600 transition-custom">
+                        <i class="fa fa-times text-xl"></i>
+                    </button>
+                </div>  
+            </div>
+            <embed id="pdf-embed" type="application/pdf" class="hidden bg-white w-full min-h-[90vh] border border-gray-400">
+        </div>
+    </div>
+
+    <!-- 初始化粒子效果 -->
+    <script>
+        particlesJS.load('particles-js', '../../particlesConfig.json', function () {
+        });
+    </script>
+
+    <script src="https://cdn.jsdelivr.net/npm/showdown@2.1.0/dist/showdown.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/highlight.js@11.7.0/styles/github-dark.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/highlight.js@11.7.0/lib/highlight.min.js"></script>
+    <script src="../../JavaScript/showNotification.js"></script>
+    <script src="../../JavaScript/api.js"></script>
+    <script src="../../JavaScript/product.js"></script>
+    <script src="../../JavaScript/addProduct.js"></script>
+</body>
+
+</html>

@@ -1,0 +1,848 @@
+// DOM元素引用
+const testDataBody = document.getElementById('test-data-body');
+const totalRecords = document.getElementById('total-records');
+const paginationTotal = document.getElementById('pagination-total');
+const detailModal = document.getElementById('detail-modal');
+const modalContent = document.getElementById('modal-content')
+const closeDetailModal = document.getElementById('close-detail-modal');
+const filterText = document.getElementById('filter-condition')
+const resetFilters = document.getElementById('reset-filters');
+const btnApplyFilter = document.getElementById('btn-apply-filter');
+const btnClearFilter = document.getElementById('btn-clear-filter');
+const table = document.getElementById('sortableTable');
+const startIndexElement = document.getElementById('start-index');
+const endIndexElement = document.getElementById('end-index');
+const totalItemsElement = document.getElementById('total-items');
+const notPassItemsElement = document.getElementById('notpass-items');
+const paginationNumbers = document.getElementById('pagination-numbers');
+const prevBtn = document.getElementById('prev-btn');
+const nextBtn = document.getElementById('next-btn');
+const exportBtn = document.getElementById('export-btn');
+const addDataButton = document.getElementById('add-data-button');
+const addDataModal = document.getElementById('add-data-modal');
+const dataModalTitle = document.getElementById('data-modal-title');
+const showItemsNum = document.getElementById('show-items-num');
+const deleteButton = document.getElementById('delete-button');
+
+// 绑定事件:
+btnApplyFilter.addEventListener('click', applyFilter)
+btnClearFilter.addEventListener('click', clearFilter)
+
+exportBtn.addEventListener('click', () => {
+    if (currentData.length !== 0) {
+        const workbook = XLSX.utils.book_new();
+        const worksheet = XLSX.utils.json_to_sheet(currentData);
+        XLSX.utils.book_append_sheet(workbook, worksheet, 'Test Data');
+        const timestamp = new Date().toISOString().slice(0, 19).replace(/[:-]/g, '');
+        XLSX.writeFile(workbook, `testData_${timestamp}.xlsx`);
+    }
+});
+
+// 分页配置
+let itemsPerPage = Number(showItemsNum.value);
+let currentPage = 1;
+let totalPages = 1;
+let currentData = [];
+let notPassItemCount = 0;
+
+// 页面加载完成后执行
+document.addEventListener('DOMContentLoaded', () => {
+    // 渲染测试数据
+    const testData = localStorage.getItem('testData')
+    const data = JSON.parse(testData)
+    renderTestData(data)
+
+    // 关闭详情模态框事件
+    closeDetailModal.addEventListener('click', () => {
+        detailModal.classList.add('opacity-0', 'pointer-events-none');
+        detailModal.querySelector('div').classList.remove('scale-100');
+        detailModal.querySelector('div').classList.add('scale-95');
+        document.body.style.overflow = ''; // 恢复背景滚动
+    });
+
+    // 点击模态框外部关闭
+    detailModal.addEventListener('click', (e) => {
+        if (e.target === detailModal) {
+            closeDetailModal.click();
+        }
+    });
+
+    // 重置筛选按钮事件
+    resetFilters.addEventListener('click', () => {
+        const inputs = document.querySelectorAll('input, select');
+        inputs.forEach(input => {
+            if (input.type !== 'button' && input.type !== 'submit') {
+                input.value = '';
+            }
+        });
+    });
+});
+
+// 
+document.getElementById('dataGroup').addEventListener('change', function() {
+    dataGroup = this.value;
+    if (dataGroup === '其他') {
+        this.classList.replace('col-span-3', 'col-span-1');
+        document.getElementById('other-dataGroup').classList.remove('hidden')
+    } else {
+        this.classList.replace('col-span-1', 'col-span-3');
+        document.getElementById('other-dataGroup').classList.add('hidden')
+    }
+})
+
+// 根据复选框状态设置是否显示
+function checkToggleColumnVisibility() {
+    document.querySelectorAll('.column-toggle-checkbox').forEach(checkbox => {
+        const columnName = checkbox.dataset.column
+        const isChecked = checkbox.checked
+        if (testDataBody) {
+            const rows = testDataBody.querySelectorAll('tr');
+            rows.forEach(row => {
+                const cells = row.querySelectorAll('td');
+                const columnCell = Array.from(cells).find(cell => cell.dataset.column === columnName);
+                if (columnCell) {
+                    columnCell.style.display = isChecked ? '' : 'none'
+                }
+            });
+        }
+    });
+}
+
+// 更改单页显示数目
+showItemsNum.addEventListener('change', () => {
+    itemsPerPage = Number(showItemsNum.value)
+    totalPages = Math.ceil(currentData.length / itemsPerPage);
+    testDataBody.innerHTML = '';
+
+    updatePaginationInfo();
+    renderPaginationButtons();
+    renderCurrentPage();
+})
+
+// 更新分页信息
+function updatePaginationInfo() {
+    const startIndex = (currentPage - 1) * itemsPerPage + 1;
+    const endIndex = Math.min(currentPage * itemsPerPage, currentData.length);
+    
+    startIndexElement.textContent = startIndex;
+    endIndexElement.textContent = endIndex;
+    totalItemsElement.textContent = currentData.length;
+    notPassItemsElement.textContent = notPassItemCount
+}
+
+// 渲染当前页
+function renderCurrentPage() {
+    const startIndex = (currentPage - 1) * itemsPerPage;
+    const endIndex = startIndex + itemsPerPage
+    const pageData = currentData.slice(startIndex, endIndex);
+    testDataBody.innerHTML = '';
+
+    index = startIndex
+    notPassItemCount = 0;
+    pageData.forEach((item) => {
+        const row = document.createElement('tr');
+        row.className = 'table-row-hover';
+        row.dataset.id = item.id;
+
+        // 获取结果状态样式
+        let resultClass = '';
+        let resultIcon = '';
+        let editText =  group.includes('管理员') ? '审阅' : '编辑' ;
+
+        resultClass = 'bg-gray-50 text-gray-800';
+        resultIcon = 'fa-question-circle';
+        let showDelete = 'hidden'
+
+         if (item.resultStatus.indexOf('未通过') !== -1) {
+                resultClass = 'bg-red-100 text-red-800';
+                resultIcon = 'fa-times-circle';
+            } else if (item.resultStatus.indexOf('通过') !== -1) {
+                resultClass = 'bg-green-100 text-green-800';
+                resultIcon = 'fa-check-circle';
+            } else if (item.resultStatus.indexOf('待确认') !== -1) {
+                resultClass = 'bg-yellow-50 text-yellow-800';
+                resultIcon = 'fa-question-circle';
+            }
+
+        if (item.approvalStatus !== 'pass') {
+            if (item.approvalStatus === 'rejected') {
+                row.classList.add('rejected')
+            } else {
+                row.classList.add('pending')
+            }
+            // 仅用户自己可对未通过审批的数据进行编辑
+            if (item.uploader !== localStorage.getItem('username') && !group.includes('管理员')) {
+                return
+            }
+            notPassItemCount++
+            showDelete = 'show'
+        } else {
+            if (item.resultStatus.indexOf('未通过') !== -1) {
+                // row.classList.add('bg-red-50/50')
+            } else if (item.resultStatus.indexOf('通过') !== -1) {
+                // row.classList.add('bg-green-50/50')
+            } else if (item.resultStatus.indexOf('待确认') !== -1) {
+                row.classList.add('bg-yellow-50');
+            }
+
+            if (item.testBatch.indexOf('?') !== -1) {
+                row.classList.add('bg-yellow-50')
+            }
+        }
+        
+        let testStandardVisible = (item.testStandard === undefined || item.testStandard === '')? 'hidden' : 'show';
+        let BatchTooltipVisible = (item.testBatchTooltip === undefined || item.testBatchTooltip === '')? 'hidden' : 'show';
+        let resultStrandard = (item.resultStrandard === undefined || item.resultStrandard === '')? '无' : item.resultStrandard;
+
+        // 默认全部显示：
+        row.innerHTML = `
+          <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500" data-column="序号" style="display: true;">
+            ${index + 1}
+          </td>
+          <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900" data-column="器械类别" style="display: true;">
+            ${item.dataGroup}
+          </td>
+          <td class="has-tooltip relative inline-block px-6 py-4 whitespace-nowrap text-sm text-gray-500" data-column="测试类型" style="display: true;">
+            <span class="tooltip bottom-8 left-0 min-w-[120px]" ${testStandardVisible}>
+                <i class="fa fa-info-circle mr-1"></i> ${item.testStandard}
+            </span>
+            ${item.testName}
+          </td>
+          <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500" data-column="测试标准" style="display: true;">
+            ${item.testStandard}
+          </td>
+          <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500" data-column="器械型号" style="display: true;">
+            ${item.model}
+          </td>
+          <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500" data-column="规格" style="display: true;">
+            ${item.testSpecification}
+          </td>
+          <td class="has-tooltip relative inline-block px-6 py-4 whitespace-nowrap text-sm text-gray-500" data-column="批次/阶段" style="display: true;">
+            <span class="tooltip bottom-8 left-0 min-w-[120px]" ${BatchTooltipVisible}>
+                <i class="fa fa-info-circle mr-1"></i> ${item.testBatchTooltip}
+            </span>
+            ${item.testBatch}
+          </td>
+          <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500" data-column="材料" style="display: true;">
+            ${item.material}
+          </td>
+          <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500" data-column="测试人" style="display: true;">
+            ${item.tester}
+          </td>
+          <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500" data-column="测试时间" style="display: true;">
+            ${item.testTime}
+          </td>
+          <td class="has-tooltip relative px-6 py-4 whitespace-nowrap" data-column="结果" style="display: true;">
+            <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${resultClass}">
+              <i class="fa ${resultIcon} mr-1 mt-1"></i> ${item.result}
+            </span>
+            <span class="tooltip bottom-8 left-0 min-w-[120px]" >
+                <i class="fa fa-info-circle mr-1"></i>
+                <span class="bg-green-100">通过条件：${resultStrandard}</span>
+            </span>
+          </td>
+          <td class="px-6 py-4 whitespace-nowrap text-center text-sm font-medium" data-column="操作">
+            <button class="view-details text-primary hover:text-primary/80 mr-3">
+              查看详情
+            </button>
+            <button class="edit-details text-primary hover:text-primary/80 mr-3 ${showDelete}">
+              ${editText}
+            </button>
+          </td>
+        `;
+
+        index++
+        testDataBody.appendChild(row);
+
+        // 添加查看详情事件
+        row.querySelector('.view-details').addEventListener('click', () => {
+            openDetailModal(item);
+        });
+
+        // 添加编辑事件
+        row.querySelector('.edit-details').addEventListener('click', () => {
+            openDataModal(item);
+        });
+    });
+    checkToggleColumnVisibility()
+}
+
+// 渲染按钮分页
+function renderPaginationButtons() {
+    paginationNumbers.innerHTML = '';
+    
+    // 始终显示第一页
+    addPageButton(1);
+    currentPage = Number(currentPage)
+    
+    // 显示当前页附近的页码
+    if (currentPage > 4) {
+        addEllipsis();
+    }
+    
+    let startPage = Math.max(2, currentPage - 2);
+    let endPage = Math.min(totalPages - 1, currentPage + 2);
+
+    if (startPage > 3) {
+        addPageButton(startPage - 1);
+    }
+    
+    for (let i = startPage; i <= endPage; i++) {
+        addPageButton(i);
+    }
+    
+    if (endPage < totalPages - 2) {
+        addPageButton(endPage + 1);
+    }
+    
+    if (currentPage < totalPages - 3) {
+        addEllipsis();
+    }
+    
+    // 始终显示最后一页
+    if (totalPages > 1) {
+        addPageButton(totalPages);
+    }
+    
+    // 更新按钮状态
+    updateButtonStates();
+}
+
+// 添加分页按钮
+function addPageButton(pageNum) {
+    const button = document.createElement('button');
+    
+    // button.className = `pagination-btn ${currentPage === pageNum ? 'pagination-btn-active' : 'z-10 bg-primary text-white relative inline-flex items-center px-4 py-2 border border-primary text-sm font-medium'}`;
+    if (currentPage == pageNum) {
+        button.className = 'z-10 bg-primary text-white relative inline-flex items-center px-4 py-2 border border-primary text-sm font-medium'
+    } else {
+        button.className = 'z-10 bg-secondary text-black relative inline-flex items-center px-4 py-2 border border-primary text-sm font-medium'
+    }
+    button.textContent = pageNum;
+    
+    button.addEventListener('click', (e) => {
+        const pagenum = e.currentTarget.textContent;
+        if (currentPage !== pagenum) {
+            currentPage = pagenum
+            renderCurrentPage();
+            renderPaginationButtons();
+            updatePaginationInfo();
+        }
+
+    });
+    
+    paginationNumbers.appendChild(button);
+}
+
+// 上一页按钮事件
+prevBtn.addEventListener('click', () => {
+    if (currentPage > 1) {
+        currentPage--;
+        renderCurrentPage();
+        renderPaginationButtons();
+        updatePaginationInfo();
+    }
+});
+
+// 下一页按钮事件
+nextBtn.addEventListener('click', () => {
+    if (currentPage < totalPages) {
+        currentPage++;
+        renderCurrentPage();
+        renderPaginationButtons();
+        updatePaginationInfo();
+    }
+});
+
+// 添加省略号
+function addEllipsis() {
+    const ellipsis = document.createElement('span');
+    ellipsis.className = 'px-2 py-2 text-gray-600 inline-flex';
+    ellipsis.textContent = '...';
+    paginationNumbers.appendChild(ellipsis);
+}
+
+// 更新按钮状态
+function updateButtonStates() {
+    prevBtn.disabled = currentPage === 1;
+    nextBtn.disabled = currentPage === totalPages;
+}
+
+// 渲染数据
+function renderTestData(data) {
+    totalPages = Math.ceil(data.length / itemsPerPage);
+    testDataBody.innerHTML = '';
+    currentData = data
+    
+    renderCurrentPage()
+    updatePaginationInfo()
+    renderPaginationButtons()
+}
+
+
+document.addEventListener('DOMContentLoaded', function () {
+    // 获取所有可排序的表头
+    const headers = table.querySelectorAll('.sortable-header');
+    // 存储当前排序状态
+    let currentSort = {
+        column: null,
+        direction: 'up' // 'up' 或 'dowm'
+    };
+
+    // 为每个表头添加点击事件
+    headers.forEach((header, index) => {
+        header.addEventListener('click', () => {
+            // 重置所有表头的图标
+            headers.forEach(h => {
+                const icon = h.querySelector('i');
+                icon.className = 'fa fa-sort ml-1';
+                h.classList.remove('bg-primary/10');
+            });
+
+            // 设置当前排序状态
+            if (currentSort.column === index) {
+                // 切换排序方向
+                currentSort.direction = currentSort.direction === 'up' ? 'down' : 'up';
+            } else {
+                // 设置新的排序列
+                currentSort.column = index;
+                currentSort.direction = 'up';
+            }
+
+            // 更新当前表头的图标
+            const icon = header.querySelector('i');
+            icon.className = `fa fa-sort-${currentSort.direction} ml-1`;
+            header.classList.add('bg-primary/10');
+
+            // 对所有数据进行排序
+            sortTable(table, index, currentSort.direction);
+        });
+    });
+});
+
+// 排序表格函数
+function sortTable(table, columnIndex, direction) {
+    const tbody = table.querySelector('tbody');
+    // const rowsArray = Array.from(tbody.querySelectorAll('tr'));
+    // 获取表头
+    const header = Array.from(table.querySelectorAll('th'))[columnIndex].innerText;
+
+    // 确定排序函数
+    const sortFn = (a, b) => {
+        let aValue, bValue;
+        
+        switch(header) {
+            case "序号":
+                return
+            case "器械类别":
+                aValue = a.dataGroup;
+                bValue = b.dataGroup;
+                break;
+            case "测试类型":
+                aValue = a.testName;
+                bValue = b.testName;
+                break;
+            case "测试标准":
+                aValue = a.testStandard;
+                bValue = b.testStandard;
+                break;
+            case "器械型号":
+                aValue = a.model;
+                bValue = b.model;
+                break;
+            case "规格":
+                aValue = a.testSpecification;
+                bValue = b.testSpecification;
+                break;
+            case "批次/阶段":
+                aValue = a.testBatch;
+                bValue = b.testBatch;
+                break;
+            case "材料":
+                aValue = a.material;
+                bValue = b.material;
+                break
+            case "测试人":
+                aValue = a.tester;
+                bValue = b.tester;
+                break
+            case "测试时间":
+                aValue = a.testTime;
+                bValue = b.testTime;
+                break
+            case "结果":
+                aValue = a.resultStatus;
+                bValue = b.resultStatus;
+                break
+        }
+
+        // 特殊处理：日期排序
+        if (aValue.match(/\d{4}-\d{2}-\d{2}/)) {
+            aValue = new Date(aValue);
+            bValue = new Date(bValue);
+        }
+
+        // 特殊处理：数字排序
+        if (!isNaN(parseFloat(aValue)) && isFinite(aValue)) {
+            aValue = parseFloat(aValue);
+            bValue = parseFloat(bValue);
+        }
+
+        // 排序逻辑
+        if (aValue < bValue) return direction === 'up' ? -1 : 1;
+        if (aValue > bValue) return direction === 'up' ? 1 : -1;
+        return 0;
+    };
+
+    // 排序，重新添加到表格
+    const rowsArray = Array.from(currentData)
+    rowsArray.sort(sortFn);
+    currentData = rowsArray
+    renderCurrentPage();
+    renderPaginationButtons();
+    updatePaginationInfo();
+    // checkToggleColumnVisibility();
+}
+
+// 查看详情
+function openDetailModal(item) {
+
+    // 对Item中的元素建立表单：
+    let innerHTML = '';
+    // item.
+    for (const [key, value] of Object.entries(item)) {
+        let keyCN = translate(key)
+        if (key == 'testDataFile') {
+            // 文件下载
+            innerHTML += `
+                    <div class="grid grid-cols-5 border border-gray-100 gap-3 mb-3">
+                        <div class="col-span-1 text-sm text-gray-500">${keyCN}</div>
+                    `;
+            value.forEach((file) => {
+                innerHTML += `
+                        <div class="col-span-1 text-sm font-medium text-gray-800">
+                            <button class="download-file text-primary hover:text-primary/80 mr-3" data-id="${file}">
+                                <i class="fa fa-download mr-1"></i> ${file}
+                            </button>
+                        </div>
+                `;
+            innerHTML += `</div>`
+            });
+        }
+        else if (key == 'remark') {
+            innerHTML += `
+            <div class="grid grid-cols-5 border border-gray-100 gap-3 mb-3">
+                <div class="col-span-1 text-sm text-gray-600">${keyCN}</div>
+                <textarea rows="6" class="col-span-4 border border-gray-600 text-sm font-medium text-gray-800" spellcheck="false" autocorrect="off" autocapitalize="off">${value}</textarea>
+            </div>
+            `
+         }
+        else {
+            innerHTML += `
+            <div class="grid grid-cols-5 border border-gray-100 gap-3 mb-3">
+                <div class="col-span-1 text-sm text-gray-600">${keyCN}</div>
+                <div class="col-span-4 text-sm font-medium text-gray-800">${value}</div>
+            </div>
+        `;
+        }
+
+    }
+
+    modalContent.innerHTML = `
+        <div class="grid grid-cols-1 md:grid-cols-1 gap-6">
+            <div>
+                ${innerHTML}
+            </div>
+        </div>
+    `;
+
+    // 显示detail-modal:
+    detailModal.classList.remove('opacity-0', 'pointer-events-none');
+
+    // 文件下载按钮：
+    const downloadBtn = document.querySelector('.download-file');
+    downloadBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const fileId = e.currentTarget.getAttribute('data-id');
+        downloadFileByName(fileId);
+    });
+
+    document.body.style.overflow = 'hidden'; // 防止背景滚动
+}
+
+// 编辑数据：
+function openDataModal(item) {
+    const uploaderModal = document.getElementById('uploader-modal');
+    const uploaderSpan = document.getElementById('uploader-span');
+    const passBtn = document.getElementById("pass-button");
+    const notPassBtn = document.getElementById("not-pass-button");
+    // 管理员显示审核相关按钮：
+    if (group.includes('管理员')) {
+        dataModalTitle.textContent = '审阅测试数据'
+        passBtn.classList.remove('hidden')
+        notPassBtn.classList.remove('hidden')
+        uploaderModal.classList.remove('hidden')
+        uploaderSpan.textContent = item.uploader
+    } else {
+        dataModalTitle.textContent = '编辑测试数据'
+    };
+
+    if(item) {
+        deleteButton.classList.remove('hidden');
+        deleteButton.addEventListener('click', () => {
+            // 删除数据
+            if (confirm(`确定要删除数据吗？`)) {
+                deleteTestData(item)
+                closeModal()
+            }
+        });
+    } else {
+        deleteButton.classList.add('hidden');
+    }
+
+    passBtn.addEventListener('click', () => {
+        // 审核确认录入数据
+        if (confirm(`确定录入数据？`)) {
+            checkData(item)
+            closeModal()
+        }
+    })
+
+    notPassBtn.addEventListener('click', () => {
+        // 删除数据
+        if (confirm(`确定要拒绝录入数据吗？`)) {
+            rejectTestData(item)
+            closeModal()
+        }
+    })
+    
+    addTestData(item)
+};
+
+function translate(name) {
+    const translations = {
+        'id': 'ID',
+        'dataGroup': '器械类别',
+        'testName': '测试名称',
+        'model': '型号',
+        'material': '材料',
+        'tester': '测试人员',
+        'testTime': '测试时间',
+        'inputTime': '录入时间',
+        'uploader' : '资料上传者',
+        'resultStatus': '结果状态',
+        'equipment': '测试设备',
+        'environment': '测试环境',
+        'remark': '备注',
+        'result': '测试结果',
+        'resultStrandard': '可接受标准',
+        'testType': '测试类型',
+        'testStandard': '测试标准',
+        'testResult': '测试结果',
+        'testMember': '测试人员',
+        'testBatch': '测试批次',
+        'testBatchTooltip' : '批次信息',
+        'testSpecification': '测试规格',
+        'testData': '测试数据',
+        'approvalStatus': '审阅状态',
+        'approvaler' : '审批人',
+        'testDataFile': '相关文件',
+        'uploadTime': '上传时间',
+        'drawing': '工程图纸',
+        'paper' : '论文',
+    }
+    if (translations[name]) {
+        return translations[name];
+    } else {
+        return name;
+    }
+}
+
+function applyFilter() {
+    let dataGroup = document.getElementById('dataGroup').value;
+    const testType = document.getElementById('testType').value;
+    const testStandard = document.getElementById('testStandard').value;
+    const testModel = document.getElementById('testModel').value;
+    const testSpecification = document.getElementById('testSpecification').value;
+    const testBatch = document.getElementById('testBatch').value;
+    const material = document.getElementById('material').value;
+    const testMember = document.getElementById('testMember').value;
+    const startTime = document.getElementById('startTime').value;
+    const endTime = document.getElementById('endTime').value;
+    const resultStatus = document.getElementById('resultStatus').value;
+
+    const testData = localStorage.getItem('testData')
+    const data = JSON.parse(testData)
+    if (!data) {
+        return
+    }
+
+    if (dataGroup === '其他') {
+        dataGroup = document.getElementById('other-dataGroup').value;
+    }
+    const filteredData = data.filter(item => {
+        return (
+            (dataGroup === '' || item.dataGroup.indexOf(dataGroup) !== -1) &&
+            (testType === '' || item.testName === testType) &&
+            (testStandard === '' || item.testStandard === testStandard) &&
+            (testModel === '' || item.model.indexOf(testModel) !== -1) &&
+            (testSpecification === '' || item.testSpecification.indexOf(testSpecification) !== -1) &&
+            (testBatch === '' || item.testBatch === testBatch) &&
+            (material === '' || item.material === material) &&
+            (testMember === '' || item.tester.indexOf(testMember) !== -1) &&
+            (startTime === '' || new Date(startTime) <= new Date(item.testTime)) &&
+            (endTime === '' || new Date(item.testTime) <= new Date(endTime)) &&
+            (resultStatus === '' || item.resultStatus === resultStatus)
+        );
+    });
+    renderTestData(filteredData);
+    let textContent = ``
+    if(dataGroup) {textContent += dataGroup+'; '};
+    if(testType) {textContent += testType+'; '};
+    if(testStandard) {textContent += testStandard+'; '};
+    if(testModel) {textContent += '型号：'+testModel+'; '};
+    if(testSpecification) {textContent += '规格：'+testSpecification+'; '};
+    if(testBatch) {textContent += testBatch+'; '};
+    if(material) {textContent += material+'; '};
+    if(testMember) {textContent += '测试人：'+testMember+'; '};
+    if(startTime) {textContent += startTime+'起; '};
+    if(endTime) {textContent += endTime+'止; '};
+    if(resultStatus) {textContent += resultStatus+'; '};
+    filterText.textContent = textContent
+    if(!filterText.textContent){filterText.textContent = '无'}
+}
+
+function clearFilter() {
+    const testData = localStorage.getItem('testData')
+    const data = JSON.parse(testData)
+    if (!data) {
+        return
+    }
+    renderTestData(data);
+    filterText.textContent = '无'
+}
+
+let isDragging = false;
+let offsetX, offsetY;
+let initialX, initialY;
+let currentX = 0;
+let currentY = 0;
+
+// 添加数据模态框
+addDataButton.addEventListener('click', () => {
+    if (!isDragging) {
+        dataModalTitle.textContent = '添加测试数据';
+        deleteButton.classList.add('hidden');
+        addTestData()
+    } else {
+        // 重置拖动状态
+        isDragging = false;
+    }
+});
+
+// 悬浮按钮长按-拖动位置
+addDataButton.addEventListener('mousedown', function(e) {
+    // 防止点击事件触发
+    e.preventDefault();
+    
+    // 设置为拖动状态
+    isDragging = true;
+    
+    // 计算鼠标与按钮左上角的偏移量
+    const rect = addDataButton.getBoundingClientRect();
+    offsetX = e.clientX - rect.left;
+    offsetY = e.clientY - rect.top;
+    
+    // 添加样式类以指示正在拖动
+    addDataButton.classList.add('scale-110');
+    
+    // 记录初始位置
+    initialX = currentX;
+    initialY = currentY;
+    
+    // 添加临时事件监听器
+    document.addEventListener('mousemove', handleMouseMove);
+    document.addEventListener('mouseup', handleMouseUp);
+})
+
+// 鼠标移动事件 - 处理拖动
+function handleMouseMove(e) {
+    if (isDragging) {
+        e.preventDefault();
+        
+        // 计算新位置
+        let newX = e.clientX - offsetX;
+        let newY = e.clientY - offsetY;
+        
+        // 限制在视口范围内
+        const viewportWidth = window.innerWidth;
+        const viewportHeight = window.innerHeight;
+        const buttonWidth = addDataButton.offsetWidth;
+        const buttonHeight = addDataButton.offsetHeight;
+        
+        // 水平方向限制
+        if (newX < 0) newX = 0;
+        if (newX > viewportWidth - buttonWidth) newX = viewportWidth - buttonWidth;
+        
+        // 垂直方向限制
+        if (newY < 0) newY = 0;
+        if (newY > viewportHeight - buttonHeight) newY = viewportHeight - buttonHeight;
+        
+        const transX = newX - currentX
+        const transY = newY - currentY
+        
+        // 更新位置
+        currentX = newX;
+        currentY = newY;
+        addDataButton.style.top = `${currentY}px`
+        addDataButton.style.left = `${currentX}px`
+    }
+}
+
+// 鼠标松开事件 - 结束拖动
+function handleMouseUp(e) {
+    // 移除样式类
+    addDataButton.classList.remove('scale-110', 'opacity-90');
+    
+    // 添加释放动画
+    addDataButton.classList.add('transition-transform', 'duration-200');
+    setTimeout(() => {
+        addDataButton.classList.remove('transition-transform', 'duration-200');
+    }, 200);
+    
+    // 移除临时事件监听器
+    document.removeEventListener('mousemove', handleMouseMove);
+    document.removeEventListener('mouseup', handleMouseUp);
+    
+    // 如果只是点击而不是拖动，触发点击事件
+    const movedDistance = Math.sqrt(
+        Math.pow(currentX - initialX, 2) + Math.pow(currentY - initialY, 2)
+    );
+    
+    if (movedDistance < 5) {
+        addDataButton.click();
+    };
+}
+
+// 窗口大小调整时重新计算位置
+window.addEventListener('resize', function() {
+    // 如果按钮已被拖动，重新计算位置以确保在视口内
+    if (currentX > 0 || currentY > 0) {
+        const viewportWidth = window.innerWidth;
+        const viewportHeight = window.innerHeight;
+        const buttonWidth = addDataButton.offsetWidth;
+        const buttonHeight = addDataButton.offsetHeight;
+        
+        // 水平方向限制
+        if (currentX > viewportWidth - buttonWidth) {
+            currentX = viewportWidth - buttonWidth;
+            addDataButton.style.transform = `translate(${currentX}px, ${currentY}px)`;
+        }
+        
+        // 垂直方向限制
+        if (currentY > viewportHeight - buttonHeight) {
+            currentY = viewportHeight - buttonHeight;
+            addDataButton.style.transform = `translate(${currentX}px, ${currentY}px)`;
+        }
+    }
+});

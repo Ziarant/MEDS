@@ -1,0 +1,356 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DeepSeek AI对话</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#3B82F6',
+                        secondary: '#10B981',
+                        dark: '#1E293B',
+                        light: '#F8FAFC'
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'system-ui', 'sans-serif'],
+                    },
+                }
+            }
+        }
+    </script>
+    <style type="text/tailwindcss">
+        @layer utilities {
+            .content-auto {
+                content-visibility: auto;
+            }
+            .scrollbar-hide {
+                scrollbar-width: none;
+                -ms-overflow-style: none;
+            }
+            .scrollbar-hide::-webkit-scrollbar {
+                display: none;
+            }
+            .message-animation {
+                animation: fadeIn 0.3s ease-in-out;
+            }
+            @keyframes fadeIn {
+                from { opacity: 0; transform: translateY(10px); }
+                to { opacity: 1; transform: translateY(0); }
+            }
+        }
+    </style>
+</head>
+<body class="bg-gray-100 min-h-screen font-sans">
+    <div class="max-w-3xl mx-auto bg-white shadow-xl rounded-lg overflow-hidden h-screen flex flex-col">
+        <!-- 头部 -->
+        <header class="bg-primary text-white p-4 shadow-md">
+            <div class="flex items-center justify-between">
+                <h1 class="text-xl font-bold flex items-center">
+                    <i class="fa fa-comments-o mr-2"></i>DeepSeek AI对话
+                </h1>
+                <div class="flex items-center">
+                    <span id="connection-status" class="mr-3 text-sm">
+                        <i class="fa fa-circle text-green-400"></i> 已连接
+                    </span>
+                    <button id="clear-btn" class="bg-white/20 hover:bg-white/30 px-3 py-1 rounded text-sm transition">
+                        <i class="fa fa-trash-o mr-1"></i>清空
+                    </button>
+                </div>
+            </div>
+        </header>
+
+        <!-- 对话区域 -->
+        <main id="chat-container" class="flex-1 overflow-y-auto p-4 space-y-6 scrollbar-hide">
+            <!-- 欢迎消息 -->
+            <div class="flex items-start message-animation">
+                <div class="bg-primary text-white rounded-full p-2 mr-3">
+                    <i class="fa fa-robot"></i>
+                </div>
+                <div class="bg-gray-200 rounded-lg rounded-tl-none px-4 py-3 max-w-[80%]">
+                    <p>你好！我是基于DeepSeek API的AI助手。有什么我可以帮助你的吗？</p>
+                </div>
+            </div>
+        </main>
+
+        <!-- 输入区域 -->
+        <footer class="border-t p-4 bg-gray-50">
+            <div class="flex items-center gap-2">
+                <textarea 
+                    id="user-input" 
+                    placeholder="请输入你的问题..." 
+                    class="flex-1 border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-primary/50 resize-none transition"
+                    rows="1"
+                ></textarea>
+                <button 
+                    id="send-btn" 
+                    class="bg-primary hover:bg-primary/90 text-white rounded-lg px-4 py-2 transition flex items-center justify-center"
+                >
+                    <i class="fa fa-paper-plane"></i>
+                </button>
+            </div>
+            <div class="text-xs text-gray-500 mt-2 flex justify-between">
+                <p>提示：按Shift+Enter换行，Enter发送消息</p>
+                <p id="api-status">未使用API密钥</p>
+            </div>
+        </footer>
+
+        <!-- API设置模态框 -->
+        <div id="api-modal" class="fixed inset-0 bg-black/50 flex items-center justify-center z-50 hidden">
+            <div class="bg-white rounded-lg p-6 w-full max-w-md">
+                <h2 class="text-xl font-bold mb-4">设置DeepSeek API</h2>
+                <div class="mb-4">
+                    <label class="block text-sm font-medium text-gray-700 mb-1">API密钥</label>
+                    <input 
+                        type="password" 
+                        id="api-key" 
+                        class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-primary/50"
+                        placeholder="sk-..."
+                    >
+                </div>
+                <div class="mb-4">
+                    <label class="block text-sm font-medium text-gray-700 mb-1">API端点URL</label>
+                    <input 
+                        type="text" 
+                        id="api-url" 
+                        class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-primary/50"
+                        value="https://api.deepseek.com/v1/chat/completions"
+                    >
+                </div>
+                <div class="flex justify-end gap-2">
+                    <button id="cancel-api" class="border border-gray-300 px-4 py-2 rounded hover:bg-gray-100 transition">取消</button>
+                    <button id="save-api" class="bg-primary text-white px-4 py-2 rounded hover:bg-primary/90 transition">保存</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // DOM元素
+        const chatContainer = document.getElementById('chat-container');
+        const userInput = document.getElementById('user-input');
+        const sendBtn = document.getElementById('send-btn');
+        const clearBtn = document.getElementById('clear-btn');
+        const apiStatus = document.getElementById('api-status');
+        const apiModal = document.getElementById('api-modal');
+        const apiKeyInput = document.getElementById('api-key');
+        const apiUrlInput = document.getElementById('api-url');
+        const saveApiBtn = document.getElementById('save-api');
+        const cancelApiBtn = document.getElementById('cancel-api');
+        
+        // 存储消息历史
+        let messageHistory = [];
+        
+        // 检查是否有保存的API配置
+        let apiConfig = JSON.parse(localStorage.getItem('deepseekApiConfig')) || {
+            key: '',
+            url: 'https://api.deepseek.com/v1/chat/completions'
+        };
+        
+        // 更新API状态显示
+        updateApiStatus();
+        
+        // 自动调整文本框高度
+        userInput.addEventListener('input', function() {
+            this.style.height = 'auto';
+            this.style.height = (this.scrollHeight < 120 ? this.scrollHeight : 120) + 'px';
+        });
+        
+        // 发送消息
+        async function sendMessage() {
+            const message = userInput.value.trim();
+            if (!message) return;
+            
+            // 检查API密钥是否设置
+            if (!apiConfig.key) {
+                apiModal.classList.remove('hidden');
+                return;
+            }
+            
+            // 添加用户消息到界面
+            addMessageToUI('user', message);
+            
+            // 保存到历史记录
+            messageHistory.push({ role: 'user', content: message });
+            
+            // 清空输入框
+            userInput.value = '';
+            userInput.style.height = 'auto';
+            
+            // 显示加载状态
+            const loadingElement = addLoadingIndicator();
+            
+            try {
+                // 调用DeepSeek API
+                const response = await fetch(apiConfig.url, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${apiConfig.key}`
+                    },
+                    body: JSON.stringify({
+                        model: "deepseek-chat",
+                        messages: messageHistory,
+                        temperature: 0.7
+                    })
+                });
+                
+                if (!response.ok) {
+                    throw new Error(`API请求失败: ${response.statusText}`);
+                }
+                
+                const data = await response.json();
+                const aiMessage = data.choices[0].message.content;
+                
+                // 保存AI消息到历史记录
+                messageHistory.push({ role: 'assistant', content: aiMessage });
+                
+                // 添加AI消息到界面
+                addMessageToUI('ai', aiMessage);
+                
+            } catch (error) {
+                console.error('API调用错误:', error);
+                addMessageToUI('ai', `抱歉，发生错误: ${error.message}`, true);
+            } finally {
+                // 移除加载状态
+                if (loadingElement && loadingElement.parentNode) {
+                    loadingElement.parentNode.removeChild(loadingElement);
+                }
+            }
+        }
+        
+        // 添加消息到界面
+        function addMessageToUI(sender, content, isError = false) {
+            const messageDiv = document.createElement('div');
+            messageDiv.className = 'flex items-start message-animation';
+            
+            if (sender === 'user') {
+                messageDiv.innerHTML = `
+                    <div class="ml-auto bg-blue-500 text-white rounded-full p-2 mr-3">
+                        <i class="fa fa-user"></i>
+                    </div>
+                    <div class="bg-primary text-white rounded-lg rounded-tr-none px-4 py-3 max-w-[80%] ml-auto">
+                        <p>${formatMessage(content)}</p>
+                    </div>
+                `;
+            } else {
+                const bgClass = isError ? 'bg-red-100 text-red-800' : 'bg-gray-200';
+                messageDiv.innerHTML = `
+                    <div class="bg-primary text-white rounded-full p-2 mr-3">
+                        <i class="fa fa-robot"></i>
+                    </div>
+                    <div class="${bgClass} rounded-lg rounded-tl-none px-4 py-3 max-w-[80%]">
+                        <p>${formatMessage(content)}</p>
+                    </div>
+                `;
+            }
+            
+            chatContainer.appendChild(messageDiv);
+            chatContainer.scrollTop = chatContainer.scrollHeight;
+            return messageDiv;
+        }
+        
+        // 添加加载指示器
+        function addLoadingIndicator() {
+            const loadingDiv = document.createElement('div');
+            loadingDiv.className = 'flex items-start message-animation';
+            loadingDiv.innerHTML = `
+                <div class="bg-primary text-white rounded-full p-2 mr-3">
+                    <i class="fa fa-robot"></i>
+                </div>
+                <div class="bg-gray-200 rounded-lg rounded-tl-none px-4 py-3 max-w-[80%]">
+                    <div class="flex space-x-2">
+                        <div class="w-2 h-2 bg-gray-600 rounded-full animate-bounce"></div>
+                        <div class="w-2 h-2 bg-gray-600 rounded-full animate-bounce" style="animation-delay: 0.2s"></div>
+                        <div class="w-2 h-2 bg-gray-600 rounded-full animate-bounce" style="animation-delay: 0.4s"></div>
+                    </div>
+                </div>
+            `;
+            
+            chatContainer.appendChild(loadingDiv);
+            chatContainer.scrollTop = chatContainer.scrollHeight;
+            return loadingDiv;
+        }
+        
+        // 格式化消息内容（简单处理换行）
+        function formatMessage(content) {
+            return content
+                .replace(/\n/g, '<br>')
+                .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+                .replace(/\*(.*?)\*/g, '<em>$1</em>');
+        }
+        
+        // 清空聊天记录
+        function clearChat() {
+            if (confirm('确定要清空所有聊天记录吗？')) {
+                chatContainer.innerHTML = '';
+                messageHistory = [];
+                // 添加欢迎消息
+                addMessageToUI('ai', '你好！我是基于DeepSeek API的AI助手。有什么我可以帮助你的吗？');
+            }
+        }
+        
+        // 更新API状态显示
+        function updateApiStatus() {
+            if (apiConfig.key) {
+                apiStatus.textContent = '已配置API密钥';
+                apiStatus.className = 'text-xs text-green-600 mt-2';
+                apiKeyInput.value = apiConfig.key;
+                apiUrlInput.value = apiConfig.url;
+            } else {
+                apiStatus.textContent = '点击设置API密钥';
+                apiStatus.className = 'text-xs text-orange-600 mt-2 cursor-pointer';
+                apiStatus.addEventListener('click', () => apiModal.classList.remove('hidden'));
+            }
+        }
+        
+        // 保存API配置
+        function saveApiConfig() {
+            const key = apiKeyInput.value.trim();
+            const url = apiUrlInput.value.trim();
+            
+            if (!key) {
+                alert('请输入API密钥');
+                return;
+            }
+            
+            if (!url) {
+                alert('请输入API URL');
+                return;
+            }
+            
+            apiConfig = { key, url };
+            localStorage.setItem('deepseekApiConfig', JSON.stringify(apiConfig));
+            apiModal.classList.add('hidden');
+            updateApiStatus();
+        }
+        
+        // 事件监听
+        sendBtn.addEventListener('click', sendMessage);
+        
+        userInput.addEventListener('keydown', function(e) {
+            // 按Enter发送，Shift+Enter换行
+            if (e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault();
+                sendMessage();
+            }
+        });
+        
+        clearBtn.addEventListener('click', clearChat);
+        
+        saveApiBtn.addEventListener('click', saveApiConfig);
+        cancelApiBtn.addEventListener('click', () => apiModal.classList.add('hidden'));
+        
+        // 点击模态框外部关闭
+        apiModal.addEventListener('click', function(e) {
+            if (e.target === apiModal) {
+                apiModal.classList.add('hidden');
+            }
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,850 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tetranite在犬下颌骨的植体粘接研究</title>
+    <!-- 引入Chart.js用于数据可视化 -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- 加载前检查用户是否登录 -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            margin: 20px;
+            color: #333;
+            background-color: #f9f9f9;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background-color: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #99774b;
+            text-align: center;
+            border-bottom: 2px solid #99774b;
+            padding-top: 7.5px;
+            padding-bottom: 7.5px;
+            margin-bottom: 10px;
+            font-size: xx-large;
+        }
+        h2 {
+            color: #99774b;
+        }
+        h3 {
+            color: #2c3e50;
+            margin-top: 30px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+            box-shadow: 0 0 5px rgba(0,0,0,0.05);
+        }
+        th, td {
+            padding: 12px 15px;
+            text-align: center;
+            border: 1px solid #ddd;
+        }
+        th {
+            background-color: #99774b;
+            color: white;
+            text-align: center;
+        }
+        tr:hover {
+            background-color: #f5f5f5;
+        }
+        .highlight {
+            background-color: #99774b88;
+            padding: 15px;
+            border-radius: 5px;
+            margin: 20px 0;
+            row-gap: 2px;
+        }
+        .reference {
+            margin-top: 40px;
+            padding-top: 20px;
+            border-top: 1px solid #ddd;
+        }
+        img {
+            max-width: 100%;
+            height: auto;
+            margin: 10px 0;
+            border-radius: 5px;
+            border: 1px solid #ddd;
+        }
+        .section {
+            margin-bottom: 40px;
+        }
+        .chart-container {
+            position: relative;
+            height: 400px;
+            margin: 30px auto;
+            max-width: 800px;
+        }
+        .chart-description {
+            text-align: center;
+            font-style: italic;
+            color: #666;
+            margin: -20px 0 30px 0;
+        }
+        strong {
+            margin-left: 2px;
+            margin-right: 2px;
+        }
+    </style>
+    <style type="text/tailwindcss">
+        @layer utilities {
+            .content-auto {
+                content-visibility: auto;
+            }
+            .card-shadow {
+                box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+            }
+            .transition-custom {
+                transition: all 0.3s ease;
+            }
+            h1 {
+                @apply text-2xl font-bold
+            }
+            h2 {
+                @apply text-xl font-bold mt-2 mb-2
+            }
+            h3 {
+                @apply text-lg font-bold mt-2 mb-2
+            }
+            .image {
+                @apply flex-row text-center items-center justify-center
+            }
+        } 
+    </style>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#99774b',
+                        secondary: '#f9f8f6',
+                        accent: '#0FC6C2',
+                        neutral: '#F5F7FA',
+                        dark: '#1D2129',
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'system-ui', 'sans-serif'],
+                    },
+                }
+            }
+        }
+    </script>
+</head>
+<body>
+    <!-- 导航栏 -->
+    <nav id="guide-bar"
+        class="bg-gray-100 rounded-lg shadow-lg sticky top-0 z-50 transition-all duration-300">
+        <h1>Tetranite在犬下颌骨的植体粘接研究</h1>
+        <div class="flex grid md:grid-cols-5 items-center justify-between text-center text-primary font-bold text-xl ml-6 mr-6 mb-2">
+            <a class="hover:underline hover:bg-primary/10 hover:scale-105" href="#section0">Tetranite®开发时间线</a>
+            <a class="hover:underline hover:bg-primary/10 hover:scale-105" href="#section1">Tetranite®材料性能指标</a>
+            <a class="hover:underline hover:bg-primary/10 hover:scale-105" href="#section2">犬下颌骨-种植体试验</a>
+            <a class="hover:underline hover:bg-primary/10 hover:scale-105" href="#section3">讨论与结论</a>
+            <a class="hover:underline hover:bg-primary/10 hover:scale-105" href="#section4">参考文献</a>
+        </div>
+    </nav>
+
+    <div class="container">
+        <!-- 1. 开发时间线 -->
+        <div class="text-end items-end">
+            <h3>报告创建时间：2024-11-22<h3></h3>
+        </div>
+        <div class="section">
+            <h2 id="section0">1. Tetranite®开发时间线</h2>
+            <p>RevBio公司（前身为LaunchPad Medical）创办于2014年，总部位于美国马萨诸塞州，其核心产品Tetranite®骨胶的研发与试验历程如下：</p>
+            <table>
+                <thead>
+                    <tr>
+                        <th>报道时间</th>
+                        <th>动物/临床-阶段</th>
+                        <th>参考资料/来源</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>2015.06.01</td>
+                        <td>与Stryker达成独家协议，推进Tetranite®商业化</td>
+                        <td><a href="https://www.prnewswire.com/news-releases/launchpad-medical-executes-definitive-license-agreement-with-stryker-for-novel-bone-adhesive-technology-300092238.html"
+                            class="text-blue-500 underline" target="_blank">
+                            美通社, PR NewsWire</a></td>
+                    </tr>
+                    <tr>
+                        <td>2018</td>
+                        <td>兔股骨髁标准模型缺损测试（8、26、52周）</td>
+                        <td>[1]</td>
+                    </tr>
+                    <tr>
+                        <td>2019.09.12</td>
+                        <td>人体牙科固定临床试验：FDA批准启动首次研究（20名患者）</td>
+                        <td><a href="https://www.prnewswire.com/news-releases/launchpad-medical-received-fda-approval-to-initiate-a-clinical-study-300917332.html"
+                            class="text-blue-500 underline">美通社, PR NewsWire</a></td>
+                    </tr>
+                    <tr>
+                        <td>2020</td>
+                        <td>犬下颌骨OverSize缺损种植试验（24h、10天、4个月）</td>
+                        <td>[2]</td>
+                    </tr>
+                    <tr>
+                        <td>2020</td>
+                        <td>犬(尸体)下颌骨骨折粘接试验</td>
+                        <td>[3]</td>
+                    </tr>
+                    <tr>
+                        <td>2020</td>
+                        <td>绵羊颅骨骨瓣粘接试验（12周、1年、2年）</td>
+                        <td>[4]</td>
+                    </tr>
+                    <tr>
+                        <td>2021.03</td>
+                        <td>国际空间站开展小鼠体内实验（颅骨）</td>
+                        <td><a href="https://issnationallab.org/press-releases/spacex-crs-26-revbio-tetranite/"
+                            class="text-blue-500 underline" target="_blank">国际空间站国家实验室</a></td>
+                    </tr>
+                    <tr>
+                        <td>2022.09.15</td>
+                        <td>人体牙科固定临床试验：获准在英国开展（15名患者）</td>
+                        <td><a href="https://www.businesswire.com/news/home/20220915005733/en/RevBio-Receives-Approval-from-the-U.K.%E2%80%99s-Regulatory-Authority-to-Initiate-a-Clinical-Trial-for-an-Optimized-Formulation-of-its-Dental-Bone-Adhesive-Biomaterial"
+                            class="text-blue-500 underline" target="_blank">美国商业新闻社, Business Wire</a></td>
+                    </tr>
+                    <tr>
+                        <td>2022</td>
+                        <td>犬下颌骨OverSize缺损种植试验（9、12个月）</td>
+                        <td>[5]</td>
+                    </tr>
+                    <tr>
+                        <td>2022</td>
+                        <td>犬下颌骨OverSize缺损种植后牙冠骨水平维持影像学评价</td>
+                        <td>[6]</td>
+                    </tr>
+                    <tr>
+                        <td>2022.07</td>
+                        <td>人尸体开颅骨瓣粘接试验（20分钟、10天）</td>
+                        <td>[7]</td>
+                    </tr>
+                    <tr>
+                        <td>2022</td>
+                        <td>髋关节置换术中粘合剂固定强度测试方案（骨泡沫）</td>
+                        <td>[8]</td>
+                    </tr>
+                    <tr>
+                        <td>2023.01.18</td>
+                        <td>人体牙科固定临床试验：获准在意大利开展（15名患者）</td>
+                        <td><a href="https://www.businesswire.com/news/home/20230117006139/es/"
+                            class="text-blue-500 underline" target="_blank">美国商业新闻社, Business Wire</a></td>
+                    </tr>
+                    <tr>
+                        <td>2023.08.01</td>
+                        <td>人体牙科固定临床试验：FDA批准美国第二项牙种植体稳定试验（20名患者）</td>
+                        <td><a href="https://www.businesswire.com/news/home/20230801379402/en/RevBio-Receives-FDA-Approval-to-Conduct-its-Second-U.S.-Based-Clinical-Trial-for-Dental-Implant-Stabilization"
+                            class="text-blue-500 underline">美国商业新闻社, Business Wire</a></td>
+                    </tr>
+                    <tr>
+                        <td>2023.12.08</td>
+                        <td>人体颅骨骨瓣固定临床试验：FDA批准（20名患者试点）</td>
+                        <td><a href="https://www.businesswire.com/news/home/20231208749209/en/RevBio-Receives-FDA-Approval-to-Conduct-a-First-in-Human-Clinical-Trial-for-its-Regenerative-Bone-Adhesive-for-Cranial-Flap-Fixation"
+                            class="text-blue-500 underline" target="_blank">美国商业新闻社, Business Wire</a></td>
+                    </tr>
+                    <tr>
+                        <td>2024.09.16</td>
+                        <td>人体颅骨骨瓣固定临床试验：前五名患者成功入组，首名患者术后愈合超3个月</td>
+                        <td><a href="https://www.businesswire.com/news/home/20240916810983/en/RevBio-Receives-a-2.4-Million-NIH-Grant-to-Conduct-a-First-in-Human-Clinical-Trial-for-its-Regenerative-Bone-Adhesive-for-Cranial-Flap-Fixation-and-Enrolls-First-Five-Patients"
+                            class="text-blue-500 underline" target="_blank">美国商业新闻社, Business Wire</a></td>
+                    </tr>
+                    <tr>
+                        <td>2024</td>
+                        <td>人体牙科固定临床试验：3年随访</td>
+                        <td>[9]</td>
+                    </tr>
+                    <tr>
+                        <td>2024</td>
+                        <td>母猪前交叉韧带修复试验</td>
+                        <td>[10]</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- 2. 材料性能 -->
+        <div class="section">
+            <h2 id="section1">2. Tetranite®材料性能指标</h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th>性能指标</th>
+                        <th>文献[3]（犬尸体下颌骨骨折粘接）</th>
+                        <th>文献[5]（犬下颌骨种植，4个月）</th>
+                        <th>文献[6]（犬下颌骨种植，9-12个月）</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <th>弹性模量(GPa)</th>
+                        <td>3.7±0.5；添加7%PLGA纤维后4.5±0.5</td>
+                        <td>-</td>
+                        <td>-</td>
+                    </tr>
+                    <tr>
+                        <th>抗压强度(MPa)</th>
+                        <td>35±7；添加7%PLGA纤维后62±8</td>
+                        <td>-</td>
+                        <td>-</td>
+                    </tr>
+                    <tr>
+                        <th>剪切强度(MPa)</th>
+                        <td>3±1</td>
+                        <td>-</td>
+                        <td>-</td>
+                    </tr>
+                    <tr>
+                        <th>降解率</th>
+                        <td>兔股骨：与8周相比，26周体积减少49%，52周减少77.5%</td>
+                        <td>犬下颌骨：与10天相比，4个月ROI面积减少46.875%（64%→34%）</td>
+                        <td>犬下颌骨：与10天相比，9个月ROI面积减少84.375%（64%→10%）；12个月减少85.714%（64%→12%）</td>
+                    </tr>
+                    <tr>
+                        <th>旋出力矩(Ncm)（犬下颌骨-磨牙）</th>
+                        <td>-</td>
+                        <td>24h：22.2；10天：45.7；4个月：104.7</td>
+                        <td>9个月：155.0；12个月：171.8</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <!-- 添加降解率对比图表 -->
+            <h3>2.1 材料降解率对比</h3>
+            <div class="chart-container">
+                <canvas id="degradationChart"></canvas>
+            </div>
+            <p class="chart-description">图1: Tetranite®骨胶在不同动物模型中的降解率变化趋势</p>
+        </div>
+
+        <!-- 3. 犬下颌骨-种植体试验详情 -->
+        <div class="section">
+            <h2 id="section2">3. Tetranite®犬下颌骨-种植体试验核心内容</h2>
+            
+            <h3>3.1 试验基础信息</h3>
+            <div class="highlight">
+                <p><strong>试验材料</strong>：
+                    <br>1. Tetranite®（61.5% TTCP，38.5% OPLS，w/w）；
+                    <br>2. 对照材料：Bio-Oss®（牛骨矿物质颗粒，BBM组）、无生物材料（阴性对照，NC组）；
+                    <br>3. 种植体：士卓曼骨水平种植体，Φ3.3×8mm，SLA表面。
+                </p>
+                <p class="mt-4"><strong>动物模型</strong>：
+                    <br>26只大型杂交犬（年龄>1岁，体重>25Kg），双侧拔除下颌第二至第四前磨牙和第一磨牙，愈合3个月后制备3个OverSize缺损并即刻种植。</p>
+                    
+                <p class="mt-4"><strong>组别设置</strong>：
+                    <p class="ml-4"><strong>实验组</strong>（TN组：Tetranite®）;</p>
+                    <p class="ml-4"><strong>阳性对照组</strong>（BBM组：Bio-Oss®）;</p>
+                    <p class="ml-4"><strong>阴性对照组</strong>（NC组：血块）；</p>
+                    <p>每只犬一侧用于组织学/影像测量，另一侧用于生物力学测试。</p>
+                </p>
+                <p class="mt-4"><strong>时间节点</strong>：
+                    <br>每月影像测量；1天、10天、4个月、9个月、12个月各5只犬进行组织学与力学测试，1只犬纳入3周队列。</p>
+            </div>
+
+            <h3>3.2 手术步骤</h3>
+            <ol>
+                <li><strong>拔牙阶段</strong>：全麻+无菌操作，拔除目标牙齿，磨平骨边缘，4-0聚四氟乙烯缝合线初级闭合，愈合12周（期间第二磨牙处放置丙烯酸树脂保膜咬块）。</li>
+                <li><strong>截骨阶段</strong>：标记种植体中心（第二磨牙近面前方9mm，中心轴间距12mm），按制造商说明扩宽骨切除（直径2.2→2.8mm，深度8mm），最终制备5.5mm直径、6mm深度的OverSize缺损。</li>
+                <li><strong>种植体放置</strong>：同拔牙手术条件，暴露残余脊，舌侧保留至少6mm宽平板，确保种植体平台骨水平一致放置；中间部位为NC组，前/后部位随机分配TN组或BBM组。</li>
+                <li><strong>粘接程序</strong>：激活预加载胶囊中的Tetranite®（反复使用12秒），止血后填充截骨缺损，植入种植体至根尖骨接触，修剪多余粘合剂至骨嵴水平。</li>
+            </ol>
+            <div class="image">
+                <img src="./src/粘接步骤图.png" alt="粘接步骤图" title="粘接步骤图">
+                <img src="./src/oversize缺损模型图.png" alt="OverSize缺损模型图" title="OverSize缺损模型图">
+            </div>
+            
+
+            <h3>3.3 试验步骤</h3>
+            <ol>
+                <li><strong>影像学检查</strong>：种植后即刻及每月拍摄根尖周x线片（PAs），测量种植体平面到骨/材料平面的距离。</li>
+                <li><strong>安乐死</strong>：规定时间节点后，异丙酚麻醉+过量戊巴比妥钠/苯妥英钠静脉注射（1 mL/10 Ib）。</li>
+                <li><strong>尸体剖检</strong>：解剖锯切除左右半下颌骨，组织学评估样本置于10%中性缓冲福尔马林，生物力学测试样本置于磷酸盐缓冲溶液。</li>
+                <li><strong>生物力学测试</strong>：解剖后8小时内，使用扭矩计（HTGS-40, Imada）+种植体接口适配器（Blu Sky Bio）测量旋出扭矩，记录最大扭矩值。</li>
+                <li><strong>组织学制备</strong>：半颌骨标本经10%中性缓冲福尔马林固定，制备病理切片，Steven's blue和Van Gieson's picro fuchsin染色，亮视野/偏振光显微镜分析。</li>
+                <li><strong>组织形态计量学分析</strong>：尼康Eclipse 50i显微镜+Spot Insight 2相机数字化标本（相同放大倍数），Spot Insight程序+Adobe Photoshop完成测量。</li>
+                <li><strong>统计分析</strong>：线性混合模型分析各组旋出扭矩差异，NCSS v11.0.2软件处理数据，报告差异估计值与P值。</li>
+            </ol>
+
+            <h3>3.4 试验结果</h3>
+            <h4>（1）影像学结果（52周追踪）</h4>
+            <table>
+                <thead>
+                    <tr>
+                        <th>时间</th>
+                        <th>TN组（均值±标准差）</th>
+                        <th>BBM组（均值±标准差）</th>
+                        <th>NC组（均值±标准差）</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>即刻种植</td>
+                        <td>0.291±0.29**</td>
+                        <td>-0.182±1.20**</td>
+                        <td>-4.321±1.20</td>
+                    </tr>
+                    <tr>
+                        <td>2周</td>
+                        <td>0.246±0.25**</td>
+                        <td>0.205±0.64**</td>
+                        <td>-3.316±1.66</td>
+                    </tr>
+                    <tr>
+                        <td>4周</td>
+                        <td>0.290±0.31*</td>
+                        <td>0.293±0.49*</td>
+                        <td>-1.384±1.39</td>
+                    </tr>
+                    <tr>
+                        <td>8周</td>
+                        <td>0.364±0.29*</td>
+                        <td>0.251±0.48*</td>
+                        <td>-0.376±0.69</td>
+                    </tr>
+                    <tr>
+                        <td>12周</td>
+                        <td>0.335±0.29*</td>
+                        <td>0.179±0.51</td>
+                        <td>-0.381±0.57</td>
+                    </tr>
+                    <tr>
+                        <td>16周</td>
+                        <td>0.356±0.29*</td>
+                        <td>0.144±0.55</td>
+                        <td>-0.381±0.59</td>
+                    </tr>
+                    <tr>
+                        <td>20周</td>
+                        <td>0.273±0.26*</td>
+                        <td>0.262±0.57</td>
+                        <td>-0.289±0.56</td>
+                    </tr>
+                    <tr>
+                        <td>24周</td>
+                        <td>0.328±0.26*</td>
+                        <td>0.196±0.53</td>
+                        <td>-0.304±0.57</td>
+                    </tr>
+                    <tr>
+                        <td>28周</td>
+                        <td>0.346±0.22*</td>
+                        <td>0.208±0.54</td>
+                        <td>-0.358±0.53</td>
+                    </tr>
+                    <tr>
+                        <td>32周</td>
+                        <td>0.320±0.25*</td>
+                        <td>0.250±0.57</td>
+                        <td>-0.250±0.37</td>
+                    </tr>
+                    <tr>
+                        <td>36周</td>
+                        <td>0.293±0.24*</td>
+                        <td>0.209±0.49</td>
+                        <td>-0.280±0.36</td>
+                    </tr>
+                    <tr>
+                        <td>40周</td>
+                        <td>0.394±0.25*</td>
+                        <td>0.374±0.58</td>
+                        <td>-0.410±0.31</td>
+                    </tr>
+                    <tr>
+                        <td>44周</td>
+                        <td>0.406±0.25*</td>
+                        <td>0.398±0.56</td>
+                        <td>-0.412±0.31</td>
+                    </tr>
+                    <tr>
+                        <td>48周</td>
+                        <td>0.396±0.26*</td>
+                        <td>0.376±0.58</td>
+                        <td>-0.450±0.32</td>
+                    </tr>
+                    <tr>
+                        <td>52周</td>
+                        <td>0.390±0.23*</td>
+                        <td>0.370±0.59</td>
+                        <td>-0.468±0.38</td>
+                    </tr>
+                </tbody>
+            </table>
+            <p><em>注：显著性水平*P<0.05，**P<0.001；测量指标为种植体平台到骨/材料平面的垂直距离。</em></p>
+            <div class="highlight">
+                <p>影像学核心结论：
+                    <br>1. TN组骨/材料水平52周内保持稳定；
+                    <br>2. BBM组前4周略有增加，之后稳定；
+                    <br>3. NC组前8周显著增加，之后稳定；
+                    <br>4. TN组与BBM组无统计学差异，与NC组任何时间点均有显著差异；
+                    <br>5. BBM组虽放射不透明度高，但组织学显示大量残留颗粒，1/3种植体冠状面无新骨形成；TN组均观察到新骨形成与骨整合。
+                </p>
+            </div>
+
+            <!-- 添加骨水平变化趋势图 -->
+            <div class="chart-container">
+                <canvas id="boneLevelChart"></canvas>
+            </div>
+            <p class="chart-description">图2: 不同组别种植体平台到骨/材料平面的垂直距离变化趋势（52周追踪）</p>
+
+            <h4>（2）组织学结果（10天-12个月）</h4>
+            <div class="image">
+                <img src="./src/植入后10天的低功率显微照片.png" alt="植入后10天低功率显微照片">
+                <img src="./src/植入后4个月的低功率显微照片.png" alt="植入后4个月低功率显微照片">
+                <img src="./src/同一半下颌骨相邻三个部位的低倍率显微照片.png" alt="9-12个月显微照片">
+            </div>
+            
+            <table>
+                <thead>
+                    <tr>
+                        <th>时间节点</th>
+                        <th>TN组（Tetranite®）</th>
+                        <th>BBM组（Bio-Oss®）</th>
+                        <th>NC组（血块）</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>10天</td>
+                        <td>粘合剂与种植体/骨表面密切接触，无软组织侵入</td>
+                        <td>根尖区轻度新骨小梁，截骨壁清晰，颗粒游离于软组织，无明显新骨</td>
+                        <td>截骨壁与种植体间为血块，少量小梁骨，大部分种植体无硬组织结合</td>
+                    </tr>
+                    <tr>
+                        <td>4个月</td>
+                        <td>颊侧粘合剂与新骨浸润良好，舌侧几乎被新骨替代，血液供应充足</td>
+                        <td>颗粒被软组织包围，颊侧种植体表面无骨接触，舌侧颗粒嵌入骨但远离种植体</td>
+                        <td>颊侧骨吸收，种植体表面被软组织覆盖；舌侧截骨壁成熟，冠状面无骨-种植体接触</td>
+                    </tr>
+                    <tr>
+                        <td>9个月</td>
+                        <td>骨组织生长至种植体-宿主骨间隙，取代/穿透粘合剂；冠状区骨水平稳定，中间区粘合剂被矿化骨/骨髓腔替代，根尖区仅残留小碎片</td>
+                        <td>颗粒仍残留，骨与种植体接触有限，部分区域纤维包裹</td>
+                        <td>骨愈合较慢，种植体表面软组织覆盖较多，骨-种植体接触面积小于TN组</td>
+                    </tr>
+                    <tr>
+                        <td>12个月</td>
+                        <td>新骨成熟，皮质骨/骨小梁与宿主组织结构相似；冠状区骨高度良好，中间区粘合剂几乎被替代，新骨与种植体紧密接触；仅残留20-200μm碎片</td>
+                        <td>大量残留颗粒，部分纤维封装，骨水平低于TN组，无明显新骨替代</td>
+                        <td>骨水平较低，种植体表面骨接触面积小，软组织填充间隙</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <h4>（3）旋出扭矩测试结果</h4>
+            <div class="image">
+                <img src="./src/旋出扭矩峰值.png" alt="旋出扭矩峰值图">
+                <p>旋出扭矩峰值图</p>
+            </div>
+            
+            <table>
+                <thead>
+                    <tr>
+                        <th>时间节点</th>
+                        <th>TN组（Ncm）</th>
+                        <th>BBM组（Ncm）</th>
+                        <th>NC组（Ncm）</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>24h</td>
+                        <td>22.2</td>
+                        <td>1.3</td>
+                        <td>1.4</td>
+                    </tr>
+                    <tr>
+                        <td>10天</td>
+                        <td>45.7</td>
+                        <td>6.2</td>
+                        <td>5.7</td>
+                    </tr>
+                    <tr>
+                        <td>4个月</td>
+                        <td>104.7</td>
+                        <td>77.8</td>
+                        <td>88.7</td>
+                    </tr>
+                    <tr>
+                        <td>9个月</td>
+                        <td>155.0（95%CI 113；197）</td>
+                        <td>132.1（95%CI 94.5；169）</td>
+                        <td>128.6（95%CI 66.8；190.4）</td>
+                    </tr>
+                    <tr>
+                        <td>12个月</td>
+                        <td>171.8（95%CI 134.2；209.4）</td>
+                        <td>101.5（95%CI 59.5；143.5）</td>
+                        <td>140.7（95%CI 78.8；202.5）</td>
+                    </tr>
+                </tbody>
+            </table>
+            <div class="highlight">
+                <p>旋出扭矩核心结论：
+                    <br>1. TN组扭矩值随时间持续增加，24h即达22.2Ncm（临床显著稳定），12个月达171.8Ncm；
+                    <br>2. BBM组9个月达132.1Ncm，12个月下降23%至101.5Ncm（推测因颗粒惰性、无新骨替代）；
+                    <br>3. NC组12个月达140.7Ncm，但始终低于TN组；
+                    <br>4. TN组即使材料被新骨替代，稳定性仍优于BBM组和NC组。
+                </p>
+            </div>
+
+            <!-- 添加旋出扭矩对比图表 -->
+            <div class="chart-container">
+                <canvas id="torqueChart"></canvas>
+            </div>
+            <p class="chart-description">图3: 不同组别种植体旋出扭矩值变化趋势（24小时至12个月）</p>
+        </div>
+
+        <!-- 4. 讨论与结论 -->
+        <div class="section">
+            <h2 id="section3">4. 讨论与结论</h2>
+
+            <h3>4.1 关键讨论点</h3>
+            <div class="highlight">
+                <ol>
+                    <li>1. <strong>材料-骨/钛兼容性</strong>：所有组织学标本显示Tetranite®与骨、钛紧密接触，无上皮/结缔组织渗透，避免纤维包裹。</li>
+                    <li>2. <strong>降解机制</strong>：非细胞介导降解（不依赖破骨细胞），分阶段被新骨替代，降解过程不干扰骨形成。</li>
+                    <li>3. <strong>骨导性</strong>：粘合剂内部及周围存在血管（骨形成必需），且被骨组织包围，证明良好骨导性。</li>
+                    <li>4. <strong>生物相容性</strong>：无宿主炎症反应，因材料组成简单（磷酸四钙、磷酸丝氨酸、水），均为生理相关成分，无免疫原性。</li>
+                    <li>5. <strong>研究局限性</strong>：犬骨愈合速度快于人类；种植体未按人类方式修复，未评估负荷对骨周转的影响。</li>
+                </ol>
+            </div>
+            
+
+            <h3>4.2 核心结论</h3>
+            <div class="highlight text-lg">
+                <p>1. <strong>即刻稳定性</strong>：Tetranite®在种植后24h即提供>22Ncm的稳定扭矩，满足临床即刻稳定需求。</p>
+                <p>2. <strong>持续稳定性</strong>：TN组旋出扭矩随时间持续增加，新骨逐渐替代Tetranite®，无稳定性损失，12个月达171.8Ncm。</p>
+                <p>3. <strong>生物相容性</strong>：影像学与临床评估证实无硬/软组织炎症反应，材料安全性良好。</p>
+                <p>4. <strong>新骨生长促进</strong>：组织学显示种植体表面原生骨量显著增加，骨整合程度随时间提升，无破骨细胞破坏或软组织渗透。</p>
+                <p>5. <strong>骨水平维持</strong>：Tetranite®可稳定维持骨水平至少1年，优于阴性对照组，与阳性对照组相当。</p>
+            </div>
+        </div>
+
+        <!-- 5. 参考文献 -->
+        <div class="section reference">
+            <h2 id="section4">5. 参考文献</h2>
+            <ol class="text-gray-500">
+                <li>[1] Kirillova A, Kelly C, von Windheim N, et al. Bioinspired mineral–organic Bioresorbable bone adhesive[J]. Advanced healthcare materials, 2018, 7(17): 1800467.</li>
+                <li>[2] Cochran D L, Jones A, Sugita R, et al. Immediate Dental Implant Stabilization in a Canine Model Using a Novel Mineral-Organic Adhesive: 4-Month Results[J]. International Journal of Oral & Maxillofacial Implants, 2020, 35(1).</li>
+                <li>[3] Geddes A T, Thatcher G P, Hetzel S, et al. Biomechanical testing of a calcium phosphate-phosphoserine–based mineral-organic adhesive for non-invasive fracture repair of mandibular fractures in dogs[J]. Frontiers in Veterinary Science, 2020, 7: 59.</li>
+                <li>[4] Foley K T, Woodard E J, Slotkin J R, et al. Cranial flap fixation in sheep using a resorbable bone adhesive[J]. Journal of Neurosurgery, 2020, 134(2): 621-629.</li>
+                <li>[5] Cochran D L, Jones A A, Sugita R, et al. Twelve‐month evaluation of a novel mineral–organic adhesive material used to stabilize dental implants placed in oversized osteotomies in vivo in an animal model[J]. Clinical oral implants research, 2022, 33(4): 391-404.</li>
+                <li>[6] Sugita R, Jones A A, Kotsakis G A, et al. Radiographic evaluation of a novel bone adhesive for maintenance of crestal bone around implants in canine oversized osteotomies[J]. Journal of periodontology, 2022, 93(6): 924-932.</li>
+                <li>[7] Smith T R, Foley K T, Boruah S, et al. Use of adhesive cranial bone flap fixation without hardware to improve mechanical strength, resist cerebrospinal fluid leakage, and maintain anatomical alignment: a laboratory study[J]. Journal of Neurosurgery, 2022, 139(2): 517-527.</li>
+                <li>[8] Belincevic B, Larkin K, Lin E, et al. A Testing Protocol to Determine the Fixation Strength of a Novel Bone Adhesive for Hip Joint Replacements[J]. 2022.</li>
+                <li>[9] Pikos M A, Miron R J. Clinical Use of a Mineral-Organic Resorbable Bone Adhesive: A First Human Case Report with a 3-Year Follow-up[J]. International Journal of Periodontics & Restorative Dentistry, 2024, 44(1).</li>
+                <li>[10] GARRETT Jr W E. 5TH ANNUAL WILLIAM E. GARRETT, Jr., MD, PhD SPORTS MEDICINE RESEARCH DAY[J]. 2024.</li>
+            </ol>
+        </div>
+    </div>
+
+    <script>
+        // 等待DOM加载完成
+        document.addEventListener('DOMContentLoaded', function() {
+            // 1. 降解率对比图表
+            const degradationCtx = document.getElementById('degradationChart').getContext('2d');
+            new Chart(degradationCtx, {
+                type: 'bar',
+                data: {
+                    labels: ['兔股骨(26周)', '兔股骨(52周)', '犬下颌骨(4个月)', '犬下颌骨(9个月)', '犬下颌骨(12个月)'],
+                    datasets: [{
+                        label: '降解率(%)',
+                        data: [49, 77.5, 46.875, 84.375, 85.714],
+                        backgroundColor: 'rgba(153, 119, 75, 0.7)',
+                        borderColor: 'rgba(0, 0, 0, 1)',
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            max: 100,
+                            title: {
+                                display: true,
+                                text: '降解率(%)'
+                            }
+                        }
+                    },
+                    plugins: {
+                        title: {
+                            display: true,
+                            text: 'Tetranite®骨胶在不同动物模型中的降解率',
+                            font: {
+                                size: 16
+                            }
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    return `降解率: ${context.raw}%`;
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+
+            // 2. 骨水平变化趋势图
+            const boneLevelCtx = document.getElementById('boneLevelChart').getContext('2d');
+            new Chart(boneLevelCtx, {
+                type: 'line',
+                data: {
+                    labels: ['即刻', '2周', '4周', '8周', '12周', '16周', '20周', '24周', '28周', '32周', '36周', '40周', '44周', '48周', '52周'],
+                    datasets: [
+                        {
+                            label: 'TN组',
+                            data: [0.291, 0.246, 0.290, 0.364, 0.335, 0.356, 0.273, 0.328, 0.346, 0.320, 0.293, 0.394, 0.406, 0.396, 0.390],
+                            borderColor: 'rgba(52, 152, 219, 1)',
+                            backgroundColor: 'rgba(52, 152, 219, 0.1)',
+                            tension: 0.3,
+                            fill: false
+                        },
+                        {
+                            label: 'BBM组',
+                            data: [-0.182, 0.205, 0.293, 0.251, 0.179, 0.144, 0.262, 0.196, 0.208, 0.250, 0.209, 0.374, 0.398, 0.376, 0.370],
+                            borderColor: 'rgba(46, 204, 113, 1)',
+                            backgroundColor: 'rgba(46, 204, 113, 0.1)',
+                            tension: 0.3,
+                            fill: false
+                        },
+                        {
+                            label: 'NC组',
+                            data: [-4.321, -3.316, -1.384, -0.376, -0.381, -0.381, -0.289, -0.304, -0.358, -0.250, -0.280, -0.410, -0.412, -0.450, -0.468],
+                            borderColor: 'rgba(231, 76, 60, 1)',
+                            backgroundColor: 'rgba(231, 76, 60, 0.1)',
+                            tension: 0.3,
+                            fill: false
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    scales: {
+                        y: {
+                            title: {
+                                display: true,
+                                text: '种植体平台到骨/材料平面的垂直距离(mm)'
+                            }
+                        },
+                        x: {
+                            title: {
+                                display: true,
+                                text: '时间'
+                            }
+                        }
+                    },
+                    plugins: {
+                        title: {
+                            display: true,
+                            text: '不同组别骨水平变化趋势',
+                            font: {
+                                size: 16
+                            }
+                        }
+                    }
+                }
+            });
+
+            // 3. 旋出扭矩对比图表
+            const torqueCtx = document.getElementById('torqueChart').getContext('2d');
+            new Chart(torqueCtx, {
+                type: 'line',
+                data: {
+                    labels: ['24h', '10天', '4个月', '9个月', '12个月'],
+                    datasets: [
+                        {
+                            label: 'TN组',
+                            data: [22.2, 45.7, 104.7, 155.0, 171.8],
+                            borderColor: 'rgba(52, 152, 219, 1)',
+                            backgroundColor: 'rgba(52, 152, 219, 0.1)',
+                            tension: 0.3,
+                            fill: false,
+                            pointRadius: 5,
+                            pointBackgroundColor: 'rgba(52, 152, 219, 1)'
+                        },
+                        {
+                            label: 'BBM组',
+                            data: [1.3, 6.2, 77.8, 132.1, 101.5],
+                            borderColor: 'rgba(46, 204, 113, 1)',
+                            backgroundColor: 'rgba(46, 204, 113, 0.1)',
+                            tension: 0.3,
+                            fill: false,
+                            pointRadius: 5,
+                            pointBackgroundColor: 'rgba(46, 204, 113, 1)'
+                        },
+                        {
+                            label: 'NC组',
+                            data: [1.4, 5.7, 88.7, 128.6, 140.7],
+                            borderColor: 'rgba(231, 76, 60, 1)',
+                            backgroundColor: 'rgba(231, 76, 60, 0.1)',
+                            tension: 0.3,
+                            fill: false,
+                            pointRadius: 5,
+                            pointBackgroundColor: 'rgba(231, 76, 60, 1)'
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            title: {
+                                display: true,
+                                text: '旋出扭矩值(Ncm)'
+                            }
+                        },
+                        x: {
+                            title: {
+                                display: true,
+                                text: '时间'
+                            }
+                        }
+                    },
+                    plugins: {
+                        title: {
+                            display: true,
+                            text: '不同组别种植体旋出扭矩变化趋势',
+                            font: {
+                                size: 16
+                            }
+                        },
+                        annotation: {
+                            annotations: {
+                                line1: {
+                                    type: 'line',
+                                    yMin: 20,
+                                    yMax: 20,
+                                    borderColor: 'rgba(155, 89, 182, 0.5)',
+                                    borderWidth: 2,
+                                    borderDash: [5, 5],
+                                    label: {
+                                        display: true,
+                                        content: '临床稳定阈值(20Ncm)',
+                                        position: 'end'
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        });
+    </script>
+</body>
+</html>

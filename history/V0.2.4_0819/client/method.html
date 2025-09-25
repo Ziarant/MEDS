@@ -1,0 +1,554 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>测试项目清单</title>
+    <!-- 网页图标 -->
+    <link rel="icon" type="image/png" href="../../icon/icons-database.png">
+
+    <!-- 加载前检查用户是否登录 -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const username = localStorage.getItem('username'); // 模拟获取用户名
+            if (!username) {
+                window.location.href = '../login.html'; // 如果未登录，重定向到登录页面
+            } else {
+                document.getElementById('username-button').textContent = username; // 显示用户名
+            }
+        });
+    </script>
+    <!-- 验证token -->
+    <script src='../../javaScript/verifyToken.js'></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet"> -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" rel="stylesheet">
+    <!-- Tailwind 配置 -->
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#99774b',
+                        secondary: '#f9f8f6',
+                        neutral: {
+                            100: '#F5F7FA',
+                            200: '#E4E6EB',
+                            300: '#C9CDD4',
+                            400: '#86909C',
+                            500: '#4E5969',
+                            600: '#1D2129',
+                        }
+                    },
+                    fontFamily: {
+                        inter: ['Inter', 'system-ui', 'sans-serif'],
+                    },
+                    boxShadow: {
+                        'card': '0 10px 30px -5px rgba(0, 0, 0, 0.1)',
+                        'card-hover': '0 20px 40px -5px rgba(0, 0, 0, 0.15)',
+                    }
+                },
+            }
+        }
+    </script>
+    <link rel="stylesheet" href="../../style.css">
+</head>
+
+<body class="font-inter bg-neutral-100 min-h-screen flex flex-col">
+    <!-- 粒子效果容器 -->
+    <div id="particles-js"></div>
+    <!-- 引入粒子效果配置 -->
+    <script src="https://cdn.jsdelivr.net/gh/VincentGarreau/particles.js@2.0.0/particles.min.js"></script>
+
+    <!-- 导航栏 -->
+    <nav class="bg-white shadow-md sticky top-0 z-50 transition-all duration-300">
+        <div class="container mx-auto px-4 py-3 flex justify-between items-center">
+            <div class="flex items-center space-x-2">
+                <i class="fa fa-cogs text-primary text-2xl"></i>
+                <h1 class="text-xl font-bold text-gray-800">测试项目清单</h1>
+                <div class="hidden md:flex items-center space-x-6"></div>
+                <div class="hidden md:flex items-center space-x-6">
+                    <button onClick="javascript:history.back(-1);"
+                        class="flex items-center bg-gray-200 hover:bg-primary text-black font-medium py-2 px-4 rounded-lg transition duration-300 ease-in-out shadow-md hover:shadow-lg transform hover:-translate-y-0.5">
+                        <i class="fa fa-arrow-left text-gray-600 text-2xl transition-colors"></i>
+                        <span class="hidden md:inline-block text-xl text-gray-800 transition-colors">返回</span>
+                    </button>
+                </div>
+            </div>
+
+            <div class="hidden md:flex items-center space-x-6">
+                <button id="user-button"
+                    class="flex items-center bg-gray-200 hover:bg-primary text-black font-medium py-2 px-4 rounded-lg transition duration-300 ease-in-out shadow-md hover:shadow-lg transform hover:-translate-y-0.5">
+                    <div class="w-8 h-8 rounded-full bg-gray-300 flex items-center justify-center">
+                        <i id="user-icon" class="fa fa-user text-gray-600 "></i>
+                    </div>
+                    <span id="username-button" class="text-sm font-medium hidden md:inline-block ml-2">用户名</span>
+                </button>
+                <button
+                    class="flex items-center bg-gray-200 hover:bg-primary text-black font-medium py-2 px-4 rounded-lg transition duration-300 ease-in-out shadow-md hover:shadow-lg transform hover:-translate-y-0.5">
+                    <div class="w-8 h-8 rounded-full bg-gray-300 flex items-center justify-center">
+                        <i class="fa fa-envelope"></i>
+                    </div>
+                    <span class="text-sm font-medium hidden md:inline-block ml-2">消息</span>
+                    <span
+                        class="hidden ml-2 bg-gray-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">0</span>
+                </button>
+            </div>
+
+            <div class="md:hidden">
+                <button class="text-neutral-500 focus:outline-none">
+                    <i class="fa fa-bars text-xl"></i>
+                </button>
+            </div>
+        </div>
+    </nav>
+    <!-- 主内容 -->
+    <main class="flex-1 flex overflow-hidden">
+        <!-- 左侧抽屉,产品列表 -->
+        <aside id="productDrawer" class="bg-white/50 w-72 height-100 top-0 z-30 shadow-md transition-all duration-300">
+            <nav class="fixed flex-1 py-5 px-3 overflow-y-auto">
+                <div class="p-4 border-b border-gray-200">
+                    <div class="relative">
+                        <input type="text" placeholder="全局搜索..."
+                            class="w-full pl-9 pr-4 py-2 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-primary/50">
+                        <i class="fa fa-search absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
+                    </div>
+                </div>
+                <div class="p-2">
+                    <div class="mb-3" id="Implant-toggle" onclick="toggleDrawer('Implant')">
+                        <div
+                            class="flex items-center justify-between p-2 cursor-pointer hover:bg-primary/50 rounded-lg">
+                            <div class="flex items-center space-x-2">
+                                <i class="fa fa-folder text-primary"></i>
+                                <span class="font-medium">种植体</span>
+                            </div>
+                            <div>
+                                <span id="Implant-compulsory"
+                                    class="bg-green-100 text-green-600 text-xs px-2 py-1 rounded-full">0</span>
+                                <span id="Implant-optional"
+                                    class="bg-yellow-100 text-yellow-600 text-xs px-2 py-1 rounded-full">0</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="mb-3" id="Abutment-toggle" onclick="toggleDrawer('Abutment')">
+                        <div
+                            class="flex items-center justify-between p-2 cursor-pointer hover:bg-primary/50 rounded-lg">
+                            <div class="flex items-center space-x-2">
+                                <i class="fa fa-folder text-primary"></i>
+                                <span class="font-medium">基台</span>
+                            </div>
+                            <div>
+                                <span id="Abutment-compulsory"
+                                    class="bg-green-100 text-green-600 text-xs px-2 py-1 rounded-full">0</span>
+                                <span id="Abutment-optional"
+                                    class="bg-yellow-100 text-yellow-600 text-xs px-2 py-1 rounded-full">0</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="mb-3" id="TAD-toggle" onclick="toggleDrawer('TAD')">
+                        <div
+                            class="flex items-center justify-between p-2 cursor-pointer hover:bg-primary/50 rounded-lg">
+                            <div class="flex items-center space-x-2">
+                                <i class="fa fa-folder text-primary"></i>
+                                <span class="font-medium">支抗钉</span>
+                            </div>
+                            <div>
+                                <span id="TAD-compulsory"
+                                    class="bg-green-100 text-green-600 text-xs px-2 py-1 rounded-full">0</span>
+                                <span id="TAD-optional"
+                                    class="bg-yellow-100 text-yellow-600 text-xs px-2 py-1 rounded-full">0</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="mb-3" id="Drill-toggle" onclick="toggleDrawer('Drill')">
+                        <div
+                            class="flex items-center justify-between p-2 cursor-pointer hover:bg-primary/50 rounded-lg">
+                            <div class="flex items-center space-x-2">
+                                <i class="fa fa-folder text-primary"></i>
+                                <span class="font-medium">钻类</span>
+                            </div>
+                            <div>
+                                <span id="Drill-compulsory"
+                                    class="bg-green-100 text-green-600 text-xs px-2 py-1 rounded-full">0</span>
+                                <span id="Drill-optional"
+                                    class="bg-yellow-100 text-yellow-600 text-xs px-2 py-1 rounded-full">0</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="mb-3" id="Rotary-toggle" onclick="toggleDrawer('Rotary')">
+                        <div
+                            class="flex items-center justify-between p-2 cursor-pointer hover:bg-primary/50 rounded-lg">
+                            <div class="flex items-center space-x-2">
+                                <i class="fa fa-folder text-primary"></i>
+                                <span class="font-medium">旋转器械(延长杆等)</span>
+                            </div>
+                            <div>
+                                <span id="Rotary-compulsory"
+                                    class="bg-green-100 text-green-600 text-xs px-2 py-1 rounded-full">0</span>
+                                <span id="Rotary-optional"
+                                    class="bg-yellow-100 text-yellow-600 text-xs px-2 py-1 rounded-full">0</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="mb-3" id="Pickup-toggle" onclick="toggleDrawer('Pickup')">
+                        <div
+                            class="flex items-center justify-between p-2 cursor-pointer hover:bg-primary/50 rounded-lg">
+                            <div class="flex items-center space-x-2">
+                                <i class="fa fa-folder text-primary"></i>
+                                <span class="font-medium">植入器</span>
+                            </div>
+                            <div>
+                                <span id="Pickup-compulsory"
+                                    class="bg-green-100 text-green-600 text-xs px-2 py-1 rounded-full">0</span>
+                                <span id="Pickup-optional"
+                                    class="bg-yellow-100 text-yellow-600 text-xs px-2 py-1 rounded-full">0</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="mb-3" id="Material-toggle" onclick="toggleDrawer('Material')">
+                        <div
+                            class="flex items-center justify-between p-2 cursor-pointer hover:bg-primary/50 rounded-lg">
+                            <div class="flex items-center space-x-2">
+                                <i class="fa fa-folder text-primary"></i>
+                                <span class="font-medium">牙科材料</span>
+                            </div>
+                            <div>
+                                <span id="Material-compulsory"
+                                    class="bg-green-100 text-green-600 text-xs px-2 py-1 rounded-full">0</span>
+                                <span id="Material-optional"
+                                    class="bg-yellow-100 text-yellow-600 text-xs px-2 py-1 rounded-full">0</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="mb-3" id="Other-toggle" onclick="toggleDrawer('Other')">
+                        <div
+                            class="flex items-center justify-between p-2 cursor-pointer hover:bg-primary/50 rounded-lg">
+                            <div class="flex items-center space-x-2">
+                                <i class="fa fa-folder text-primary"></i>
+                                <span class="font-medium">其他</span>
+                            </div>
+                            <div>
+                                <span id="Other-compulsory"
+                                    class="bg-green-100 text-green-600 text-xs px-2 py-1 rounded-full">0</span>
+                                <span id="Other-optional"
+                                    class="bg-yellow-100 text-yellow-600 text-xs px-2 py-1 rounded-full">0</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </nav>
+        </aside>
+
+        <!-- 右侧内容 -->
+        <div class="flex-1 p-6 overflow-y-auto">
+            <div id="sort-setting"
+                class="container flex flex-col mx-auto md:flex-row items-center justify-end mt-2 mb-2 font-semibold px-2.5 py-0.5 rounded">
+                <label class="block text-lg font-medium text-gray-700 mr-1">排序方式:</label>
+                <button id="sort-btn"
+                    class="w-8 bg-primary/30 border border-gray-400 text-lg rounded-sm hover:bg-primary ml-1 mr-1"><i
+                        class="fa fa-sort-amount-down"></i></button>
+                <select id="sort-item"
+                    class="w-40 p-2 border border-gray-200 text-lg rounded-lg focus:ring-2 focus:ring-primary/30 focus:border-primary transition-all duration-200">
+                    <option value="title">标题</option>
+                    <option value="updateTime">更新时间</option>
+                    <option value="compulsory">必测项目</option>
+                    <option value="isRegister"> 注册要求</option>
+                </select>
+            </div>
+
+            <div id="test-list-container" class="container grid grid-cols-1 lg:grid-cols-2 gap-5 mx-auto">
+                <h2 class="text-2xl font-bold mb-4">测试内容清单</h2>
+                <p class="text-gray-600 mb-6">以下是当前支持的测试方法列表，点击查看详细信息。</p>
+
+                <!-- 测试方法列表，根据method.js读取并渲染 -->
+
+            </div>
+            <!-- 悬浮按钮 -->
+            <button class="floating-button r-50" id="add-data-button">
+                <i class="fa fa-plus"></i>
+            </button>
+        </div>
+
+    </main>
+
+    <!-- 添加数据模态框 -->
+    <div id="add-data-modal"
+        class="fixed inset-0 bg-black/50 z-80 flex items-center justify-center opacity-0 pointer-events-none transition-opacity duration-300">
+        <div
+            class="bg-white rounded-xl shadow-xl max-w-4xl w-full mx-4 transform scale-95 transition-transform duration-300 max-h-[90vh] overflow-hidden flex flex-col">
+            <div class="p-6 border-b border-gray-100 flex items-center justify-between">
+                <div>
+                    <h3 class="text-2xl font-bold text-gray-800" id="modal-title">添加测试内容</h3>
+                    <span id="test-creator" class="text-sm ml-2"></span>
+                </div>
+                <button id="close-data-modal" class="text-gray-400 hover:text-gray-600 transition-colors">
+                    <i class="fa fa-times"></i>
+                </button>
+            </div>
+
+            <div id="modal-content" class="flex-grow overflow-y-auto p-6">
+                <form id="add-data-form">
+                    <div class="mb-4 md-4">
+                        <label for="test-title" class="block text-xl font-medium text-gray-700">测试类型<span
+                                class="text-red-600"> *</span></label>
+                        <input type="text" id="test-title" name="test-title" required
+                            class="mt-1 block w-full text-xl px-2 border border-gray-300 rounded-md shadow-sm focus:ring focus:ring-opacity-50"
+                            placeholder="请输入测试标题，如：‘标注疲劳’">
+                    </div>
+                    <div class="mb-4 md-4 text-xl">
+                        <label class="block text-xl font-medium text-gray-700 mb-1">测试标准<span class="text-red-600">
+                                *</span></label>
+                        <select id="testStandard"
+                            class="w-full p-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-primary/30 focus:border-primary transition-all duration-200">
+                            <option value="">请选择</option>
+                            <option value="YY/T 0521">YY/T 0521:种植体动态疲劳试验</option>
+                            <option value="YY 0315">YY 0315:钛及钛合金牙种植体</option>
+                            <option value="GB/T 16886">GB/T 16886:医疗器械生物学评价</option>
+                            <option value="YY/T 0874"> YY/T 0874:旋转器械实验方法</option>
+                            <option value="YY/T 0343"> YY/T 0343:外科金属植入物液体渗透检验</option>
+                            <option value="ISO TS 13498">ISO TS 13498:连接部分接头扭力试验</option>
+                            <option value="其他">其他</option>
+                        </select>
+                    </div>
+                    <div class="mb-4 md-4">
+                        <label for="test-description" class="block text-xl font-medium text-gray-700">测试描述<span
+                                class="text-red-600"> *</span></label>
+                        <textarea id="test-description" name="test-description" rows="4" required
+                            class="mt-1 block w-full text-lg px-2 border border-gray-300 rounded-md shadow-sm focus:ring focus:ring-opacity-50"
+                            placeholder="请输入测试描述"></textarea>
+                    </div>
+                    <div class="mb-4 md-4">
+                        <!-- 必做项还是选做项：使用radio，默认选中必做项 -->
+                        <label for="test-type" class="block text-xl font-medium text-gray-700">测试类型<span
+                                class="text-red-600"> *</span></label>
+                        <div class="grid md:grid-cols-5 mt-1">
+                            <label class="inline-flex items-center">
+                                <input type="radio" name="test-type" value="compulsory" checked
+                                    class="form-radio h-4 w-4 text-xl focus:ring-primary border-gray-300 rounded">
+                                <span class="ml-2 text-xl text-gray-700">必做项</span>
+                            </label>
+                            <label class="inline-flex items-center">
+                                <input type="radio" name="test-type" value="optional"
+                                    class="form-radio h-4 w-4 text-xl focus:ring-primary border-gray-300 rounded">
+                                <span class="ml-2 text-xl text-gray-700">选做项</span>
+                            </label>
+                        </div>
+                    </div>
+                    <div class="mb-4 md-4">
+                        <!-- 注册要求还是自检要求：使用radio，默认选中注册要求 -->
+                        <label for="test-isRegister" class="block text-xl font-medium text-gray-700">要求来源<span
+                                class="text-red-600"> *</span></label>
+                        <div class="grid md:grid-cols-5 mt-1">
+                            <label class="inline-flex items-center">
+                                <input type="radio" name="test-isRegister" value="true" checked
+                                    class="form-radio h-4 w-4 text-xl focus:ring-primary border-gray-300 rounded">
+                                <span class="ml-2 text-xl text-gray-700">注册要求</span>
+                            </label>
+                            <label class="inline-flex items-center">
+                                <input type="radio" name="test-isRegister" value="false"
+                                    class="form-radio h-4 w-4 text-xl focus:ring-primary border-gray-300 rounded">
+                                <span class="ml-2 text-xl text-gray-700">自检要求</span>
+                            </label>
+                        </div>
+                    </div>
+                    <div class="mb-4 md-4">
+                        <label for="test-tags" class="block text-xl font-medium text-gray-700">选择标签<span
+                                class="text-red-600"> *</span></label>
+                        <!-- 复选标签 -->
+                        <div class="grid md:grid-cols-4 mt-1 flex flex-wrap gap-2 md-4">
+                            <label class="inline-flex items-center">
+                                <input type="checkbox" name="test-tags" value="种植体"
+                                    class="form-checkbox h-4 w-4 text-xl focus:ring-primary border-gray-300 rounded">
+                                <span class="ml-2 text-xl text-gray-700">种植体</span>
+                            </label>
+                            <label class="inline-flex items-center">
+                                <input type="checkbox" name="test-tags" value="基台"
+                                    class="form-checkbox h-4 w-4 text-xl focus:ring-primary border-gray-300 rounded">
+                                <span class="ml-2 text-xl text-gray-700">基台</span>
+                            </label>
+                            <label class="inline-flex items-center">
+                                <input type="checkbox" name="test-tags" value="支抗钉"
+                                    class="form-checkbox h-4 w-4 text-xl focus:ring-primary border-gray-300 rounded">
+                                <span class="ml-2 text-xl text-gray-700">支抗钉</span>
+                            </label>
+                            <label class="inline-flex items-center">
+                                <input type="checkbox" name="test-tags" value="钻类"
+                                    class="form-checkbox h-4 w-4 text-xl focus:ring-primary border-gray-300 rounded">
+                                <span class="ml-2 text-xl text-gray-700">钻类</span>
+                            </label>
+                            <label class="inline-flex items-center">
+                                <input type="checkbox" name="test-tags" value="旋转器械"
+                                    class="form-checkbox h-4 w-4 text-xl focus:ring-primary border-gray-300 rounded">
+                                <span class="ml-2 text-xl text-gray-700">旋转器械</span>
+                            </label>
+                            <label class="inline-flex items-center">
+                                <input type="checkbox" name="test-tags" value="植入器"
+                                    class="form-checkbox h-4 w-4 text-xl focus:ring-primary border-gray-300 rounded">
+                                <span class="ml-2 text-xl text-gray-700">植入器</span>
+                            </label>
+                            <label class="inline-flex items-center">
+                                <input type="checkbox" name="test-tags" value="牙科材料"
+                                    class="form-checkbox h-4 w-4 text-xl focus:ring-primary border-gray-300 rounded">
+                                <span class="ml-2 text-xl text-gray-700">牙科材料</span>
+                            </label>
+                            <label class="inline-flex items-center">
+                                <input type="checkbox" name="test-tags" value="其他"
+                                    class="form-checkbox h-4 w-4 text-xl focus:ring-primary border-gray-300 rounded">
+                                <span class="ml-2 text-xl text-gray-700">其他</span>
+                            </label>
+                        </div>
+                    </div>
+                    <form id="testMethodForm" enctype="multipart/form-data">
+                        <div class="grid md:grid-cols-4 mb-4 md-4">
+                            <label for="testMethod-files"
+                                class="block text-xl font-medium justify-center text-gray-700">测试方法文件：</label>
+                            <input type="file" id="testMethod-files" name="testMethod-files" multiple
+                                class="col-span-3 mt-1 block w-full border border-gray-300 text-xl rounded-md shadow-sm focus:ring focus:ring-opacity-50">
+                        </div>
+                        <div class="grid md:grid-cols-4 mb-4 md-4">
+                            <label for="testnical-files"
+                                class="block text-xl font-medium justify-center text-gray-700">技术要求文件：</label>
+                            <input type="file" id="testnical-files" name="testnical-files" multiple
+                                class="col-span-3 mt-1 block w-full border border-gray-300 text-xl rounded-md shadow-sm focus:ring focus:ring-opacity-50">
+                        </div>
+                        <div class="grid md:grid-cols-4 mb-4 md-4">
+                            <label for="reportModel-files"
+                                class="block text-xl font-medium justify-center text-gray-700">报告模板文件：</label>
+                            <input type="file" id="reportModel-files" name="reportModel-files" multiple
+                                class="col-span-3 mt-1 block w-full border border-gray-300 text-xl rounded-md shadow-sm focus:ring focus:ring-opacity-50">
+                        </div>
+                        <div class="grid md:grid-cols-4 mb-4 md-4">
+                            <label for="competitor-files"
+                                class="block text-xl font-medium justify-center text-gray-700">竞品参考数据：</label>
+                            <input type="file" id="competitor-files" name="competitor-files" multiple
+                                class="col-span-3 mt-1 block w-full border border-gray-300 text-xl rounded-md shadow-sm focus:ring focus:ring-opacity-50">
+                        </div>
+                    </form>
+                    <!-- 按钮 -->
+                    <div class="flex justify-end">
+                        <button type="button" id="save-submit-button"
+                            class="bg-primary text-white px-4 py-2 text-xl rounded-md hover:bg-primary/50 transition-colors mr-2">
+                            <i class="fa fa-paper-plane mr-2"></i>保存并提交
+                        </button>
+                        <button type="submit" id="approval-pass"
+                            class="bg-green-600 text-white px-4 py-2 text-xl rounded-md hover:bg-green-600/50 transition-colors mr-2 hidden">
+                            <i class="fa fa-check mr-2"></i>审核：通过
+                        </button>
+                        <button type="submit" id="approval-not-pass"
+                            class="bg-red-600 text-white px-4 py-2 text-xl rounded-md hover:bg-red-600/50 transition-colors mr-2 hidden">
+                            <i class="fa fa-times mr-2"></i>审核：不通过
+                        </button>
+                        <button type="submit" id="cancel-button"
+                            class="bg-gray-300 text-black px-4 py-2 text-xl rounded-md hover:bg-gray-300/50 transition-colors mr-2">
+                            取消
+                        </button>
+                    </div>
+                </form>
+
+            </div>
+        </div>
+    </div>
+
+    <!-- 页脚 -->
+    <footer class="bg-white sticky bottom-0 z-50 border-t border-gray-200 py-6 mt-8">
+        <div class="container mx-auto px-4">
+            <div class="flex flex-col md:flex-row items-center justify-between">
+                <div class="flex items-center space-x-4">
+                    <span class="text-sm text-gray-500">© 2024 莱顿-力学测试数据库</span>
+                    <span
+                        class="bg-primary/10 text-primary text-xs px-2 py-1 rounded-full border border-primary/30 cursor-pointer">
+                        <i class="fa fa-flask mr-1"></i>
+                        <span id="version-span">
+                        </span>
+                    </span>
+                </div>
+                <div class="flex space-x-4">
+                    <a class="text-gray-500 hover:text-primary transition-colors cursor-pointer" id="guide-a">
+                        <i class="fa fa-question-circle"></i>
+                        <span class="ml-1">操作指引</span>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- PDF阅读器模态框 -->
+    <div id="pdf-modal" class="fixed inset-0 z-50 hidden">
+        <div class="absolute inset-0 bg-black/50 backdrop-blur-sm" id="pdf-modal-backdrop"></div>
+        <!-- 主容器：居中显示+响应式限制 -->
+        <div
+            class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-full max-w-7xl max-h-[92vh] bg-white rounded-xl shadow-2xl overflow-hidden flex flex-col">
+            <div class="p-2 border-b flex justify-between items-center bg-gray-50">
+                <h3 class="text-xl font-bold" id="pdf-modal-title">标准详情</h3>
+                <div class="flex items-center text-gray-600 gap-3">
+                    <button id="close-pdf-modal" class="p-2 text-gray-400 hover:text-gray-600 transition-custom">
+                        <i class="fa fa-times text-xl"></i>
+                    </button>
+                </div>
+            </div>
+
+            <div class="flex-grow overflow-hidden relative">
+                <embed id="pdf-embed" type="application/pdf"
+                    class="hidden bg-white w-full min-h-[90vh] border border-gray-400">
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 导航栏滚动效果
+        window.addEventListener('scroll', function () {
+            const nav = document.querySelector('nav');
+            if (window.scrollY > 10) {
+                nav.classList.add('py-2');
+                nav.classList.remove('py-3');
+            } else {
+                nav.classList.add('py-3');
+                nav.classList.remove('py-2');
+            }
+        });
+
+        toggleButtons = document.querySelectorAll('[id$="-toggle"]');
+        // 左侧抽屉切换
+        function toggleDrawer(taskID) {
+            toggleButtons.forEach(button => {
+                // 关闭其他抽屉
+                if (button.id !== taskID + '-toggle') {
+                    button.classList.remove('bg-primary/70');
+                }
+            });
+            const toggleButton = document.getElementById(taskID + '-toggle');
+            // 深色
+            toggleButton.classList.toggle('bg-primary/70');
+
+            // 隐藏其他内容
+            const spanRegions = document.querySelectorAll('[id$="-span"]');
+            spanRegions.forEach(span => {
+                if (span.id === 'version-span') {
+                    return;
+                }
+                if (span.id.includes(taskID)) {
+                    span.classList.remove('hidden');
+                } else {
+                    // 若'bg-primary/10'：false 显示当前内容
+                    span.classList.toggle('hidden', toggleButton.classList.contains('bg-primary/70'));
+                }
+            });
+
+        }
+
+    </script>
+    <script src="../JavaScript/verifyGroup.js"></script>
+    <script src="../JavaScript/getTestList.js" type="module"></script>
+    <script src="../JavaScript/showNotification.js"></script>
+    <script src="../JavaScript/api.js"></script>
+    <script src="../JavaScript/method.js"></script>
+
+    <!-- 初始化粒子效果 -->
+    <script>
+        particlesJS.load('particles-js', '../../particlesConfig.json', function () {
+        });
+    </script>
+</body>
+
+</html>

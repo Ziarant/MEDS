@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>莱顿力学测试数据库系统 - 登录</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Font Awesome 4.7.0 的 CSS 样式文件内容 -->
+  <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
+
+  <!-- 网页图标 -->
+  <link rel="icon" type="image/png" href="icon/favicon.png">
+
+  <!-- 引入登录脚本 -->
+  <script type="module" src="api/login/server.js"></script>
+  <!-- <script type="module" src="serve.js"></script> -->
+
+  <!-- Tailwind 配置 -->
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            primary: '#99774b',
+            secondary: '#f9f8f6',
+            neutral: '#F5F7FA',
+            'neutral-dark': '#4E5969',
+            success: '#00B42A',
+            warning: '#FF7D00',
+            danger: '#F53F3F',
+          },
+          fontFamily: {
+            inter: ['Inter', 'system-ui', 'sans-serif'],
+          },
+        },
+      }
+    }
+  </script>
+
+  <!-- 自定义样式 -->
+  <style type="text/tailwindcss">
+    @layer utilities {
+      .content-auto {
+        content-visibility: auto;
+      }
+      .form-input-focus {
+        @apply focus:border-primary focus:ring-1 focus:ring-primary focus:outline-none;
+      }
+      .btn-primary {
+        @apply bg-primary hover:bg-primary/90 text-white font-medium py-2 px-4 rounded-lg transition-all duration-300 shadow-md hover:shadow-lg transform hover:-translate-y-0.5;
+      }
+      .card-animation {
+        @apply transition-all duration-500 hover:shadow-xl transform hover:-translate-y-1;
+      }
+    }
+
+    /* 设置粒子容器样式 */
+    #particles-js {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      z-index: -1;
+    }
+  </style>
+</head>
+
+<body id=app class="font-inter bg-neutral min-h-screen flex items-center justify-center p-4">
+  <!-- 粒子效果容器 -->
+  <div id="particles-js"></div>
+  <!-- 引入粒子效果配置 -->
+  <script src="https://cdn.jsdelivr.net/gh/VincentGarreau/particles.js@2.0.0/particles.min.js"></script>
+
+  <!-- 背景装饰 -->
+  <div class="fixed inset-0 bg-gradient-to-br from-secondary/5 to-primary/10 -z-10"></div>
+
+  <!-- 登录卡片 -->
+  <div class="w-full max-w-md bg-white rounded-2xl shadow-lg overflow-hidden card-animation">
+    <!-- 卡片顶部 -->
+    <div class="bg-gradient-to-r from-primary to-secondary p-6 text-white">
+      <div class="flex items-center justify-between">
+        <div>
+          <h2 class="text-2xl font-bold mb-1">莱顿-力学测试数据库</h2>
+          <p class="text-sm opacity-80">力学测试数据查询、管理平台</p>
+        </div>
+        <div class="w-12 h-12 bg-black/20 rounded-full flex items-center justify-center">
+          <i class="fa fa-database text-xl"></i>
+        </div>
+      </div>
+    </div>
+
+    <!-- 登录表单 -->
+    <div class="p-6">
+      <!-- 错误提示 -->
+      <div id="error-message"
+        class="hidden mb-4 p-3 bg-danger/10 border border-danger/20 rounded-lg text-danger text-sm">
+        <i class="fa fa-exclamation-circle mr-2"></i>
+        <span>用户名或密码错误，请重试</span>
+      </div>
+
+      <form id="login-form" class="space-y-4">
+        <!-- 用户名 -->
+        <div class="relative">
+          <div class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
+            <i class="fa fa-user text-neutral-dark"></i>
+          </div>
+          <input type="text" id="username" name="username"
+            class="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg form-input-focus transition-all duration-200"
+            placeholder="用户名<姓名>" required>
+        </div>
+
+        <!-- 密码 -->
+        <div class="relative">
+          <div class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
+            <i class="fa fa-lock text-neutral-dark"></i>
+          </div>
+          <input type="password" id="password" name="password"
+            class="w-full pl-10 pr-10 py-3 border border-gray-300 rounded-lg form-input-focus transition-all duration-200"
+            placeholder="密码" required>
+          <button type="button" id="toggle-password"
+            class="absolute inset-y-0 right-0 flex items-center pr-3 text-neutral-dark hover:text-primary transition-colors">
+            <i class="fa fa-eye-slash"></i>
+          </button>
+        </div>
+
+        <!-- 记住我 -->
+        <div class="flex items-center justify-between">
+          <div class="flex items-center">
+            <input id="remember-me" type="checkbox"
+              class="h-4 w-4 text-primary focus:ring-primary border-gray-300 rounded">
+            <label for="remember-me" class="ml-2 block text-sm text-neutral-dark">
+              记住我
+            </label>
+          </div>
+          <a href="#" class="text-sm text-primary hover:text-primary/80 transition-colors">忘记密码?</a>
+        </div>
+
+        <!-- 登录按钮 -->
+        <button type="submit" class="w-full btn-primary flex items-center justify-center active:bg-gray-400"
+          id="login-button">
+          <i class="fa fa-sign-in mr-2"></i>
+          登录
+        </button>
+      </form>
+
+      <!-- 底部信息 -->
+      <div class="mt-6 pt-4 border-t border-gray-100 text-center">
+        <p class="text-xs text-neutral-dark">
+          版本号 v0.0.1 | 上次更新: 2025-05-30
+        </p>
+        <p class="text-xs text-neutral-dark mt-1">
+          <!-- © 2023 力学测试数据库 版权所有 -->
+          如有问题请联系数据库管理员
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <!-- JavaScript -->
+  <!-- 初始化粒子效果 -->
+  <script>
+    particlesJS.load('particles-js', 'config.json', function () {
+      console.log('particles.js config loaded');
+    });
+  </script>
+
+  
+  <script src="../javaScript/app.js"></script>
+</body>
+
+</html>

@@ -1,0 +1,423 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>力学测试数据库管理系统</title>
+    <!-- 加载前检查用户是否登录 -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const username = localStorage.getItem('username'); // 模拟获取用户名
+            if (!username) {
+                window.location.href = '../login.html'; // 如果未登录，重定向到登录页面
+            } else {
+                document.getElementById('username-button').textContent = username; // 显示用户名
+            }
+        });
+    </script>
+    <!-- 验证token -->
+    <script src='../../javaScript/verifyToken.js'></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.8/dist/chart.umd.min.js"></script>
+    <!-- 加密算法 -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
+
+    <!-- Tailwind 配置 -->
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#99774b', // 主色调
+                        secondary: '#f9f8f6', // 橙色强调色
+                        neutral: '#f3f4f6', // 中性色
+                        warning: '#D97706', // 深黄色
+                        danger: '#FF4D4F',
+                        dark: '#1D2129',
+                        'dark-2': '#4E5969',
+                        'light-1': '#F2F3F5',
+                        'light-2': '#E5E6EB',
+                        'light-3': '#C9CDD4'
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'system-ui', 'sans-serif'],
+                    },
+                },
+            }
+        }
+    </script>
+
+    <style type="text/tailwindcss">
+        @layer utilities {
+      .content-auto {
+        content-visibility: auto;
+      }
+      .sidebar-item {
+        @apply flex items-center gap-3 px-4 py-3 text-dark-2 hover:bg-primary/5 hover:text-primary rounded-lg transition-all duration-200;
+      }
+      .sidebar-item.active {
+        @apply bg-primary/10 text-primary font-medium border-l-4 border-primary;
+      }
+      .card {
+        @apply bg-white rounded-xl shadow-sm border border-light-2 p-5 transition-all duration-300 hover:shadow-md;
+      }
+      .btn {
+        @apply px-4 py-2 rounded-lg font-medium transition-all duration-200 flex items-center gap-2;
+      }
+      .btn-primary {
+        @apply bg-primary text-white hover:bg-primary/90 active:bg-primary/80;
+      }
+      .btn-secondary {
+        @apply bg-light-1 text-dark-2 hover:bg-light-2 active:bg-light-3;
+      }
+      .btn-danger {
+        @apply bg-danger text-white hover:bg-danger/90 active:bg-danger/80;
+      }
+      .input-field {
+        @apply w-full px-3 py-2 border border-light-2 rounded-lg focus:ring-2 focus:ring-primary/30 focus:border-primary outline-none transition-all duration-200;
+      }
+      .badge {
+        @apply px-2 py-1 rounded-full text-xs font-medium;
+      }
+    }
+  </style>
+    <link rel="stylesheet" href="../../style.css">
+</head>
+
+<body class="font-inter bg-neutral-100 min-h-screen flex flex-col">
+    <!-- 粒子效果容器 -->
+    <div id="particles-js"></div>
+    <!-- 引入粒子效果配置 -->
+    <script src="https://cdn.jsdelivr.net/gh/VincentGarreau/particles.js@2.0.0/particles.min.js"></script>
+    <!-- 导航栏 -->
+    <nav class="bg-white shadow-md sticky top-0 z-50 transition-all duration-300">
+        <div class="container mx-auto px-4 py-3 flex justify-between items-center">
+            <div class="flex items-center space-x-2">
+                <i class="fa fa-user-cog text-primary text-2xl"></i>
+                <h1 class="text-xl font-bold text-gray-800">系统管理</h1>
+                <div class="hidden md:flex items-center space-x-6"></div>
+                <div class="hidden md:flex items-center space-x-6">
+                    <button onClick="javascript:history.back(-1);"
+                        class="flex items-center bg-gray-200 hover:bg-primary text-black font-medium py-2 px-4 rounded-lg transition duration-300 ease-in-out shadow-md hover:shadow-lg transform hover:-translate-y-0.5">
+                        <i class="fa fa-arrow-left text-gray-600 text-2xl transition-colors"></i>
+                        <span class="hidden md:inline-block text-xl text-gray-800 transition-colors">返回</span>
+                    </button>
+                </div>
+            </div>
+
+            <div class="hidden md:flex items-center space-x-6">
+                <button id="user-button"
+                    class="flex items-center bg-gray-200 hover:bg-primary text-black font-medium py-2 px-4 rounded-lg transition duration-300 ease-in-out shadow-md hover:shadow-lg transform hover:-translate-y-0.5">
+                    <div class="w-8 h-8 rounded-full bg-gray-300 flex items-center justify-center">
+                        <i id="user-icon" class="fa fa-user text-gray-600 "></i>
+                    </div>
+                    <span id="username-button" class="text-sm font-medium hidden md:inline-block ml-2">用户名</span>
+                </button>
+                <button
+                    class="flex items-center bg-gray-200 hover:bg-primary text-black font-medium py-2 px-4 rounded-lg transition duration-300 ease-in-out shadow-md hover:shadow-lg transform hover:-translate-y-0.5">
+                    <div class="w-8 h-8 rounded-full bg-gray-300 flex items-center justify-center">
+                        <i class="fa fa-envelope"></i>
+                    </div>
+                    <span class="text-sm font-medium hidden md:inline-block ml-2">消息</span>
+                    <span
+                        class="hidden ml-2 bg-gray-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">0</span>
+                </button>
+            </div>
+
+            <div class="md:hidden">
+                <button class="text-neutral-500 focus:outline-none">
+                    <i class="fa fa-bars text-xl"></i>
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- 主内容区 -->
+    <main class="flex-1 flex overflow-hidden">
+        <!-- 侧边栏 -->
+        <aside id="sidebar"
+            class="position-fixed bg-white/50 w-64 height-100 top-0 z-30 shadow-md transition-all duration-300">
+            <nav class="fixed flex-1 py-5 px-3 overflow-y-auto">
+                <p class="text-xs uppercase text-dark-2/70 font-medium px-4 mb-2">主菜单</p>
+                <ul class="space-y-1">
+                    <li>
+                        <a href="#database-settings" class="sidebar-item active">
+                            <i class="fa fa-cogs w-5 text-center"></i>
+                            <span>数据库参数</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#user-management" class="sidebar-item">
+                            <i class="fa fa-users w-5 text-center"></i>
+                            <span>用户管理</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#test-configuration" class="sidebar-item">
+                            <i class="fa fa-flask w-5 text-center"></i>
+                            <span>测试配置</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#system-logs" class="sidebar-item">
+                            <i class="fa fa-history w-5 text-center"></i>
+                            <span>系统日志</span>
+                        </a>
+                    </li>
+                </ul>
+
+                <p class="text-xs uppercase text-dark-2/70 font-medium px-4 mb-2 mt-6">系统设置</p>
+                <ul class="space-y-1">
+                    <li>
+                        <a href="#security-settings" class="sidebar-item">
+                            <i class="fa fa-lock w-5 text-center"></i>
+                            <span>安全设置</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#backup-settings" class="sidebar-item">
+                            <i class="fa fa-download w-5 text-center"></i>
+                            <span>备份设置</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#notification-settings" class="sidebar-item">
+                            <i class="fa fa-bell w-5 text-center"></i>
+                            <span>通知设置</span>
+                        </a>
+                    </li>
+                </ul>
+            </nav>
+        </aside>
+
+        <!-- 页面内容 -->
+        <div class="flex-1 p-6 overflow-y-auto" id="content">
+            <!-- 页面标题 -->
+            <div class="mb-6">
+                <h2 class="text-[clamp(1.5rem,3vw,2rem)] font-bold text-dark">系统管理</h2>
+                <p class="text-dark-2 mt-1">管理数据库参数、用户信息和系统设置</p>
+            </div>
+
+            <!-- 统计卡片 -->
+            <div class="bg-white mb-8">
+                <div class="mt-6 pt-6 rounded-lg border border-light-2 gap-6">
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-4 gap-6 ml-4 mb-2">
+                        <div class="grid grid-cols-1 md:grid-cols-4 col-span-3 gap-6">
+                            <h4 class="text-lg font-medium mb-4 text-dark ml-4"><b>备份设置</b></h4>
+                            <div>
+                                <label class="block text-dark-2 mb-2 text-sm">自动备份频率</label>
+                                <select class="input-field">
+                                    <option>每天</option>
+                                    <option selected>每周</option>
+                                    <option>每月</option>
+                                </select>
+                            </div>
+                        
+                            <div>
+                                <label class="block text-dark-2 mb-2 text-sm">备份项目</label>
+                                <select class="input-field">
+                                    <option selected>全部数据</option>
+                                </select>
+                            </div>
+
+                            <div>
+                                <label class="block text-dark-2 mb-2 text-sm">备份位置</label>
+                                <input type="text" class="input-field" value="/backup" disabled>
+                            </div>
+                        </div>
+                        <div class="card p-4 flex items-center justify-between mr-4">
+                            <div class="flex">
+                                <div>
+                                    <p class="text-dark-2 text-sm">最近备份:</p>
+                                    <h3 class="text-2xl font-bold mt-1">今天</h3>
+                                    <p class="text-success text-sm mt-2 flex items-center">
+                                    </p>
+                                </div>
+                                <div
+                                    class="w-12 h-12 bg-success/10 rounded-lg flex items-center justify-center text-success">
+                                    <i class="fa fa-backup text-xl"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <hr />
+                    <div class="grid grid-cols-1 md:grid-cols-4 gap-6 ml-4 mt-2 mb-2">
+                        <div class="grid grid-cols-1 md:grid-cols-4 col-span-3 gap-6">
+                            <h4 class="text-lg font-medium mb-4 text-dark ml-4"><b>日志设置</b></h4>
+                            <div>
+                                <label class="block text-dark-2 mb-2 text-sm">记录范围</label>
+                                <select class="input-field">
+                                    <option>全部</option>
+                                    <option selected>不记录开发者</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="block text-dark-2 mb-2 text-sm">记录行为</label>
+                                <select class="input-field">
+                                    <option select>全部</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="block text-dark-2 mb-2 text-sm">日志位置</label>
+                                <input type="text" class="input-field" value="/log" disabled>
+                            </div>
+                        </div>
+                        <div class="card p-4 flex items-center justify-between mr-4">
+                            <div class="flex">
+                                <div>
+                                    <p class="text-dark-2 text-sm">日志记录:</p>
+                                    <h3 class="text-2xl font-bold mt-1">开启</h3>
+                                    <p class="text-success text-sm mt-2 flex items-center">
+                                    </p>
+                                </div>
+                                <div
+                                    class="w-12 h-12 bg-success/10 rounded-lg flex items-center justify-center text-success">
+                                    <i class="fa fa-backup text-xl"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 数据库参数设置 -->
+            <section id="database-settings" class="mb-8">
+                <div class="flex items-center justify-between mb-5">
+                    <h3 class="text-xl font-bold text-dark">数据库参数设置</h3>
+                    <button class="btn btn-primary" id="save-db-settings">
+                        <i class="fa fa-save"></i>
+                        <span>保存设置</span>
+                    </button>
+                </div>
+
+                <div class="card">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div>
+                            <h4 class="text-lg font-medium mb-4 text-dark">连接设置</h4>
+                            <div class="mb-4">
+                                <label class="block text-dark-2 mb-2 text-sm">主机名称</label>
+                                <input type="text" class="input-field" value="A012050-1" disabled>
+                            </div>
+                            <div class="mb-4">
+                                <label class="block text-dark-2 mb-2 text-sm">端口号</label>
+                                <input type="text" class="input-field" value="8080" disabled>
+                            </div>
+                            <div class="mb-4">
+                                <label class="block text-dark-2 mb-2 text-sm">数据库名称</label>
+                                <input type="text" class="input-field" value="MEDS" disabled>
+                            </div>
+                        </div>
+                        <div>
+                            <h4 class="text-lg font-medium mb-4 text-dark">性能设置</h4>
+                            <div class="mb-4">
+                                <label class="block text-dark-2 mb-2 text-sm">最大连接数</label>
+                                <input type="number" class="input-field" value="100">
+                            </div>
+                            <div class="mb-4">
+                                <label class="block text-dark-2 mb-2 text-sm">查询超时时间(秒)</label>
+                                <input type="number" class="input-field" value="30">
+                            </div>
+                            <div class="mb-4">
+                                <label class="block text-dark-2 mb-2 text-sm">缓存大小(MB)</label>
+                                <input type="number" class="input-field" value="512">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 用户管理 -->
+            <section id="user-management" class="mb-8">
+                <div class="flex flex-wrap items-center justify-between gap-4 mb-5">
+                    <h3 class="text-xl font-bold text-dark">用户管理</h3>
+                    <div class="flex items-center gap-3">
+                        <button class="btn btn-primary" id="add-user-btn">
+                            <i class="fa fa-plus"></i>
+                            <span>添加用户</span>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="card overflow-hidden">
+                    <div class="overflow-x-auto">
+                        <table class="w-full">
+                            <thead>
+                                <tr class="bg-light-1 items-center justify-between">
+                                    <th class="text-left py-3 px-4 text-center text-dark-2 font-medium">工号</th>
+                                    <th class="text-left py-3 px-4 text-center text-dark-2 font-medium">姓名</th>
+                                    <th class="text-left py-3 px-4 text-center text-dark-2 font-medium">手机</th>
+                                    <th class="text-left py-3 px-4 text-center text-dark-2 font-medium">邮箱</th>
+                                    <th class="text-left py-3 px-4 text-center text-dark-2 font-medium">角色</th>
+                                    <th class="text-left py-3 px-4 text-center text-dark-2 font-medium">状态</th>
+                                    <th class="text-left py-3 px-4 text-center text-dark-2 font-medium">最后登录</th>
+                                    <th class="text-left py-3 px-4 text-center text-dark-2 font-medium">操作</th>
+                                </tr>
+                            </thead>
+                            <tbody id="user-table-body">
+                                <!-- 用户数据将通过JavaScript动态填充 -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 系统状态 -->
+            <section class="mb-8">
+                <div class="flex items-center justify-between mb-5">
+                    <h3 class="text-xl font-bold text-dark">系统状态</h3>
+                </div>
+
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    <div class="card">
+                        <h4 class="text-lg font-medium mb-4 text-dark">系统资源使用</h4>
+                        <canvas id="resourceChart" height="250"></canvas>
+                    </div>
+
+                    <div class="card">
+                        <h4 class="text-lg font-medium mb-4 text-dark">最近活动</h4>
+                        <div class="space-y-4 max-h-80 overflow-y-auto pr-2">
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </div>
+    </main>
+
+    <!-- 页脚 -->
+    <footer class="bg-white sticky bottom-0 z-50 border-t border-gray-200 py-6 mt-8">
+        <div class="container mx-auto px-4">
+            <div class="flex flex-col md:flex-row items-center justify-between">
+                <div class="flex items-center space-x-4">
+                    <span class="text-sm text-gray-500">© 2024 莱顿-力学测试数据库</span>
+                    <span
+                        class="bg-primary/10 text-primary text-xs px-2 py-1 rounded-full border border-primary/30 cursor-pointer">
+                        <i class="fa fa-flask mr-1"></i>
+                        <span id="version-span">
+                        </span>
+                    </span>
+                </div>
+                <div class="flex space-x-4">
+                    <a class="text-gray-500 hover:text-primary transition-colors cursor-pointer" id="guide-a">
+                        <i class="fa fa-question-circle"></i>
+                        <span class="ml-1">操作指引</span>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <script src="../JavaScript/verifyGroup.js"></script>
+    <script src="../JavaScript/showNotification.js"></script>
+    <script src="../JavaScript/api.js"></script>
+    <script src="../JavaScript/manage.js"></script>
+    <!-- 初始化粒子效果 -->
+    <script>
+        particlesJS.load('particles-js', '../../particlesConfig.json', function () {
+        });
+    </script>
+</body>
+
+</html>

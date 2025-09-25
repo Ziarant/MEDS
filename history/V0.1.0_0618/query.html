@@ -1,0 +1,543 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>数据查询系统</title>
+    <!-- 网页图标 -->
+    <link rel="icon" type="image/png" href="../../icon/icons-database.png">
+    <!-- 加载前检查用户是否登录 -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            console.log('Checking login status...');
+            const username = localStorage.getItem('username'); // 模拟获取用户名
+            if (!username) {
+                window.location.href = '../login.html'; // 如果未登录，重定向到登录页面
+            } else {
+                document.getElementById('username').textContent = username; // 显示用户名
+            }
+        });
+    </script>
+    <!-- 验证token -->
+    <script src='../../javaScript/verifyToken.js'></script>
+    <!-- 引入Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- 引入Font Awesome -->
+    <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
+
+    <!-- Tailwind配置 -->
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#99774b',
+                        secondary: '#f9f8f6',
+                        neutral: '#F2F3F5',
+                        'neutral-dark': '#4E5969',
+                        success: '#00B42A',
+                        warning: '#FF7D00',
+                        danger: '#F53F3F',
+                        info: '#86909C'
+                    },
+                    fontFamily: {
+                        inter: ['Inter', 'system-ui', 'sans-serif'],
+                    },
+                },
+            }
+        }
+    </script>
+
+    <!-- 自定义工具类 -->
+    <style type="text/tailwindcss">
+        @layer utilities {
+      .content-auto {
+        content-visibility: auto;
+      }
+      .shadow-soft {
+        box-shadow: 0 2px 14px 0 rgba(0, 0, 0, 0.06);
+      }
+      .transition-height {
+        transition: max-height 0.3s ease-in-out;
+      }
+      .scrollbar-hide::-webkit-scrollbar {
+        display: none;
+      }
+      .scrollbar-hide {
+        -ms-overflow-style: none;
+        scrollbar-width: none;
+      }
+
+      /* 设置粒子容器样式 */
+            #particles-js {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            }
+    }
+  </style>
+
+    <style>
+        /* 自定义滚动条 */
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: #f1f1f1;
+            border-radius: 3px;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #c1c1c1;
+            border-radius: 3px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: #a8a8a8;
+        }
+
+        /* 动画效果 */
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .animate-fade-in {
+            animation: fadeIn 0.3s ease-out forwards;
+        }
+
+        /* 表格行悬停效果 */
+        .table-row-hover {
+            transition: background-color 0.2s ease;
+        }
+
+        .table-row-hover:hover {
+            background-color: rgba(22, 93, 255, 0.05);
+        }
+
+        /* 卡片阴影效果 */
+        .card-shadow {
+            transition: box-shadow 0.3s ease, transform 0.3s ease;
+        }
+
+        .card-shadow:hover {
+            box-shadow: 0 8px 24px rgba(22, 93, 255, 0.12);
+            transform: translateY(-2px);
+
+        }
+
+        span {
+            white-space: normal;
+            /* 允许换行 */
+            word-wrap: break-word;
+            /* 允许单词换行 */
+        }
+    </style>
+    <style type="text/tailwindcss">
+        /* 表格备注 */
+        @layer utilities {
+            .tooltip {
+                @apply invisible absolute bg-neutral text-black text-sm rounded py-1 px-2 shadow-lg z-50 transition-opacity duration-200 opacity-0;
+            }
+
+            .has-tooltip:hover .tooltip {
+                @apply visible opacity-100;
+            }
+
+            .table-hover-row tr:hover {
+                @apply bg-gray-500;
+            }
+        }
+    </style>
+</head>
+
+<body class="bg-gray-50 font-inter text-gray-800 min-h-screen flex flex-col">
+    <!-- 顶部导航栏 -->
+    <header class="bg-white shadow-sm sticky top-0 z-50">
+        <div class="container mx-auto px-4 py-3 flex items-center justify-between">
+            <div class="flex items-center space-x-3">
+                <div class="bg-primary text-white p-2 rounded-lg">
+                    <i class="fa fa-database text-xl"></i>
+                </div>
+                <h1 class="text-xl font-bold text-gray-800">数据查询系统</h1>
+                <div class="hidden md:flex items-center space-x-6"></div>
+                <div class="hidden md:flex items-center space-x-6">
+                    <button onClick="javascript:history.back(-1);"
+                        class="flex items-center bg-gray-100 hover:bg-primary text-black font-medium py-2 px-4 rounded-lg transition duration-300 ease-in-out shadow-md hover:shadow-lg transform hover:-translate-y-0.5">
+                        <i class="fa fa-arrow-left text-gray-600 text-2xl hover:text-black transition-colors"></i>
+                        <span
+                            class="hidden md:inline-block text-xl text-gray-800 hover:text-primary transition-colors">返回</span>
+                    </button>
+                </div>
+            </div>
+
+            <div class="flex items-center space-x-4">
+                <div class="relative hidden md:block">
+                    <input type="text" placeholder="全局搜索..."
+                        class="pl-9 pr-4 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-primary/30 focus:border-primary transition-all duration-200 text-sm w-64">
+                    <i class="fa fa-search absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
+                </div>
+
+                <div class="hidden md:flex items-center space-x-6">
+                    <button
+                        class="flex items-center bg-gray-200 hover:bg-primary text-black font-medium py-2 px-4 rounded-lg transition duration-300 ease-in-out shadow-md hover:shadow-lg transform hover:-translate-y-0.5">
+                        <div class="w-8 h-8 rounded-full bg-gray-300 flex items-center justify-center">
+                            <i class="fa fa-user text-gray-600 "></i>
+                        </div>
+                        <span id="username" class="text-sm font-medium hidden md:inline-block ml-2">用户名</span>
+                    </button>
+                    <button
+                        class="flex items-center bg-gray-200 hover:bg-primary text-black font-medium py-2 px-4 rounded-lg transition duration-300 ease-in-out shadow-md hover:shadow-lg transform hover:-translate-y-0.5">
+                        <div class="w-8 h-8 rounded-full bg-gray-300 flex items-center justify-center">
+                            <i class="fa fa-envelope"></i>
+                        </div>
+                        <span class="text-sm font-medium hidden md:inline-block ml-2">消息</span>
+                        <span
+                            class="hidden ml-2 bg-gray-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">0</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- 主内容区 -->
+    <main class="flex-grow container mx-auto px-4 py-6">
+        <!-- 粒子效果容器 -->
+        <div id="particles-js"></div>
+        <!-- 引入粒子效果配置 -->
+        <script src="https://cdn.jsdelivr.net/gh/VincentGarreau/particles.js@2.0.0/particles.min.js"></script>
+
+        <!-- 页面标题和统计 -->
+        <div class="mb-6 flex flex-col md:flex-row md:items-center md:justify-between">
+            <div>
+                <h2 class="text-2xl font-bold text-gray-800">测试数据列表</h2>
+                <p class="text-gray-500 mt-1">共 <span id="total-records" class="font-medium text-primary">0</span> 条记录
+                </p>
+            </div>
+        </div>
+
+        <!-- 筛选区域 -->
+        <div class="bg-white/70 transition-all rounded-2xl p-6 shadow-lg hover:shadow-2xl shadow-primary/10 mb-4">
+            <div class="flex items-center justify-between mb-4">
+                <h3 class="font-semibold text-gray-700">筛选条件</h3>
+                <button id="reset-filters" class="text-sm text-primary hover:text-primary/80 transition-colors">
+                    <i class="fa fa-refresh mr-1"></i> 重置筛选
+                </button>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">器械类别</label>
+                    <select id="dataGroup"
+                        class="w-full p-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-primary/30 focus:border-primary transition-all duration-200">
+                        <option value="">全部</option>
+                        <option value="种植体">种植体</option>
+                        <option value="基台">基台</option>
+                        <option value="支抗钉">支抗钉</option>
+                        <option value="钻类">钻类</option>
+                        <option value="植入器">植入器</option>
+                        <option value="扳手">扳手</option>
+                        <option value="牙科材料">牙科材料</option>
+                        <option value="其他">其他</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">测试类型</label>
+                    <select id="testType"
+                        class="w-full p-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-primary/30 focus:border-primary transition-all duration-200">
+                        <option value="">全部</option>
+                        <option value="标准疲劳">标准疲劳</option>
+                        <option value="拉伸强度">拉伸强度</option>
+                        <option value="抗扭强度">抗扭强度</option>
+                        <option value="抗压强度">抗压强度</option>
+                        <option value="切削性能">切削性能</option>
+                        <option value="表面粗糙度">表面粗糙度</option>
+                        <option value="耐腐蚀性">耐腐蚀性</option>
+                        <option value="其他">其他</option>
+                    </select>
+                </div>
+
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">测试标准</label>
+                    <select id="testStandard"
+                        class="w-full p-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-primary/30 focus:border-primary transition-all duration-200">
+                        <option value="">全部</option>
+                        <option value="YY/T 0521">YY/T 0521:种植体动态疲劳试验</option>
+                        <option value="YY 0315">YY 0315:钛及钛合金牙种植体</option>
+                        <option value="GB/T 16886">GB/T 16886:医疗器械生物学评价</option>
+                        <option value="YY/T 0874"> YY/T 0874:旋转器械实验方法</option>
+                        <option value="ISO TS 13498">ISO TS 13498:连接部分接头扭力试验</option>
+                        <option value="其他">其他</option>
+                    </select>
+                </div>
+
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">器械型号</label>
+                    <input type="text" id="testModel"
+                        class="w-full p-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-primary/30 focus:border-primary transition-all duration-200"
+                        placeholder="输入型号">
+                </div>
+
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">规格</label>
+                    <input type="text" id="testSpecification"
+                        class="w-full p-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-primary/30 focus:border-primary transition-all duration-200"
+                        placeholder="输入规格">
+                </div>
+
+                <div>
+                    <label for="testBatch" class="block text-sm font-medium text-gray-700 mb-2">批次/阶段</label>
+                    <select id="testBatch"
+                        class="w-full p-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-primary/30 focus:border-primary transition-all duration-200">
+                        <option value="">全部</option>
+                        <option value="研发试制">研发试制</option>
+                        <option value="生产试制">生产试制</option>
+                        <option value="上市产品">上市产品</option>
+                    </select>
+                </div>
+
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">材料</label>
+                    <select id="material"
+                        class="w-full p-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-primary/30 focus:border-primary transition-all duration-200">
+                        <option value="">全部</option>
+                        <option value="Grade4(冷轧)">Grade 4:纯钛(材料供应商:Zapp)</option>
+                        <option value="Grade 4A">Grade 4A:纯钛(未知材料供应商)</option>
+                        <option value="TC4">TC4(Ti-6Al-4V):钛合金</option>
+                        <option value="TC4-ELI">TC4 ELI(Ti-6Al-4V ELI):钛合金</option>
+                        <option value="S45500">S45500:不锈钢</option>
+                        <option value="S46500">S46500:不锈钢</option>
+                        <option value="1RK91">1RK91:不锈钢</option>
+                        <option value="其他">其他</option>
+                    </select>
+                </div>
+
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">测试人</label>
+                    <input type="text" id="testMember"
+                        class="w-full p-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-primary/30 focus:border-primary transition-all duration-200"
+                        placeholder="输入测试人">
+                </div>
+
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">测试时间范围</label>
+                    <div class="flex space-x-2">
+                        <input type="date" id="startTime"
+                            class="w-full p-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-primary/30 focus:border-primary transition-all duration-200">
+                        <p>~</p>
+                        <input type="date" id="endTime"
+                            class="w-full p-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-primary/30 focus:border-primary transition-all duration-200">
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">结果状态</label>
+                    <select id="resultStatus"
+                        class="w-full p-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-primary/30 focus:border-primary transition-all duration-200">
+                        <option value="">全部</option>
+                        <option value="通过">通过</option>
+                        <option value="未通过">未通过</option>
+                        <option value="待确认">待确认</option>
+                        <option value="其他">其他</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="mt-5 flex justify-end space-x-3">
+                <button id="btn-clear-filter"
+                    class="px-5 py-2 bg-white border border-gray-200 rounded-lg shadow-sm hover:bg-gray-50 transition-colors">
+                    取消
+                </button>
+                <button id="btn-apply-filter"
+                    class="px-5 py-2 bg-primary text-white rounded-lg shadow-sm hover:bg-primary/90 transition-colors">
+                    <i class="fa fa-filter mr-2"></i> 应用筛选
+                </button>
+            </div>
+        </div>
+
+        <!-- 数据表格 -->
+        <div class="bg-white rounded-xl shadow-soft overflow-hidden mb-4" id="sortableTable">
+            <div class="rounded-1xl p-4 shadow-lg">
+                <div class="flex items-center justify-center">
+                    <h2 class="font-semibold text-gray-700">实验数据筛选表</h2>
+                </div>
+            </div>
+            <div class="overflow-x-auto">
+                <table class="min-w-full divide-y divide-gray-300 mb-4">
+                    <thead class="bg-gray-50">
+                        <tr>
+                            <th scope="col"
+                                class="sortable-header px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                序号<i class="fa fa-sort ml-1" hidden></i>
+                            </th>
+                            <th scope="col"
+                                class="sortable-header px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                器械类别<i class="fa fa-sort ml-1"></i>
+                            </th>
+                            <th scope="col"
+                                class="sortable-header px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                测试类型<i class="fa fa-sort ml-1"></i>
+                            </th>
+                            <th scope="col"
+                                class="sortable-header px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                测试标准<i class="fa fa-sort ml-1"></i>
+                            </th>
+                            <th scope="col"
+                                class="sortable-header px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                器械型号<i class="fa fa-sort ml-1"></i>
+                            </th>
+                            <th scope="col"
+                                class="sortable-header px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                规格<i class="fa fa-sort ml-1"></i>
+                            </th>
+                            <th scope="col"
+                                class="sortable-header px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                批次/阶段<i class="fa fa-sort ml-1"></i>
+                            </th>
+                            <th scope="col"
+                                class="sortable-header px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                材料<i class="fa fa-sort ml-1"></i>
+                            </th>
+                            <th scope="col"
+                                class="sortable-header px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                测试人<i class="fa fa-sort ml-1"></i>
+                            </th>
+                            <th scope="col"
+                                class="sortable-header px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                测试时间<i class="fa fa-sort ml-1"></i>
+                            </th>
+                            <th scope="col"
+                                class="sortable-header px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                结果<i class="fa fa-sort ml-1"></i>
+                            </th>
+                            <th scope="col"
+                                class="px-6 py-3 text-middle text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                操作
+                            </th>
+                        </tr>
+                    </thead>
+                    <tbody class="bg-white divide-y divide-gray-200" id="test-data-body">
+                        <!-- 数据行将通过JavaScript动态添加 -->
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- 分页控件 -->
+            <div class="px-6 py-4 flex items-center justify-between border-t border-gray-200">
+                <div class="flex-1 flex justify-between">
+                    <div class="justify-center">
+                        <p class="text-sm text-gray-700">
+                            显示第 <span id="start-index" class="font-medium">1</span> 至 <span id="end-index" class="font-medium">10</span> 条，共 <span
+                                id="total-items" class="font-medium" id="pagination-total">0</span> 条记录
+                        </p>
+                    </div>
+                </div>
+                <nav class="relative z-0 inline-flex rounded-md shadow-sm -space-x-px" aria-label="Pagination">
+                    <button
+                        class="relative inline-flex items-center px-2 py-2 rounded-l-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50"
+                        id="prev-btn">
+                        <i class="fa fa-chevron-left text-xs"></i><span class="px-2"> 上一页</span>
+                    </button>
+                    <div id="pagination-numbers" class="flex space-x-1">
+                        <!-- 分页按钮将通过JavaScript动态插入 -->
+                    </div>
+                    <!-- <button aria-current="page"
+                        class="z-10 bg-primary text-white relative inline-flex items-center px-4 py-2 border border-primary text-sm font-medium">
+                        1
+                    </button>-->
+                    <button
+                        class="relative inline-flex items-center px-2 py-2 rounded-r-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50"
+                        id="next-btn">
+                        <span class="px-2">下一页</span><i class="fa fa-chevron-right text-xs"></i>
+                    </button>
+                </nav>
+            </div>
+            <!-- 导出按钮 -->
+            <div class="mt-4 md:mt-0 flex space-x-3 mb-4 ml-auto justify-end">
+                <button
+                    class="px-4 py-2 bg-primary text-white rounded-lg shadow-sm hover:bg-primary/90 transition-colors flex items-center">
+                    <i class="fa fa-download mr-2"></i>
+                    <span>导出结果</span>
+                </button>
+            </div>
+        </div>
+    </main>
+
+    <!-- 页脚 -->
+    <footer class="bg-white border-t border-gray-200 py-6 mt-8">
+        <div class="container mx-auto px-4">
+            <div class="flex flex-col md:flex-row items-center justify-between">
+                <div class="flex items-center space-x-4">
+                    <span class="text-sm text-gray-500">© 2024 莱顿-力学测试数据库</span>
+                    <span class="bg-primary/10 text-primary text-xs px-2 py-1 rounded-full border border-primary/30 cursor-pointer"
+                        id="version-span">
+                        <i class="fa fa-flask mr-1"></i> 测试版 v0.1.1</span>
+                </div>
+                <div class="flex space-x-4">
+                    <a class="text-gray-500 hover:text-primary transition-colors" 
+                        id="guide-a">
+                        <i class="fa fa-question-circle"></i>
+                        <span class="ml-1">操作指引</span>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- 详情模态框 -->
+    <div id="detail-modal"
+        class="fixed inset-0 bg-black/50 z-50 flex items-center justify-center opacity-0 pointer-events-none transition-opacity duration-300">
+        <div
+            class="bg-white rounded-xl shadow-xl max-w-4xl w-full mx-4 transform scale-95 transition-transform duration-300 max-h-[90vh] overflow-hidden flex flex-col">
+            <div class="p-6 border-b border-gray-100 flex items-center justify-between">
+                <h3 class="text-lg font-bold text-gray-800" id="modal-title">测试详情</h3>
+                <button id="close-detail-modal" class="text-gray-400 hover:text-gray-600 transition-colors">
+                    <i class="fa fa-times"></i>
+                </button>
+            </div>
+
+            <div id="modal-content" class="flex-grow overflow-y-auto p-6">
+
+
+            </div>
+        </div>
+    </div>
+
+    <!-- JavaScript -->
+    <!-- 初始化粒子效果 -->
+    <script>
+        particlesJS.load('particles-js', '../../config.json', function () {
+        });
+    </script>
+    <!-- 获取测试数据 -->
+    <script src="../JavaScript/getTestData.js" type="module"></script>
+    <script src="../JavaScript/query.js"></script>
+    <script src="../javaScript/showNotification.js"></script>
+    <script src="../JavaScript/api.js"></script>
+        
+    <!-- 版本按钮跳转日志界面 -->
+    <script>
+        document.getElementById("version-span").addEventListener("click", function () {
+            window.location.href = "../client/devlog.html";
+        });
+        document.getElementById("guide-a").addEventListener("click", function () {
+            window.location.href = "../client/guide.html";
+        });
+    </script>
+
+</body>
+
+</html>
