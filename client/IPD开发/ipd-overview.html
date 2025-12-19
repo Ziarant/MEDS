@@ -1,0 +1,868 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>IPD概述 - 集成产品开发体系</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.8/dist/chart.umd.min.js"></script>
+    
+    <!-- Tailwind配置 -->
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#99774b',
+                        secondary: '#b3946d',
+                        accent: '#0FC6C2',
+                        neutral: '#1F2937',
+                        light: '#F9FAFB'
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'system-ui', 'sans-serif'],
+                    },
+                }
+            }
+        }
+    </script>
+    
+    <style type="text/tailwindcss">
+        @layer utilities {
+            .content-auto {
+                content-visibility: auto;
+            }
+            .text-shadow {
+                text-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            }
+            .transition-custom {
+                transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            }
+            .bg-gradient-ipd {
+                background: linear-gradient(135deg, #165DFF 0%, #722ED1 100%);
+            }
+        }
+    </style>
+</head>
+<body class="bg-gray-50 font-sans text-gray-800">
+    <!-- 导航栏 -->
+    <header class="sticky top-0 z-50 bg-white/95 backdrop-blur-sm shadow-sm transition-all duration-300" id="navbar">
+        <div class="container mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-16">
+                <div class="flex items-center">
+                    <div class="flex-shrink-0 flex items-center">
+                        <i class="fa fa-cubes text-primary text-2xl mr-2"></i>
+                        <span class="font-bold text-xl text-neutral">IPD 知识中心</span>
+                    </div>
+                    <nav class="hidden md:ml-10 md:flex md:space-x-8">
+                        <a href="#what-is-ipd" class="text-gray-600 hover:text-primary px-3 py-2 text-sm font-medium transition-custom">什么是IPD</a>
+                        <a href="#core-elements" class="text-gray-600 hover:text-primary px-3 py-2 text-sm font-medium transition-custom">核心要素</a>
+                        <a href="#process-framework" class="text-gray-600 hover:text-primary px-3 py-2 text-sm font-medium transition-custom">流程框架</a>
+                        <a href="#benefits" class="text-gray-600 hover:text-primary px-3 py-2 text-sm font-medium transition-custom">价值优势</a>
+                        <a href="#faq" class="text-gray-600 hover:text-primary px-3 py-2 text-sm font-medium transition-custom">常见问题</a>
+                    </nav>
+                </div>
+                <div class="hidden md:block">
+                    <div class="flex items-center">
+                    </div>
+                </div>
+                <div class="-mr-2 flex md:hidden">
+                    <button type="button" id="mobile-menu-button" class="inline-flex items-center justify-center p-2 rounded-md text-gray-600 hover:text-primary hover:bg-gray-100 focus:outline-none">
+                        <i class="fa fa-bars text-xl"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- 英雄区域 -->
+    <section class="bg-gradient-ipd text-white py-20 md:py-28 overflow-hidden relative">
+        <div class="absolute inset-0 overflow-hidden opacity-10">
+            <div class="absolute -right-10 -top-10 w-64 h-64 rounded-full bg-white"></div>
+            <div class="absolute left-1/4 bottom-0 w-80 h-80 rounded-full bg-white"></div>
+            <div class="absolute right-1/3 top-1/3 w-32 h-32 rounded-full bg-white"></div>
+        </div>
+        <div class="container mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+            <div class="max-w-3xl mx-auto text-center">
+                <h1 class="text-[clamp(2rem,5vw,3.5rem)] font-bold leading-tight mb-6 text-shadow">
+                    集成产品开发<br><span class="text-secondary">IPD (Integrated Product Development)</span>
+                </h1>
+                <p class="text-[clamp(1rem,2vw,1.25rem)] text-white/90 mb-8 leading-relaxed">
+                    一套系统化的产品开发方法论，通过跨部门协作、结构化流程和市场驱动，
+                    实现产品开发的高效性与市场成功的最大化。
+                </p>
+                <div class="flex flex-col sm:flex-row justify-center gap-4">
+                    <a href="#what-is-ipd" class="bg-white text-primary hover:bg-gray-100 px-6 py-3 rounded-lg font-medium transition-custom flex items-center justify-center">
+                        <i class="fa fa-book mr-2"></i> 了解详情
+                    </a>
+                    <a href="#process-framework" class="bg-transparent border-2 border-white text-white hover:bg-white/10 px-6 py-3 rounded-lg font-medium transition-custom flex items-center justify-center">
+                        <i class="fa fa-sitemap mr-2"></i> 查看流程框架
+                    </a>
+                </div>
+            </div>
+        </div>
+        <div class="absolute bottom-0 left-0 right-0 h-16 bg-gradient-to-t from-gray-50 to-transparent"></div>
+    </section>
+
+    <!-- 核心数据概览 -->
+    <section class="py-12 -mt-16 relative z-20">
+        <div class="container mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div class="bg-white rounded-xl p-6 shadow-lg hover:shadow-xl transition-custom border-t-4 border-primary">
+                    <div class="flex items-center mb-4">
+                        <div class="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center mr-4">
+                            <i class="fa fa-line-chart text-primary text-xl"></i>
+                        </div>
+                        <h3 class="text-lg font-semibold text-neutral">产品成功率提升</h3>
+                    </div>
+                    <p class="text-3xl font-bold text-neutral mb-2">50-70<span class="text-xl font-normal text-gray-500">%</span></p>
+                    <p class="text-gray-500 text-sm">实施IPD的企业平均产品成功率提升幅度</p>
+                </div>
+                
+                <div class="bg-white rounded-xl p-6 shadow-lg hover:shadow-xl transition-custom border-t-4 border-secondary">
+                    <div class="flex items-center mb-4">
+                        <div class="w-12 h-12 rounded-full bg-secondary/10 flex items-center justify-center mr-4">
+                            <i class="fa fa-clock-o text-secondary text-xl"></i>
+                        </div>
+                        <h3 class="text-lg font-semibold text-neutral">开发周期缩短</h3>
+                    </div>
+                    <p class="text-3xl font-bold text-neutral mb-2">30-50<span class="text-xl font-normal text-gray-500">%</span></p>
+                    <p class="text-gray-500 text-sm">结构化流程使产品上市时间显著缩短</p>
+                </div>
+                
+                <div class="bg-white rounded-xl p-6 shadow-lg hover:shadow-xl transition-custom border-t-4 border-accent">
+                    <div class="flex items-center mb-4">
+                        <div class="w-12 h-12 rounded-full bg-accent/10 flex items-center justify-center mr-4">
+                            <i class="fa fa-money text-accent text-xl"></i>
+                        </div>
+                        <h3 class="text-lg font-semibold text-neutral">研发成本降低</h3>
+                    </div>
+                    <p class="text-3xl font-bold text-neutral mb-2">20-40<span class="text-xl font-normal text-gray-500">%</span></p>
+                    <p class="text-gray-500 text-sm">通过资源优化和减少浪费实现成本节约</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 什么是IPD -->
+    <section id="what-is-ipd" class="py-20 bg-white">
+        <div class="container mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="max-w-3xl mx-auto text-center mb-16">
+                <span class="inline-block px-3 py-1 bg-primary/10 text-primary text-sm font-medium rounded-full mb-4">基础概念</span>
+                <h2 class="text-[clamp(1.5rem,3vw,2.5rem)] font-bold text-neutral mb-6">什么是集成产品开发 (IPD)</h2>
+                <p class="text-gray-600 text-lg">IPD是一套经过验证的产品开发管理体系，旨在通过结构化流程、跨职能协作和市场驱动，实现产品开发的高效性与市场成功。</p>
+            </div>
+            
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+                <div>
+                    <div class="space-y-6">
+                        <div class="flex">
+                            <div class="flex-shrink-0 mt-1">
+                                <div class="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center">
+                                    <i class="fa fa-lightbulb-o text-primary"></i>
+                                </div>
+                            </div>
+                            <div class="ml-4">
+                                <h3 class="text-xl font-semibold text-neutral mb-2">核心定义</h3>
+                                <p class="text-gray-600">IPD（Integrated Product Development）即集成产品开发，是一种将产品开发视为一个跨部门、跨系统的集成过程，通过结构化的流程、决策机制和组织架构，实现产品从概念到退市全生命周期的高效管理。</p>
+                            </div>
+                        </div>
+                        
+                        <div class="flex">
+                            <div class="flex-shrink-0 mt-1">
+                                <div class="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center">
+                                    <i class="fa fa-history text-primary"></i>
+                                </div>
+                            </div>
+                            <div class="ml-4">
+                                <h3 class="text-xl font-semibold text-neutral mb-2">发展历程</h3>
+                                <p class="text-gray-600">IPD起源于20世纪80年代，由IBM公司率先提出并实践，旨在解决产品开发效率低下、市场响应慢等问题。随后在华为等企业的成功实践中得到广泛认可和推广，成为全球高科技企业广泛采用的产品开发模式。</p>
+                            </div>
+                        </div>
+                        
+                        <div class="flex">
+                            <div class="flex-shrink-0 mt-1">
+                                <div class="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center">
+                                    <i class="fa fa-eye text-primary"></i>
+                                </div>
+                            </div>
+                            <div class="ml-4">
+                                <h3 class="text-xl font-semibold text-neutral mb-2">核心理念</h3>
+                                <p class="text-gray-600">IPD以市场需求为导向，强调"正确地做正确的事"，通过跨职能团队协作打破部门壁垒，通过结构化流程确保开发过程的可预测性，通过阶段性评审实现风险的早期识别和规避。</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="relative">
+                    <div class="bg-gray-50 rounded-2xl p-8 shadow-xl">
+                        <h3 class="text-xl font-bold text-neutral mb-6">IPD vs 传统产品开发</h3>
+                        <div class="space-y-6">
+                            <div class="flex items-start">
+                                <div class="flex-shrink-0 w-1/2 pr-4">
+                                    <p class="text-gray-600 font-bold text-lg">产品开发导向</p>
+                                </div>
+                                <div class="flex-1 border-l-2 border-gray-200 pl-4">
+                                    <div class="mb-2">
+                                        <p class="font-medium text-neutral">传统模式：技术驱动</p>
+                                        <p class="text-sm text-gray-500">从技术能力出发规划产品</p>
+                                    </div>
+                                    <div>
+                                        <p class="font-medium text-primary">IPD：市场驱动</p>
+                                        <p class="text-sm text-gray-500">从市场需求出发定义产品</p>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="flex items-start">
+                                <div class="flex-shrink-0 w-1/2 pr-4">
+                                    <p class="text-gray-600 font-bold text-lg">组织模式</p>
+                                </div>
+                                <div class="flex-1 border-l-2 border-gray-200 pl-4">
+                                    <div class="mb-2">
+                                        <p class="font-medium text-neutral">传统模式：部门墙隔离</p>
+                                        <p class="text-sm text-gray-500">各部门独立工作，协作低效</p>
+                                    </div>
+                                    <div>
+                                        <p class="font-medium text-primary">IPD：跨职能团队</p>
+                                        <p class="text-sm text-gray-500">多部门协同，责任共担</p>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="flex items-start">
+                                <div class="flex-shrink-0 w-1/2 pr-4">
+                                    <p class="text-gray-600 font-bold text-lg">决策方式</p>
+                                </div>
+                                <div class="flex-1 border-l-2 border-gray-200 pl-4">
+                                    <div class="mb-2">
+                                        <p class="font-medium text-neutral">传统模式：经验驱动</p>
+                                        <p class="text-sm text-gray-500">依赖个人经验，风险高</p>
+                                    </div>
+                                    <div>
+                                        <p class="font-medium text-primary">IPD：数据驱动</p>
+                                        <p class="text-sm text-gray-500">基于市场和技术数据决策</p>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="flex items-start">
+                                <div class="flex-shrink-0 w-1/2 pr-4">
+                                    <p class="text-gray-600 font-bold text-lg">风险管理</p>
+                                </div>
+                                <div class="flex-1 border-l-2 border-gray-200 pl-4">
+                                    <div class="mb-2">
+                                        <p class="font-medium text-neutral">传统模式：被动应对</p>
+                                        <p class="text-sm text-gray-500">问题出现后才采取措施</p>
+                                    </div>
+                                    <div>
+                                        <p class="font-medium text-primary">IPD：主动预防</p>
+                                        <p class="text-sm text-gray-500">阶段评审提前识别风险</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="absolute -bottom-6 -right-6 w-32 h-32 bg-secondary/10 rounded-full -z-10"></div>
+                    <div class="absolute -top-6 -left-6 w-24 h-24 bg-accent/10 rounded-full -z-10"></div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 核心要素 -->
+    <section id="core-elements" class="py-20 bg-gray-50">
+        <div class="container mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="max-w-3xl mx-auto text-center mb-16">
+                <span class="inline-block px-3 py-1 bg-primary/10 text-primary text-sm font-medium rounded-full mb-4">核心架构</span>
+                <h2 class="text-[clamp(1.5rem,3vw,2.5rem)] font-bold text-neutral mb-6">IPD的核心要素</h2>
+                <p class="text-gray-600 text-lg">IPD体系由多个相互关联的核心要素构成，这些要素协同工作，共同支撑高效的产品开发流程。</p>
+            </div>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                <!-- 要素1 -->
+                <div class="bg-white rounded-xl p-8 shadow-lg hover:shadow-xl transition-custom group">
+                    <div class="w-14 h-14 rounded-lg bg-primary/10 flex items-center justify-center mb-6 group-hover:bg-primary group-hover:text-white transition-custom">
+                        <i class="fa fa-sitemap text-2xl text-primary group-hover:text-white transition-custom"></i>
+                    </div>
+                    <h3 class="text-xl font-bold text-neutral mb-3">市场管理与产品规划</h3>
+                    <p class="text-gray-600">通过市场洞察、需求分析和竞争分析，制定符合市场趋势的产品战略和规划，确保开发的产品能够满足市场需求。</p>
+                </div>
+                
+                <!-- 要素2 -->
+                <div class="bg-white rounded-xl p-8 shadow-lg hover:shadow-xl transition-custom group">
+                    <div class="w-14 h-14 rounded-lg bg-primary/10 flex items-center justify-center mb-6 group-hover:bg-primary group-hover:text-white transition-custom">
+                        <i class="fa fa-users text-2xl text-primary group-hover:text-white transition-custom"></i>
+                    </div>
+                    <h3 class="text-xl font-bold text-neutral mb-3">跨职能团队</h3>
+                    <p class="text-gray-600">建立由研发、市场、销售、生产、采购等多部门人员组成的跨职能团队（如PDT产品开发团队），实现全流程协同。</p>
+                </div>
+                
+                <!-- 要素3 -->
+                <div class="bg-white rounded-xl p-8 shadow-lg hover:shadow-xl transition-custom group">
+                    <div class="w-14 h-14 rounded-lg bg-primary/10 flex items-center justify-center mb-6 group-hover:bg-primary group-hover:text-white transition-custom">
+                        <i class="fa fa-list-ol text-2xl text-primary group-hover:text-white transition-custom"></i>
+                    </div>
+                    <h3 class="text-xl font-bold text-neutral mb-3">结构化流程</h3>
+                    <p class="text-gray-600">将产品开发过程划分为明确的阶段和活动，定义每个阶段的输入、输出和交付物，确保开发过程的规范性和可预测性。</p>
+                </div>
+                
+                <!-- 要素4 -->
+                <div class="bg-white rounded-xl p-8 shadow-lg hover:shadow-xl transition-custom group">
+                    <div class="w-14 h-14 rounded-lg bg-primary/10 flex items-center justify-center mb-6 group-hover:bg-primary group-hover:text-white transition-custom">
+                        <i class="fa fa-gavel text-2xl text-primary group-hover:text-white transition-custom"></i>
+                    </div>
+                    <h3 class="text-xl font-bold text-neutral mb-3">决策评审机制</h3>
+                    <p class="text-gray-600">在产品开发的关键节点设置决策评审点（DCP），通过结构化的评审流程，确保资源投入到正确的项目，及时终止不符合预期的项目。</p>
+                </div>
+                
+                <!-- 要素5 -->
+                <div class="bg-white rounded-xl p-8 shadow-lg hover:shadow-xl transition-custom group">
+                    <div class="w-14 h-14 rounded-lg bg-primary/10 flex items-center justify-center mb-6 group-hover:bg-primary group-hover:text-white transition-custom">
+                        <i class="fa fa-cogs text-2xl text-primary group-hover:text-white transition-custom"></i>
+                    </div>
+                    <h3 class="text-xl font-bold text-neutral mb-3">技术与平台管理</h3>
+                    <p class="text-gray-600">建立技术预研机制和产品平台战略，通过技术复用和平台化开发，提高开发效率，缩短产品上市时间，降低开发成本。</p>
+                </div>
+                
+                <!-- 要素6 -->
+                <div class="bg-white rounded-xl p-8 shadow-lg hover:shadow-xl transition-custom group">
+                    <div class="w-14 h-14 rounded-lg bg-primary/10 flex items-center justify-center mb-6 group-hover:bg-primary group-hover:text-white transition-custom">
+                        <i class="fa fa-database text-2xl text-primary group-hover:text-white transition-custom"></i>
+                    </div>
+                    <h3 class="text-xl font-bold text-neutral mb-3">度量与知识管理</h3>
+                    <p class="text-gray-600">建立产品开发过程的度量体系，通过数据分析持续改进；同时构建知识管理系统，实现经验教训的沉淀和复用。</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 流程框架 -->
+    <section id="process-framework" class="py-20 bg-white">
+        <div class="container mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="max-w-3xl mx-auto text-center mb-16">
+                <span class="inline-block px-3 py-1 bg-primary/10 text-primary text-sm font-medium rounded-full mb-4">实施路径</span>
+                <h2 class="text-[clamp(1.5rem,3vw,2.5rem)] font-bold text-neutral mb-6">IPD流程框架</h2>
+                <p class="text-gray-600 text-lg">IPD将产品开发划分为清晰的阶段，每个阶段都有明确的目标、任务和交付物，通过阶段性评审确保产品开发的质量。</p>
+            </div>
+            
+            <div class="relative">
+                <!-- 桌面端流程时间线 -->
+                <div class="hidden lg:block absolute left-1/2 top-0 bottom-0 w-1 bg-gray-200 transform -translate-x-1/2"></div>
+                
+                <div class="space-y-16 relative">
+                    <!-- 阶段1 -->
+                    <div class="flex flex-col lg:flex-row items-center">
+                        <div class="lg:w-1/2 lg:pr-16 lg:text-right mb-8 lg:mb-0">
+                            <h3 class="text-2xl font-bold text-neutral mb-3">概念阶段</h3>
+                            <p class="text-gray-600 mb-4">基于市场机会和客户需求，形成产品概念，进行初步的技术和商业可行性分析，确定产品的基本方向。</p>
+                            <div class="inline-block lg:float-right">
+                                <span class="px-3 py-1 bg-gray-100 text-gray-700 text-sm font-medium rounded-full">输出：概念提案 (CP)</span>
+                            </div>
+                        </div>
+                        
+                        <div class="z-10 w-12 h-12 rounded-full bg-primary text-white flex items-center justify-center shadow-lg">
+                            <span class="font-bold">1</span>
+                        </div>
+                        
+                        <div class="lg:w-1/2 lg:pl-16 mt-8 lg:mt-0">
+                            <ul class="space-y-2">
+                                <li class="flex items-start">
+                                    <i class="fa fa-check-circle text-primary mt-1 mr-2"></i>
+                                    <span>市场机会分析与客户需求收集</span>
+                                </li>
+                                <li class="flex items-start">
+                                    <i class="fa fa-check-circle text-primary mt-1 mr-2"></i>
+                                    <span>产品概念生成与筛选</span>
+                                </li>
+                                <li class="flex items-start">
+                                    <i class="fa fa-check-circle text-primary mt-1 mr-2"></i>
+                                    <span>初步技术可行性评估</span>
+                                </li>
+                                <li class="flex items-start">
+                                    <i class="fa fa-check-circle text-primary mt-1 mr-2"></i>
+                                    <span>概念决策评审 (CDCP)</span>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                    
+                    <!-- 阶段2 -->
+                    <div class="flex flex-col lg:flex-row items-center">
+                        <div class="lg:w-1/2 lg:pr-16 lg:text-right mb-8 lg:mb-0 order-1 lg:order-1">
+                            <h3 class="text-2xl font-bold text-neutral mb-3">计划阶段</h3>
+                            <p class="text-gray-600 mb-4">将产品概念转化为详细的开发计划，包括需求分解、技术方案设计、项目计划制定、资源配置和风险评估。</p>
+                            <div class="inline-block lg:float-right">
+                                <span class="px-3 py-1 bg-gray-100 text-gray-700 text-sm font-medium rounded-full">输出：产品计划 (PP)</span>
+                            </div>
+                        </div>
+                        
+                        <div class="z-10 w-12 h-12 rounded-full bg-primary text-white flex items-center justify-center shadow-lg order-0 lg:order-1">
+                            <span class="font-bold">2</span>
+                        </div>
+                        
+                        <div class="lg:w-1/2 lg:pl-16 mt-8 lg:mt-0 order-2 lg:order-1">
+                            <ul class="space-y-2">
+                                <li class="flex items-start">
+                                    <i class="fa fa-check-circle text-primary mt-1 mr-2"></i>
+                                    <span>详细需求分析与规格定义</span>
+                                </li>
+                                <li class="flex items-start">
+                                    <i class="fa fa-check-circle text-primary mt-1 mr-2"></i>
+                                    <span>技术方案设计与评审</span>
+                                </li>
+                                <li class="flex items-start">
+                                    <i class="fa fa-check-circle text-primary mt-1 mr-2"></i>
+                                    <span>项目计划与资源配置</span>
+                                </li>
+                                <li class="flex items-start">
+                                    <i class="fa fa-check-circle text-primary mt-1 mr-2"></i>
+                                    <span>计划决策评审 (PDCP)</span>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                    
+                    <!-- 阶段3 -->
+                    <div class="flex flex-col lg:flex-row items-center">
+                        <div class="lg:w-1/2 lg:pr-16 lg:text-right mb-8 lg:mb-0">
+                            <h3 class="text-2xl font-bold text-neutral mb-3">开发阶段</h3>
+                            <p class="text-gray-600 mb-4">根据计划进行产品的详细设计和开发，包括硬件开发、软件开发、原型制作等，同时开展测试准备工作。</p>
+                            <div class="inline-block lg:float-right">
+                                <span class="px-3 py-1 bg-gray-100 text-gray-700 text-sm font-medium rounded-full">输出：原型产品</span>
+                            </div>
+                        </div>
+                        
+                        <div class="z-10 w-12 h-12 rounded-full bg-primary text-white flex items-center justify-center shadow-lg">
+                            <span class="font-bold">3</span>
+                        </div>
+                        
+                        <div class="lg:w-1/2 lg:pl-16 mt-8 lg:mt-0">
+                            <ul class="space-y-2">
+                                <li class="flex items-start">
+                                    <i class="fa fa-check-circle text-primary mt-1 mr-2"></i>
+                                    <span>详细设计与开发实现</span>
+                                </li>
+                                <li class="flex items-start">
+                                    <i class="fa fa-check-circle text-primary mt-1 mr-2"></i>
+                                    <span>原型制作与内部测试</span>
+                                </li>
+                                <li class="flex items-start">
+                                    <i class="fa fa-check-circle text-primary mt-1 mr-2"></i>
+                                    <span>测试用例设计与测试环境搭建</span>
+                                </li>
+                                <li class="flex items-start">
+                                    <i class="fa fa-check-circle text-primary mt-1 mr-2"></i>
+                                    <span>开发决策评审 (TDCP)</span>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                    
+                    <!-- 阶段4 -->
+                    <div class="flex flex-col lg:flex-row items-center">
+                        <div class="lg:w-1/2 lg:pr-16 lg:text-right mb-8 lg:mb-0 order-1 lg:order-1">
+                            <h3 class="text-2xl font-bold text-neutral mb-3">验证阶段</h3>
+                            <p class="text-gray-600 mb-4">对开发完成的产品进行全面测试和验证，包括功能测试、性能测试、可靠性测试等，确保产品满足设计要求。</p>
+                            <div class="inline-block lg:float-right">
+                                <span class="px-3 py-1 bg-gray-100 text-gray-700 text-sm font-medium rounded-full">输出：测试报告</span>
+                            </div>
+                        </div>
+                        
+                        <div class="z-10 w-12 h-12 rounded-full bg-primary text-white flex items-center justify-center shadow-lg order-0 lg:order-1">
+                            <span class="font-bold">4</span>
+                        </div>
+                        
+                        <div class="lg:w-1/2 lg:pl-16 mt-8 lg:mt-0 order-2 lg:order-1">
+                            <ul class="space-y-2">
+                                <li class="flex items-start">
+                                    <i class="fa fa-check-circle text-primary mt-1 mr-2"></i>
+                                    <span>全面测试与缺陷修复</span>
+                                </li>
+                                <li class="flex items-start">
+                                    <i class="fa fa-check-circle text-primary mt-1 mr-2"></i>
+                                    <span>用户验收测试 (UAT)</span>
+                                </li>
+                                <li class="flex items-start">
+                                    <i class="fa fa-check-circle text-primary mt-1 mr-2"></i>
+                                    <span>生产准备与工艺验证</span>
+                                </li>
+                                <li class="flex items-start">
+                                    <i class="fa fa-check-circle text-primary mt-1 mr-2"></i>
+                                    <span>验证决策评审 (VDCP)</span>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                    
+                    <!-- 阶段5 -->
+                    <div class="flex flex-col lg:flex-row items-center">
+                        <div class="lg:w-1/2 lg:pr-16 lg:text-right mb-8 lg:mb-0">
+                            <h3 class="text-2xl font-bold text-neutral mb-3">发布阶段</h3>
+                            <p class="text-gray-600 mb-4">完成产品的最终准备工作，进行量产和市场发布，包括生产爬坡、市场推广、销售培训和售后支持。</p>
+                            <div class="inline-block lg:float-right">
+                                <span class="px-3 py-1 bg-gray-100 text-gray-700 text-sm font-medium rounded-full">输出：上市产品</span>
+                            </div>
+                        </div>
+                        
+                        <div class="z-10 w-12 h-12 rounded-full bg-primary text-white flex items-center justify-center shadow-lg">
+                            <span class="font-bold">5</span>
+                        </div>
+                        
+                        <div class="lg:w-1/2 lg:pl-16 mt-8 lg:mt-0">
+                            <ul class="space-y-2">
+                                <li class="flex items-start">
+                                    <i class="fa fa-check-circle text-primary mt-1 mr-2"></i>
+                                    <span>量产与供应链协调</span>
+                                </li>
+                                <li class="flex items-start">
+                                    <i class="fa fa-check-circle text-primary mt-1 mr-2"></i>
+                                    <span>市场推广与销售启动</span>
+                                </li>
+                                <li class="flex items-start">
+                                    <i class="fa fa-check-circle text-primary mt-1 mr-2"></i>
+                                    <span>用户反馈收集机制建立</span>
+                                </li>
+                                <li class="flex items-start">
+                                    <i class="fa fa-check-circle text-primary mt-1 mr-2"></i>
+                                    <span>发布决策评审 (ADCP)</span>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                    
+                    <!-- 阶段6 -->
+                    <div class="flex flex-col lg:flex-row items-center">
+                        <div class="lg:w-1/2 lg:pr-16 lg:text-right mb-8 lg:mb-0 order-1 lg:order-1">
+                            <h3 class="text-2xl font-bold text-neutral mb-3">生命周期管理</h3>
+                            <p class="text-gray-600 mb-4">对已上市产品进行持续监控和管理，包括产品迭代、成本优化、市场拓展，直至最终退市。</p>
+                            <div class="inline-block lg:float-right">
+                                <span class="px-3 py-1 bg-gray-100 text-gray-700 text-sm font-medium rounded-full">输出：退市报告</span>
+                            </div>
+                        </div>
+                        
+                        <div class="z-10 w-12 h-12 rounded-full bg-primary text-white flex items-center justify-center shadow-lg order-0 lg:order-1">
+                            <span class="font-bold">6</span>
+                        </div>
+                        
+                        <div class="lg:w-1/2 lg:pl-16 mt-8 lg:mt-0 order-2 lg:order-1">
+                            <ul class="space-y-2">
+                                <li class="flex items-start">
+                                    <i class="fa fa-check-circle text-primary mt-1 mr-2"></i>
+                                    <span>产品性能监控与分析</span>
+                                </li>
+                                <li class="flex items-start">
+                                    <i class="fa fa-check-circle text-primary mt-1 mr-2"></i>
+                                    <span>持续改进与版本迭代</span>
+                                </li>
+                                <li class="flex items-start">
+                                    <i class="fa fa-check-circle text-primary mt-1 mr-2"></i>
+                                    <span>成本优化与盈利能力提升</span>
+                                </li>
+                                <li class="flex items-start">
+                                    <i class="fa fa-check-circle text-primary mt-1 mr-2"></i>
+                                    <span>退市决策与计划执行</span>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 价值优势 -->
+    <section id="benefits" class="py-20 bg-gray-50">
+        <div class="container mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="max-w-3xl mx-auto text-center mb-16">
+                <span class="inline-block px-3 py-1 bg-primary/10 text-primary text-sm font-medium rounded-full mb-4">实施价值</span>
+                <h2 class="text-[clamp(1.5rem,3vw,2.5rem)] font-bold text-neutral mb-6">IPD的价值与优势</h2>
+                <p class="text-gray-600 text-lg">IPD通过系统化的方法解决传统产品开发中的痛点，为企业带来多方面的价值提升。</p>
+            </div>
+            
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+                <div>
+                    <canvas id="benefits-chart" width="400" height="400"></canvas>
+                </div>
+                
+                <div class="space-y-8">
+                    <div class="bg-white p-6 rounded-xl shadow-md hover:shadow-lg transition-custom">
+                        <div class="flex items-start">
+                            <div class="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center mr-4 mt-1 flex-shrink-0">
+                                <i class="fa fa-line-chart text-primary"></i>
+                            </div>
+                            <div>
+                                <h3 class="text-xl font-semibold text-neutral mb-2">提高产品成功率</h3>
+                                <p class="text-gray-600">通过市场驱动的产品定义和严格的决策评审，确保开发的产品符合市场需求，显著提高产品上市后的成功率。</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="bg-white p-6 rounded-xl shadow-md hover:shadow-lg transition-custom">
+                        <div class="flex items-start">
+                            <div class="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center mr-4 mt-1 flex-shrink-0">
+                                <i class="fa fa-tachometer text-primary"></i>
+                            </div>
+                            <div>
+                                <h3 class="text-xl font-semibold text-neutral mb-2">缩短产品上市时间</h3>
+                                <p class="text-gray-600">结构化的流程和跨部门协作消除了传统开发中的等待和返工，平台化和模块化设计提高了开发效率，显著缩短产品上市时间。</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="bg-white p-6 rounded-xl shadow-md hover:shadow-lg transition-custom">
+                        <div class="flex items-start">
+                            <div class="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center mr-4 mt-1 flex-shrink-0">
+                                <i class="fa fa-money text-primary"></i>
+                            </div>
+                            <div>
+                                <h3 class="text-xl font-semibold text-neutral mb-2">降低开发成本</h3>
+                                <p class="text-gray-600">通过早期风险识别、资源优化配置、技术复用和减少返工，大幅降低产品开发的总体成本。</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="bg-white p-6 rounded-xl shadow-md hover:shadow-lg transition-custom">
+                        <div class="flex items-start">
+                            <div class="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center mr-4 mt-1 flex-shrink-0">
+                                <i class="fa fa-users text-primary"></i>
+                            </div>
+                            <div>
+                                <h3 class="text-xl font-semibold text-neutral mb-2">提升团队协作效率</h3>
+                                <p class="text-gray-600">跨职能团队模式打破了部门壁垒，明确的角色职责和协作机制提高了团队沟通效率和决策速度。</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 常见问题 -->
+    <section id="faq" class="py-20 bg-white">
+        <div class="container mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="max-w-3xl mx-auto text-center mb-16">
+                <span class="inline-block px-3 py-1 bg-primary/10 text-primary text-sm font-medium rounded-full mb-4">解答疑惑</span>
+                <h2 class="text-[clamp(1.5rem,3vw,2.5rem)] font-bold text-neutral mb-6">常见问题</h2>
+                <p class="text-gray-600 text-lg">关于IPD实施的常见疑问解答，帮助您更好地理解和应用IPD体系。</p>
+            </div>
+            
+            <div class="max-w-3xl mx-auto">
+                <div class="space-y-6">
+                    <!-- 问题1 -->
+                    <div class="border border-gray-200 rounded-xl overflow-hidden">
+                        <button class="faq-toggle w-full flex justify-between items-center p-6 text-left bg-white hover:bg-gray-50 transition-custom focus:outline-none">
+                            <span class="text-lg font-semibold text-neutral">IPD适用于所有类型的企业吗？</span>
+                            <i class="fa fa-chevron-down text-gray-400 transition-transform duration-300"></i>
+                        </button>
+                        <div class="faq-content hidden px-6 pb-6">
+                            <p class="text-gray-600">IPD最初在高科技行业（如IT、通信、电子等）得到广泛应用，但近年来已被证明适用于各种规模和类型的企业。对于产品复杂度高、开发周期长、需要跨部门协作的企业，IPD能带来更显著的价值。小型企业可以根据自身情况采用简化版的IPD框架，不必完全照搬大型企业的复杂体系。</p>
+                        </div>
+                    </div>
+                    
+                    <!-- 问题2 -->
+                    <div class="border border-gray-200 rounded-xl overflow-hidden">
+                        <button class="faq-toggle w-full flex justify-between items-center p-6 text-left bg-white hover:bg-gray-50 transition-custom focus:outline-none">
+                            <span class="text-lg font-semibold text-neutral">实施IPD需要多长时间？</span>
+                            <i class="fa fa-chevron-down text-gray-400 transition-transform duration-300"></i>
+                        </button>
+                        <div class="faq-content hidden px-6 pb-6">
+                            <p class="text-gray-600">IPD实施是一个渐进式的变革过程，而非一蹴而就的项目。一般来说，完整的IPD体系建设和落地需要1-3年时间，具体取决于企业规模、现有流程基础和组织变革的难度。通常建议采用分阶段实施策略，先从核心流程入手，逐步扩展到完整体系，同时培养内部能力。</p>
+                        </div>
+                    </div>
+                    
+                    <!-- 问题3 -->
+                    <div class="border border-gray-200 rounded-xl overflow-hidden">
+                        <button class="faq-toggle w-full flex justify-between items-center p-6 text-left bg-white hover:bg-gray-50 transition-custom focus:outline-none">
+                            <span class="text-lg font-semibold text-neutral">IPD与敏捷开发有冲突吗？</span>
+                            <i class="fa fa-chevron-down text-gray-400 transition-transform duration-300"></i>
+                        </button>
+                        <div class="faq-content hidden px-6 pb-6">
+                            <p class="text-gray-600">IPD与敏捷开发并不冲突，反而可以相互补充。IPD提供了产品开发的宏观框架、决策机制和跨部门协作模式，而敏捷开发则专注于开发过程中的快速迭代和响应变化。许多成功实施IPD的企业将敏捷方法融入IPD的开发阶段，形成了"IPD+敏捷"的混合模式，既保证了战略方向的正确性，又提高了开发过程的灵活性。</p>
+                        </div>
+                    </div>
+                    
+                    <!-- 问题4 -->
+                    <div class="border border-gray-200 rounded-xl overflow-hidden">
+                        <button class="faq-toggle w-full flex justify-between items-center p-6 text-left bg-white hover:bg-gray-50 transition-custom focus:outline-none">
+                            <span class="text-lg font-semibold text-neutral">IPD实施的主要挑战是什么？</span>
+                            <i class="fa fa-chevron-down text-gray-400 transition-transform duration-300"></i>
+                        </button>
+                        <div class="faq-content hidden px-6 pb-6">
+                            <p class="text-gray-600">IPD实施的主要挑战包括：1）组织文化和思维模式的转变，需要打破部门壁垒和本位主义；2）跨部门协作机制的建立，需要平衡各部门利益；3）高层领导的持续支持和投入；4）员工能力的提升，需要培养跨职能视野和系统思维；5）流程与灵活性的平衡，避免过度僵化。成功的IPD实施需要"流程、组织、工具、文化"的协同变革。</p>
+                        </div>
+                    </div>
+                    
+                    <!-- 问题5 -->
+                    <div class="border border-gray-200 rounded-xl overflow-hidden">
+                        <button class="faq-toggle w-full flex justify-between items-center p-6 text-left bg-white hover:bg-gray-50 transition-custom focus:outline-none">
+                            <span class="text-lg font-semibold text-neutral">如何衡量IPD实施的效果？</span>
+                            <i class="fa fa-chevron-down text-gray-400 transition-transform duration-300"></i>
+                        </button>
+                        <div class="faq-content hidden px-6 pb-6">
+                            <p class="text-gray-600">IPD实施效果可以通过多维度指标进行衡量：1）产品成功率（上市后达到预期目标的产品比例）；2）产品开发周期（从概念到上市的时间）；3）研发投入产出比；4）产品质量（如缺陷率）；5）市场响应速度；6）跨部门协作效率。企业应在实施前设定基准数据，定期跟踪这些指标的改善情况，评估IPD实施的实际效果。</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+
+    <!-- 返回顶部按钮 -->
+    <button id="back-to-top" class="fixed bottom-8 right-8 bg-primary text-white w-12 h-12 rounded-full shadow-lg flex items-center justify-center opacity-0 invisible transition-all duration-300 hover:bg-primary/90 focus:outline-none">
+        <i class="fa fa-chevron-up"></i>
+    </button>
+
+    <script>
+        // 移动菜单切换
+        const mobileMenuButton = document.getElementById('mobile-menu-button');
+        const mobileMenu = document.getElementById('mobile-menu');
+        
+        mobileMenuButton.addEventListener('click', () => {
+            mobileMenu.classList.toggle('hidden');
+        });
+        
+        // FAQ 折叠功能
+        const faqToggles = document.querySelectorAll('.faq-toggle');
+        
+        faqToggles.forEach(toggle => {
+            toggle.addEventListener('click', () => {
+                const content = toggle.nextElementSibling;
+                const icon = toggle.querySelector('i');
+                
+                // 切换当前FAQ的显示状态
+                content.classList.toggle('hidden');
+                icon.classList.toggle('rotate-180');
+                
+                // 关闭其他打开的FAQ
+                faqToggles.forEach(otherToggle => {
+                    if (otherToggle !== toggle) {
+                        const otherContent = otherToggle.nextElementSibling;
+                        const otherIcon = otherToggle.querySelector('i');
+                        
+                        if (!otherContent.classList.contains('hidden')) {
+                            otherContent.classList.add('hidden');
+                            otherIcon.classList.remove('rotate-180');
+                        }
+                    }
+                });
+            });
+        });
+        
+        // 滚动效果
+        const navbar = document.getElementById('navbar');
+        const backToTopButton = document.getElementById('back-to-top');
+        
+        window.addEventListener('scroll', () => {
+            // 导航栏滚动效果
+            if (window.scrollY > 50) {
+                navbar.classList.add('shadow-md');
+                navbar.classList.remove('shadow-sm');
+            } else {
+                navbar.classList.remove('shadow-md');
+                navbar.classList.add('shadow-sm');
+            }
+            
+            // 返回顶部按钮显示/隐藏
+            if (window.scrollY > 300) {
+                backToTopButton.classList.remove('opacity-0', 'invisible');
+                backToTopButton.classList.add('opacity-100', 'visible');
+            } else {
+                backToTopButton.classList.add('opacity-0', 'invisible');
+                backToTopButton.classList.remove('opacity-100', 'visible');
+            }
+        });
+        
+        // 返回顶部功能
+        backToTopButton.addEventListener('click', () => {
+            window.scrollTo({
+                top: 0,
+                behavior: 'smooth'
+            });
+        });
+        
+        // 平滑滚动到锚点
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                
+                const targetId = this.getAttribute('href');
+                if (targetId === '#') return;
+                
+                const targetElement = document.querySelector(targetId);
+                if (targetElement) {
+                    // 关闭移动菜单（如果打开）
+                    if (!mobileMenu.classList.contains('hidden')) {
+                        mobileMenu.classList.add('hidden');
+                    }
+                    
+                    // 滚动到目标位置
+                    targetElement.scrollIntoView({
+                        behavior: 'smooth'
+                    });
+                }
+            });
+        });
+        
+        // 价值优势图表
+        const benefitsChart = new Chart(
+            document.getElementById('benefits-chart'),
+            {
+                type: 'radar',
+                data: {
+                    labels: [
+                        '产品成功率',
+                        '上市时间',
+                        '开发成本',
+                        '产品质量',
+                        '市场响应',
+                        '团队协作'
+                    ],
+                    datasets: [
+                        {
+                            label: '传统开发',
+                            data: [40, 30, 45, 35, 25, 30],
+                            fill: true,
+                            backgroundColor: 'rgba(156, 163, 175, 0.2)',
+                            borderColor: 'rgba(156, 163, 175, 1)',
+                            pointBackgroundColor: 'rgba(156, 163, 175, 1)',
+                            pointBorderColor: '#fff',
+                            pointHoverBackgroundColor: '#fff',
+                            pointHoverBorderColor: 'rgba(156, 163, 175, 1)'
+                        },
+                        {
+                            label: 'IPD开发',
+                            data: [85, 80, 75, 80, 85, 90],
+                            fill: true,
+                            backgroundColor: 'rgba(22, 93, 255, 0.2)',
+                            borderColor: 'rgba(22, 93, 255, 1)',
+                            pointBackgroundColor: 'rgba(22, 93, 255, 1)',
+                            pointBorderColor: '#fff',
+                            pointHoverBackgroundColor: '#fff',
+                            pointHoverBorderColor: 'rgba(22, 93, 255, 1)'
+                        }
+                    ]
+                },
+                options: {
+                    elements: {
+                        line: {
+                            borderWidth: 3
+                        }
+                    },
+                    scales: {
+                        r: {
+                            angleLines: {
+                                display: true
+                            },
+                            suggestedMin: 0,
+                            suggestedMax: 100
+                        }
+                    }
+                }
+            }
+        );
+    </script>
+</body>
+</html>

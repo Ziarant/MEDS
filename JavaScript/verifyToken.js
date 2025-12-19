@@ -1,9 +1,11 @@
 const token = localStorage.getItem('token')
 const group = localStorage.getItem('group');
+const serveURL = localStorage.getItem('serveURL')
+const servePost = localStorage.getItem('servePost')
 
 async function verify(token) {
 
-    const response = await fetch('http://A012050-1.naton.cn:8081/client', {
+    const response = await fetch(`${serveURL}:${servePost}/client`, {
         method: 'GET',
         headers: {
             'Authorization': token

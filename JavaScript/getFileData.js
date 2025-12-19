@@ -2,7 +2,7 @@
 const username = localStorage.getItem('username')
 
 async function fetchFileData(username) {
-    const response = await fetch('http://A012050-1.naton.cn:8081/fileData', {
+    const response = await fetch(`${serveURL}:${servePost}/fileData`, {
         method: 'POST',
         body: JSON.stringify({
             username: username

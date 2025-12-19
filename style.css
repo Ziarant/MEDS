@@ -261,3 +261,28 @@ input:disabled + .toggle-slider {
 input:disabled + .toggle-slider:before {
     background-color: #f0f0f0;
 }
+
+/* 多级菜单动画 */
+.submenu {
+    transform-origin: top left;
+    opacity: 0;
+    visibility: hidden;
+    transform: scale(0.95);
+    transition: all 0.2s ease-in-out;
+}
+
+.has-submenu:hover > .submenu {
+    opacity: 1;
+    visibility: visible;
+    transform: scale(1);
+}
+
+.submenu-right {
+    transform-origin: top right;
+}
+
+.has-submenu-right:hover > .submenu {
+    opacity: 1;
+    visibility: visible;
+    transform: scale(1);
+}

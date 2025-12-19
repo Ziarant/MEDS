@@ -86,12 +86,12 @@
 
             /* 设置粒子容器样式 */
             #particles-js {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            z-index: -1;
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                z-index: -1;
             }
         }
 
@@ -111,6 +111,7 @@
                 <i class="fa fa-database text-primary text-2xl"></i>
                 <h1 class="text-xl font-bold text-neutral-600">莱顿-力学测试数据库</h1>
             </div>
+            <img class="default-icon h-[2.5rem] mx-auto block text-xl" src="../../icon/纳通口腔logo.png">
             <div class="hidden md:flex items-center space-x-6">
                 <button id="user-button"
                     class="flex items-center bg-gray-200 hover:bg-primary text-black font-medium py-2 px-4 rounded-lg transition duration-300 ease-in-out shadow-md hover:shadow-lg transform hover:-translate-y-0.5">
@@ -231,9 +232,10 @@
                         <div
                             class="flex grid grid-cols-5 gap-1 items-center text-primary/70 font-medium p-8 relative z-5">
                             <div id="system-manage-card"
-                                class="text-center justify-center bg-primary/10 rounded-lg border border-gray-300 p-3 hover:text-primary hover:border-gray-600 cursor-pointer"
+                                class="develop text-center justify-center bg-primary/10 rounded-lg border border-gray-300 p-3 hover:text-primary hover:border-gray-600 cursor-pointer"
                                 title="管理用户账号，重置用户密码，及系统管理。(仅管理员)">
                                 <i class="fa fa fa-user-cog text-xl"></i>
+                                <i class="hover-icon fa fa-cog fa-spin text-xl"></i>
                                 <p class="text-primary">系统管理<i
                                         class="fa fa-arrow-right ml-2 transition-transform duration-300"></i></p>
                             </div>
@@ -259,11 +261,10 @@
                                         class="fa fa-arrow-right ml-2 transition-transform duration-300"></i></p>
                             </div>
                             <div id="material-card"
-                                class="develop text-center justify-center bg-primary/10 rounded-lg border border-gray-300 p-3 hover:text-primary hover:border-gray-600 cursor-pointer"
+                                class="text-center justify-center bg-primary/10 rounded-lg border border-gray-300 p-3 hover:text-primary hover:border-gray-600 cursor-pointer"
                                 title="提供各类材料信息、标准、材质单。">
                                 <img class="default-icon h-[1.8rem] mx-auto block text-xl"
                                     src="../../icon/material-conf.png">
-                                <i class="hover-icon fa fa-cog fa-spin text-xl"></i>
                                 <p class="text-primary">材料信息<i
                                         class="fa fa-arrow-right ml-2 transition-transform duration-300"></i></p>
                             </div>
@@ -308,19 +309,17 @@
                                         class="fa fa-arrow-right ml-2 transition-transform duration-300"></i></p>
                             </div>
                             <div id="product-card"
-                                class="develop text-center justify-center bg-primary/10 rounded-lg border border-gray-300 p-3 hover:text-primary hover:border-gray-600 cursor-pointer"
+                                class="text-center justify-center bg-primary/10 rounded-lg border border-gray-300 p-3 hover:text-primary hover:border-gray-600 cursor-pointer"
                                 title="各类友商产品注册信息、产品手册等资料归纳与查阅。">
                                 <img class="default-icon h-[1.7rem] mx-auto block text-xl"
                                     src="../../icon/logo_product.png">
-                                <i class="hover-icon fa fa-cog fa-spin text-xl"></i>
                                 <p class="text-primary">产品资料<i
                                         class="fa fa-arrow-right ml-2 transition-transform duration-300"></i></p>
                             </div>
                             <div id="literature-card"
                                 class="text-center justify-center bg-primary/10 rounded-lg border border-gray-300 p-3 hover:text-primary hover:border-gray-600 cursor-pointer"
                                 title="文献资料归纳与查阅。">
-                                <img class="h-[1.7rem] mx-auto block text-xl"
-                                    src="../../icon/logo_literature.png">
+                                <img class="h-[1.7rem] mx-auto block text-xl" src="../../icon/logo_literature.png">
                                 <p class="text-primary">文献资料<i
                                         class="fa fa-arrow-right ml-2 transition-transform duration-300"></i></p>
                             </div>
@@ -354,9 +353,20 @@
                             <div id="research-card"
                                 class="develop text-center justify-center bg-primary/10 rounded-lg border border-gray-300 p-3 hover:text-primary hover:border-gray-600 cursor-pointer"
                                 title="口腔领域其他产品注册信息、市场调研">
-                                <img class="default-icon h-[1.7rem] mx-auto block text-xl" src="../../icon/logo_research.png">
+                                <img class="default-icon h-[1.7rem] mx-auto block text-xl"
+                                    src="../../icon/logo_research.png">
                                 <i class="hover-icon fa fa-cog fa-spin text-xl"></i>
                                 <p class="text-primary">行业调研<i
+                                        class="fa fa-arrow-right ml-2 transition-transform duration-300"></i></p>
+                            </div>
+                            <div id="patent-card"
+                                class="develop text-center justify-center bg-primary/10 rounded-lg border border-gray-300 p-3 hover:text-primary hover:border-gray-600 cursor-pointer"
+                                title="专利信息">
+                                <!-- <img class="default-icon h-[1.7rem] mx-auto block text-xl"
+                                    src="../../icon/logo_research.png"> -->
+                                <i class="default-icon fa fa-bookmark text-xl"></i>
+                                <i class="hover-icon fa fa-cog fa-spin text-xl"></i>
+                                <p class="text-primary">专利信息<i
                                         class="fa fa-arrow-right ml-2 transition-transform duration-300"></i></p>
                             </div>
                         </div>
@@ -422,30 +432,58 @@
             <div class="bg-white rounded-xl p-6 card-shadow card-hover hover:shadow-card-hover">
                 <div class="flex justify-between items-start">
                     <div>
-                        <p class="text-gray-500 text-xl font-medium">完成录入数据<sup class="text-red-600 text-xs">*本周新增</span></sup></p>
+                        <p class="text-gray-500 text-xl font-medium">完成录入数据<sup
+                                class="text-red-600 text-xs">*本周新增</span></sup></p>
                     </div>
                     <div class="w-12 h-12 rounded-lg bg-primary/10 flex items-center justify-center">
                         <i class="fa fa-file-signature text-primary text-xl"></i>
                     </div>
                 </div>
                 <div class="grid grid-cols-2">
-                    <h3 class="text-lg font-bold mt-0.5">数据文件：<span id="accept-file-count" class="text-primary mr-1">0</span>件
-                        <sup class="text-red-600">+<span id="new-datafile-count">0</span></sup></h3>
-                    <h3 class="text-lg font-bold mt-0.5">结果数据：<span id="accept-data-count" class="text-primary mr-1">0</span>条
-                        <sup class="text-red-600">+<span id="new-testdata-count">0</span></sup></h3>
-                    <h3 class="text-lg font-bold mt-0.5">测试项目：<span id="accept-method-count" class="text-primary mr-1">0</span>项
-                        <sup class="text-red-600">+<span id="new-test-count">0</span></sup></h3>
-                    <h3 class="text-lg font-bold mt-0.5">工作记录：<span id="workflow-count" class="text-primary mr-1">0</span>条
-                        <sup class="text-red-600">+<span id="new-work-count">0</span></sup></h3>
-                    <h3 class="text-lg font-bold mt-0.5">标准文件：<span id="standard-count" class="text-primary mr-1">0</span>条
-                        <sup class="text-red-600">+<span id="new-standard-count">0</span></sup></h3>
-                    <h3 class="text-lg font-bold mt-0.5">产品信息：<span id="product-count" class="text-primary mr-1">0</span>条
-                        <sup class="text-red-600" title="本周新增">+<span id="new-product-count">0</span></sup></h3>
-                    <h3 class="text-lg font-bold mt-0.5">文献资料：<span id="literature-count" class="text-primary mr-1">0</span>条
-                        <sup class="text-red-600" title="本周新增">+<span id="new-literature-count">0</span></sup></h3>
+                    <h3 class="text-lg font-bold mt-0.5">数据文件：<span id="accept-file-count"
+                            class="text-primary mr-1">0</span>件
+                        <sup class="text-red-600">+<span id="new-datafile-count">0</span></sup>
+                    </h3>
+                    <h3 class="text-lg font-bold mt-0.5">结果数据：<span id="accept-data-count"
+                            class="text-primary mr-1">0</span>条
+                        <sup class="text-red-600">+<span id="new-testdata-count">0</span></sup>
+                    </h3>
+                    <h3 class="text-lg font-bold mt-0.5">测试项目：<span id="accept-method-count"
+                            class="text-primary mr-1">0</span>项
+                        <sup class="text-red-600">+<span id="new-test-count">0</span></sup>
+                    </h3>
+                    <h3 class="text-lg font-bold mt-0.5">工作记录：<span id="workflow-count"
+                            class="text-primary mr-1">0</span>条
+                        <sup class="text-red-600">+<span id="new-work-count">0</span></sup>
+                    </h3>
+                    <h3 class="text-lg font-bold mt-0.5">标准文件：<span id="standard-count"
+                            class="text-primary mr-1">0</span>条
+                        <sup class="text-red-600">+<span id="new-standard-count">0</span></sup>
+                    </h3>
+                    <h3 class="text-lg font-bold mt-0.5">产品信息：<span id="product-count"
+                            class="text-primary mr-1">0</span>条
+                        <sup class="text-red-600" title="本周新增">+<span id="new-product-count">0</span></sup>
+                    </h3>
+                    <h3 class="text-lg font-bold mt-0.5">文献资料：<span id="literature-count"
+                            class="text-primary mr-1">0</span>条
+                        <sup class="text-red-600" title="本周新增">+<span id="new-literature-count">0</span></sup>
+                    </h3>
                 </div>
             </div>
         </div>
+
+        <!-- 在HTML中添加图表容器 -->
+        <div class="text-2xl font-bond text-center bg-white shadow-card hover:shadow-card-hover mt-6">
+            最近<span
+                class="text-center border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary/50 focus:border-primary transition-all duration-200 ml-1 mr-1">
+                16 </span>周数据统计
+            <!-- <input type="number" value="16" id="week-num-input" maxlength="2" min="4" max="24"
+            class="w-12 text-center border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary/50 focus:border-primary transition-all duration-200 ml-1 mr-1"> -->
+        </div>
+        <canvas id="weeklyUpdateChart" class="bg-white shadow-card rounded-lg hover:shadow-card-hover"></canvas>
+
+        <!-- TODO：地图（销售相关） -->
+
     </main>
 
     <!-- 悬浮AI按钮 -->
@@ -505,6 +543,7 @@
     </script>
 
     <!-- 系统卡片点击访问 -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="../../JavaScript/selection.js"></script>
     <script src="../../JavaScript/verifyGroup.js"></script>
     <script src="../../JavaScript/api.js"></script>

@@ -173,33 +173,37 @@ function renderTags(sortedData) {
 
     const tagsContain = document.getElementById('tag-cloud')
     const tagLabel = document.createElement('span')
-    tagLabel.className = 'tag-item text-sm text-gray-800 font-bold items-center px-2 py-1'
+    tagLabel.className = 'tag-item text-sm text-gray-800 font-bold px-2 py-1'
     tagLabel.textContent = '热门标签：'
+    tagLabel.title = '文献数量≥3'
     tagsContain.appendChild(tagLabel)
     Object.keys(allTags).forEach((tag, index) => {
-        const tagElement = document.createElement('span');
-        tagElement.className = 'tag-item flex text-xs items-center justify-between px-1 py-0.5 border border-gray-600 hover:bg-gray-100 transition-custom';
-        tagElement.innerHTML = `
-            <span class="text-gray-800">#${tag}</span>
-            <span class="text-gray-600">${allTags[tag]}</span>
-        `;
-        // 设置颜色：
-        tagElement.style.background = getDynamicColorByIndex(index)
-        tagsContain.appendChild(tagElement);
-        tagElement.addEventListener('click', () => {
-            // 点击标签时，向search-input添加文字,
-            if (searchInput.value.includes(tag)) {
-                // 移除标签：先按分隔符拆分，过滤掉当前标签，再重新拼接
-                const separators = /[,，;；\s]+/;
-                let keywords = searchInput.value.split(separators).filter(k => k.trim() !== '');
-                keywords = keywords.filter(keyword => keyword !== tag);
-                searchInput.value = keywords.join(' ') + ' '; // 用顿号拼接保留分隔符
+        if (allTags[tag] >= 3) {
+            const tagElement = document.createElement('span');
+            tagElement.className = 'tag-item flex text-xs items-center justify-between px-1 py-0.5 border border-gray-600 hover:bg-gray-100 transition-custom';
+            tagElement.innerHTML = `
+                <span class="text-gray-800">#${tag}</span>
+                <span class="text-gray-600">${allTags[tag]}</span>
+            `;
+            // 设置颜色：
+            tagElement.style.background = getDynamicColorByIndex(index)
+            tagsContain.appendChild(tagElement);
+            tagElement.addEventListener('click', () => {
+                // 点击标签时，向search-input添加文字,
+                if (searchInput.value.includes(tag)) {
+                    // 移除标签：先按分隔符拆分，过滤掉当前标签，再重新拼接
+                    const separators = /[,，;；\s]+/;
+                    let keywords = searchInput.value.split(separators).filter(k => k.trim() !== '');
+                    keywords = keywords.filter(keyword => keyword !== tag);
+                    searchInput.value = keywords.join(' ') + ' '; // 用顿号拼接保留分隔符
+                    performSearch()
+                    return
+                }
+                searchInput.value += tag + ' '
                 performSearch()
-                return
-            }
-            searchInput.value += tag + ' '
-            performSearch()
-        })
+            })
+        }
+        
     })
 }
 
@@ -417,12 +421,17 @@ function showModal(literature, languageColor, languageIcon, language, tags) {
     `
 
     // 处理换行和制表符，并保留LaTeX公式格式
+    // 对编号进行加粗和标蓝
     let abstract = literature.content.abstract
         .replace(/\n/g, '<br>')
-        .replace(/\t/g, '&nbsp;&nbsp;&nbsp;&nbsp;');
+        .replace(/\t/g, '&nbsp;&nbsp;&nbsp;&nbsp;')
+        .replace(/(\d+(?!\.\d+)\..{2,10}?):/g, '<span class="font-bold text-blue-600">$1</span>:')
+        .replace(/(\d+(?!\.\d+)\..{2,10}?)[:：]/g, '<span class="font-bold text-blue-600">$1</span>:');
     let conclusion = literature.content.conclusion
         .replace(/\n/g, '<br>')
-        .replace(/\t/g, '&nbsp;&nbsp;&nbsp;&nbsp;');
+        .replace(/\t/g, '&nbsp;&nbsp;&nbsp;&nbsp;')
+        .replace(/(\d+(?!\.\d+)\..{2,10}?):/g, '<span class="font-bold text-blue-600">$1</span>:')
+        .replace(/(\d+(?!\.\d+)\..{2,10}?)[:：]/g, '<span class="font-bold text-blue-600">$1</span>:');
 
     modalContent.innerHTML = `
     <div class="mb-6">
@@ -499,15 +508,16 @@ downloadBtn.addEventListener('click', (e) => {
 });
 
 previewBtn.addEventListener('click', () => {
-    pdfModal.classList.remove('hidden');
-    document.getElementById('pdf-modal-title').textContent = modalTitle.textContent
+    // pdfModal.classList.remove('hidden');
+    // document.getElementById('pdf-modal-title').textContent = modalTitle.textContent
     let fileURL = getLiteratureFile(modalTitle.title)
         // loadFile(fileURL)
         .then(fileURL => {
             pdfEmbed.src = fileURL;
+            window.open(fileURL, '_blank')
         })
-    pdfEmbed.classList.remove('hidden')
-    document.body.style.overflow = 'hidden'; // 防止背景滚动
+    // pdfEmbed.classList.remove('hidden')
+    // document.body.style.overflow = 'hidden'; // 防止背景滚动
 })
 
 function performSearch() {

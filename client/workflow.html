@@ -107,6 +107,56 @@
         </div>
     </nav>
 
+    <!-- 导引栏 -->
+    <div id="guide-bar"
+        class="grid md:grid-cols-5 bg-gray-100 shadow-md transition-all duration-300 z-50">
+        <div class="grid items-center justify-center text-primary text-xl ml-12">
+            <label class="text-black font-bold ml-12">研发管理工具：</label>
+        </div>
+        <div class="col-span-4 grid md:grid-cols-5 items-center justify-end text-center text-primary text-xl">
+            <div></div>
+            <div class="relative has-submenu">
+                <button class="hover:bg-primary/10 hover:scale-105 px-2 py-1">集成产品开发(IPD)
+                    <i class="fa fa-chevron-down ml-1 text-xs"></i>
+                </button>
+                <div class="submenu absolute mt-1 w-48 bg-white shadow-lg rounded-md overflow-hidden z-30">
+                    <div class="border-b border-gray-600">
+                        <a href="../client/IPD开发/ipd-overview.html" target="_blank" class="block px-4 py-2 hover:bg-primary/10">IPD概述</a>
+                        <a href="#section1" class="block px-4 py-2 hover:bg-primary/10">跨职能团队(IPT)</a>
+                    </div>
+                        <a href="#section1" class="block px-4 py-2 hover:bg-primary/10">周期估算系统</a>
+                        <a href="#section1" class="block px-4 py-2 hover:bg-primary/10">预算估算系统</a>
+                </div>
+            </div>
+            <div class="relative has-submenu">
+                <button class="hover:bg-primary/10 hover:scale-105 px-2 py-1">报告模板
+                    <i class="fa fa-chevron-down ml-1 text-xs"></i>
+                </button>
+                <div class="submenu absolute mt-1 w-40 bg-white shadow-lg rounded-md overflow-hidden z-30" role="menu">
+                    <button class="block px-4 py-2 hover:bg-primary/10" id="download-00-btn" role="menuitem" title="确定项目是否值得做">00-概念阶段</button>
+                    <button class="block px-4 py-2 hover:bg-primary/10" id="download-01-btn" role="menuitem" title="明确项目需要做什么">01-策划阶段</button>
+                    <button class="block px-4 py-2 hover:bg-primary/10" id="download-02-btn" role="menuitem" title="评价项目执行效果">02-执行阶段</button>
+                    <button class="block px-4 py-2 hover:bg-primary/10" id="download-03-btn" role="menuitem" title="全生命周期管理">03-发布阶段</button>
+                </div>
+            </div>
+            <div class="relative has-submenu">
+                <button class="hover:bg-primary/10 hover:scale-105 px-2 py-1">注册文件
+                    <i class="fa fa-chevron-down ml-1 text-xs"></i>
+                </button>
+                <div class="submenu absolute mt-1 w-72 bg-white shadow-lg rounded-md overflow-hidden z-30" role="menu">
+                    <button class="block px-4 py-2 hover:bg-primary/10" id="download-CH1-btn" role="menuitem">CH1-监管信息</button>
+                    <button class="block px-4 py-2 hover:bg-primary/10" id="download-CH2-btn" role="menuitem">CH2-综述资料</button>
+                    <button class="block px-4 py-2 hover:bg-primary/10" id="download-CH3-btn" role="menuitem">CH3-非临床资料</button>
+                    <button class="block px-4 py-2 hover:bg-primary/10" id="download-CH4-btn" role="menuitem">CH4-临床评价资料</button>
+                    <button class="block px-4 py-2 hover:bg-primary/10" id="download-CH5-btn" role="menuitem">CH5-说明书和标签样稿</button>
+                    <button class="block px-4 py-2 hover:bg-primary/10" id="download-CH6A-btn" role="menuitem">CH6A-质量管理体系文件</button>
+                    <button class="block px-4 py-2 hover:bg-primary/10" id="download-CH6B-btn" role="menuitem">CH6B-申报器械的质量管理体系信息</button>
+                </div>
+            </div>
+            <div></div>  
+        </div>
+    </div>
+
     <main class="container mx-auto px-4 py-8">
         <!-- 粒子效果容器 -->
         <div id="particles-js"></div>
@@ -787,6 +837,7 @@
             </div>
         </div>
     </div>
+
     <!-- 初始化粒子效果 -->
     <script>
         particlesJS.load('particles-js', '../../particlesConfig.json', function () {
@@ -796,6 +847,7 @@
     <script src="../JavaScript/showNotification.js"></script>
     <script src="../JavaScript/api.js"></script>
     <script src="../JavaScript/workflow.js"></script>
+    <script src="../JavaScript/ipd.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/showdown@2.1.0/dist/showdown.min.js"></script>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/highlight.js@11.7.0/styles/github-dark.min.css">
     <script src="https://cdn.jsdelivr.net/npm/highlight.js@11.7.0/lib/highlight.min.js"></script>

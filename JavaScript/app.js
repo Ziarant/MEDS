@@ -3,7 +3,8 @@
 const serveURL = 'http://A012050-1.naton.cn'
 const servePost = 8081
 
-//
+localStorage.setItem('serveURL', serveURL)
+localStorage.setItem('servePost', servePost)
 const version = localStorage.getItem('version')
 const versionSpan = document.getElementById('version-span')
 const changePasswordButton = document.getElementById('change-password')

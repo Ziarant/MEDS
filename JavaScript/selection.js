@@ -53,6 +53,10 @@ document.getElementById("standard-card").addEventListener("click", function () {
     // 跳转到标准文件系统
     window.location.href = "../standard.html";
 });
+document.getElementById("material-card").addEventListener("click", function () {
+    // 跳转到材料文件系统
+    window.location.href = "../material.html";
+});
 document.getElementById("audio-analyzer-card").addEventListener("click", function () {
     // 跳转到音频分析系统
     window.location.href = "../audio-spectrum-analyzer.html";
@@ -73,7 +77,26 @@ document.getElementById("literature-card").addEventListener("click", function ()
     // 跳转到文献管理系统
     window.location.href = "../literature.html";
 });
+document.getElementById("train-card").addEventListener("click", function () {
+    // 跳转到用户管理系统
+    showNotification('功能开发中...', 'info');
+});
+document.getElementById("outsourcer-card").addEventListener("click", function () {
+    // 跳转到外协单位管理系统、医工合作
+    if (group.includes('研发组') || group.includes('医工组')) {
+        window.location.href = "../outsourcer.html";
+    } else {
+        showNotification('非研发组/医工组账户无法访问', 'warning');
+        return;
+    }  
+});
 document.getElementById("research-card").addEventListener("click", function () {
     // 跳转到行业调研页面
-    window.location.href = "../research.html";
+    // window.location.href = "../research.html";
+    if(group.includes('开发者')) {
+        window.location.href = "../research.html";
+    } else {
+        showNotification('功能开发中...', 'info');
+        return;
+    }
 });

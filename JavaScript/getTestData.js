@@ -3,7 +3,7 @@ const username = localStorage.getItem('username')
 
 // 下载测试数据
 async function downloadTestData(username) {
-    const response = await fetch('http://A012050-1.naton.cn:8081/testData', {
+    const response = await fetch(`${serveURL}:${servePost}/testData`, {
         method: 'POST',
         body: JSON.stringify({
             username: username

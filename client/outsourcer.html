@@ -1,0 +1,420 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>医工项目信息</title>
+    <!-- 网页图标 -->
+    <link rel="icon" type="image/png" href="../../icon/logo_outsourcer.png">
+    <!-- 加载前检查用户是否登录 -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const username = localStorage.getItem('username'); // 模拟获取用户名
+            if (!username) {
+                window.location.href = '../login.html'; // 如果未登录，重定向到登录页面
+            } else {
+                document.getElementById('username-button').textContent = username; // 显示用户名
+            }
+        });
+    </script>
+    <!-- 验证token -->
+    <script src='../../javaScript/verifyToken.js'></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- 引入Font Awesome -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" rel="stylesheet">
+
+    <!-- 配置Tailwind自定义颜色和字体 -->
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#99774b',
+                        secondary: '#b3946d',
+                        accent: '#0FC6C2',
+                        neutral: '#F5F7FA',
+                        dark: '#1D2129',
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'system-ui', 'sans-serif'],
+                    },
+                }
+            }
+        }
+    </script>
+    <!-- 自定义工具类 -->
+    <link rel="stylesheet" href="../../style.css">
+    <style type="text/tailwindcss">
+        @layer utilities {
+            .content-auto {
+                content-visibility: auto;
+            }
+            .card-shadow {
+                box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+            }
+            .transition-custom {
+                transition: all 0.3s ease;
+            }
+            .stat-number {
+                @apply text-xl font-bold text-primary;
+            }
+        } 
+    </style>
+</head>
+
+<body class="bg-gray-50 font-sans text-dark">
+    <!-- 粒子效果容器 -->
+    <div id="particles-js"></div>
+    <!-- 引入粒子效果配置 -->
+    <script src="https://cdn.jsdelivr.net/gh/VincentGarreau/particles.js@2.0.0/particles.min.js"></script>
+
+    <!-- 顶部导航栏 -->
+    <nav class="bg-white shadow-md sticky top-0 z-50 transition-all duration-300">
+        <div class="container mx-auto px-4 py-3 flex justify-between items-center">
+            <div class="flex items-center space-x-2">
+                <!-- <i class="fa fa-tasks text-primary text-2xl"></i> -->
+                <img class="default-icon h-[1.7rem] mx-auto block text-xl" src="../../icon/logo_outsourcer.png">
+                <h1 class="text-xl font-bold text-neutral-600">医工项目管理</h1>
+                <div class="hidden md:flex items-center space-x-6"></div>
+                <div class="hidden md:flex items-center space-x-6">
+                    <button onClick="javascript:history.back(-1);"
+                        class="flex items-center bg-gray-100 hover:bg-primary text-black font-medium py-2 px-4 rounded-lg transition duration-300 ease-in-out shadow-md hover:shadow-lg transform hover:-translate-y-0.5">
+                        <i class="fa fa-arrow-left text-gray-600 text-2xl transition-colors"></i>
+                        <span class="hidden md:inline-block text-xl text-gray-800 transition-colors">返回</span>
+                    </button>
+                </div>
+            </div>
+
+            <div class="hidden md:flex items-center space-x-6">
+                <button id="user-button"
+                    class="flex items-center bg-gray-200 hover:bg-primary text-black font-medium py-2 px-4 rounded-lg transition duration-300 ease-in-out shadow-md hover:shadow-lg transform hover:-translate-y-0.5">
+                    <div class="w-8 h-8 rounded-full bg-gray-300 flex items-center justify-center">
+                        <i id="user-icon" class="fa fa-user text-gray-600"></i>
+                    </div>
+                    <span id="username-button" class="text-sm font-medium hidden md:inline-block ml-2">用户名</span>
+                </button>
+                <button
+                    class="flex items-center bg-gray-200 hover:bg-primary text-black font-medium py-2 px-4 rounded-lg transition duration-300 ease-in-out shadow-md hover:shadow-lg transform hover:-translate-y-0.5">
+                    <div class="w-8 h-8 rounded-full bg-gray-300 flex items-center justify-center">
+                        <i class="fa fa-envelope"></i>
+                    </div>
+                    <span class="text-sm font-medium hidden md:inline-block ml-2">消息</span>
+                    <span
+                        class="hidden ml-2 bg-gray-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">0</span>
+                </button>
+            </div>
+
+            <div class="md:hidden">
+                <button class="text-neutral-500 focus:outline-none">
+                    <i class="fa fa-bars text-xl"></i>
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- 导引栏 -->
+    <div id="guide-bar" class="grid md:grid-cols-5 bg-gray-100 shadow-md transition-all duration-300 z-50">
+        <div class="grid items-center justify-center text-primary text-xl ml-12">
+            <label class="text-black font-bold ml-12">项目管理工具：</label>
+        </div>
+        <div class="col-span-4 grid md:grid-cols-7 items-center justify-end text-center text-primary text-xl">
+            <div></div>
+            <div></div>
+            <div class="relative has-submenu">
+                <button id="download-JD-btn" class="hover:bg-primary/10 hover:scale-105 px-2 py-1">尽调清单
+                    <!-- <i class="fa fa-chevron-down ml-1 text-xs"></i> -->
+                </button>
+                <!-- <div class="submenu absolute mt-1 w-40 bg-white shadow-lg rounded-md overflow-hidden z-30" role="menu">
+                    <button class="block px-4 py-2 hover:bg-primary/10" id="download-CB-btn" role="menuitem">初步尽调清单</button>
+                    <button class="block px-4 py-2 hover:bg-primary/10" id="download-CW-btn" role="menuitem">财务尽调清单</button>
+                    <button class="block px-4 py-2 hover:bg-primary/10" id="download-FL-btn" role="menuitem">法律尽调清单</button>
+                </div> -->
+            </div>
+            <div class="relative has-submenu">
+                <button class="hover:bg-primary/10 hover:scale-105 px-2 py-1">评估工具
+                    <i class="fa fa-chevron-down ml-1 text-xs"></i>
+                </button>
+                <div class="submenu absolute mt-1 w-48 bg-white shadow-lg rounded-md overflow-hidden z-30">
+                    <a href="../client/评估工具/TRL.html" target="_blank"
+                        class="block px-4 py-2 hover:bg-primary/10 border-b border-gray-400">技术成熟度评估(TRL)</a>
+                </div>
+            </div>
+            <div class="relative has-submenu">
+                <button class="hover:bg-primary/10 hover:scale-105 px-2 py-1">合同模板
+                    <i class="fa fa-chevron-down ml-1 text-xs"></i>
+                </button>
+                <div class="submenu absolute mt-1 w-48 bg-white shadow-lg rounded-md overflow-hidden z-30">
+                    <a href="#section1" class="block px-4 py-2 hover:bg-primary/10 border-b border-gray-400">合作协议模板</a>
+                    <a href="#section2" class="block px-4 py-2 hover:bg-primary/10 border-b border-gray-400">保密协议模板</a>
+                    <a href="#section3"
+                        class="block px-4 py-2 hover:bg-primary/10 border-b border-gray-400">技术服务合同模板</a>
+
+                </div>
+            </div>
+            <div class="relative has-submenu">
+                <button class="hover:bg-primary/10 hover:scale-105 px-2 py-1">外协厂商
+                    <i class="fa fa-chevron-down ml-1 text-xs"></i>
+                </button>
+            </div>
+            <div></div>
+            <div></div>
+        </div>
+    </div>
+
+    <main class="container mx-auto px-4 py-8">
+        <!-- 搜索区域 -->
+        <section class="mb-1">
+            <div class="flex flex-col md:flex-row gap-6">
+                <!-- 左侧产品类型文件夹 -->
+                <div id="sidebar" class="rounded-xl md:w-3/8 lg:w-1/4 transition-all duration-300 ease-in-out">
+                    <div class="bg-white p-3 border-b border-gray-400 flex items-center justify-between sticky top-24">
+                        <h1 id="sidebar-title"
+                            class="text-xl font-bold text-primary/90 transition-opacity duration-300"><i
+                                class="fa fa-folder-open text-primary mr-2"></i>医工项目类型</h1>
+                        <button id="toggle-btn" class="p-2 rounded-full hover:bg-gray-100 transition-colors">
+                            <i class="fa fa-angle-double-left text-xl text-gray-600" title="收起"></i>
+                        </button>
+                    </div>
+
+                    <!-- 搜索项目 -->
+                    <div class="bg-white shadow-sm mt-2 ml-4 mb-2">
+                        <div class="relative">
+                            <input type="text" placeholder="搜索项目"
+                                class="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/50">
+                            <i class="fa fa-search absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"></i>
+                        </div>
+                    </div>
+
+                    <div id="product-categories"
+                        class="bg-white p-5 shadow-sm sticky top-[6.5rem] border-t border-gray-400">
+                        <!-- 类型列表 -->
+                        <ul class="space-y-1">
+                            <li>
+                                <button
+                                    class="folder-item w-full text-left px-4 py-3 rounded-lg flex items-center justify-between hover:bg-gray-100 transition-custom folder-active"
+                                    title="医生明确需求后，我方提供研发、设计、生产、注册等全方位支持，打造契合需求的产品">
+                                    <div class="flex items-center">
+                                        <i class="fa fa-folder text-primary mr-3"></i>
+                                        <span>产品开发类</span>
+                                    </div>
+                                    <span id="implant-count"
+                                        class="bg-gray-200 text-gray-700 text-xs px-2 py-1 rounded-full">0</span>
+                                </button>
+                            </li>
+                            <li>
+                                <button
+                                    class="folder-item w-full text-left px-4 py-3 rounded-lg flex items-center justify-between hover:bg-gray-100 transition-custom"
+                                    title="医生提出科研问题与思路，我方给予技术支持，携手完成科研，产出论文、专利或新疗法、临床证据等">
+                                    <div class="flex items-center">
+                                        <i class="fa fa-folder text-primary mr-3"></i>
+                                        <span>科研合作类</span>
+                                    </div>
+                                    <span id="abutment-count"
+                                        class="bg-gray-200 text-gray-700 text-xs px-2 py-1 rounded-full">0</span>
+                                </button>
+                            </li>
+                            <li>
+                                <button
+                                    class="folder-item w-full text-left px-4 py-3 rounded-lg flex items-center justify-between hover:bg-gray-100 transition-custom"
+                                    title="依托我方与医生、科研团队、其他企业的研究成果，整合优势资源，以联合团队形式，申报国家、省市各类科研或产业化项目资助">
+                                    <div class="flex items-center">
+                                        <i class="fa fa-folder text-primary mr-3"></i>
+                                        <span>联合申报类</span>
+                                    </div>
+                                    <span id="instrument-count"
+                                        class="bg-gray-200 text-gray-700 text-xs px-2 py-1 rounded-full">0</span>
+                                </button>
+                            </li>
+                            <li>
+                                <button
+                                    class="folder-item w-full text-left px-4 py-3 rounded-lg flex items-center justify-between hover:bg-gray-100 transition-custom"
+                                    title="针对医生、科研团队的成果（专利、原型、技术秘密等），我方评估、二次开发、注册、生产并推广，最终转化为市场化产品">
+                                    <div class="flex items-center">
+                                        <i class="fa fa-folder text-primary mr-3"></i>
+                                        <span>技术转化类</span>
+                                    </div>
+                                    <span id="glue-count"
+                                        class="bg-gray-200 text-gray-700 text-xs px-2 py-1 rounded-full">0</span>
+                                </button>
+                            </li>
+                            <li>
+                                <button
+                                    class="folder-item w-full text-left px-4 py-3 rounded-lg flex items-center justify-between hover:bg-gray-100 transition-custom">
+                                    <div class="flex items-center">
+                                        <i class="fa fa-folder text-primary mr-3"></i>
+                                        <span>其他项目</span>
+                                    </div>
+                                    <span id="other-product-count"
+                                        class="bg-gray-200 text-gray-700 text-xs px-2 py-1 rounded-full">0</span>
+                                </button>
+                            </li>
+                        </ul>
+                        <hr class="my-4">
+                        <!-- 合作单位筛选 -->
+                        <div class="flex flex-col sm:flex-row justify-between items-start gap-2 mb-3">
+                            <h4 class="font-medium font-semibold text-gray-700">合作单位</h4>
+                            <div class="flex gap-1 mr-3">
+                                <button id="company-select-all"
+                                    class="h-6 w-6 text-sm bg-gray-200 text-gray-700 rounded hover:bg-gray-300 transition-colors"
+                                    title="全选">
+                                    <i class="fa fa-check-square"></i>
+                                </button>
+                                <button id="company-select-none"
+                                    class="h-6 w-6 text-sm bg-gray-200 text-gray-700 rounded hover:bg-gray-300 transition-colors"
+                                    title="全不选">
+                                    <i class="far fa-square"></i>
+                                </button>
+                                <button id="company-select-invert"
+                                    class="h-6 w-6 text-sm bg-gray-200 text-gray-700 rounded hover:bg-gray-300 transition-colors"
+                                    title="反选">
+                                    <i class="fa fa-exchange-alt"></i>
+                                </button>
+                            </div>
+                        </div>
+                        <div id="company-select" class="grid grid-cols-1 space-y-2 ml-4">
+                            <!-- 根据JS动态添加人员 -->
+                        </div>
+
+                        <hr class="my-4">
+                        <!-- 状态筛选 -->
+                        <div class="flex flex-col sm:flex-row justify-between items-start gap-2 mb-3">
+                            <h4 class="font-medium font-semibold text-gray-700">状态</h4>
+                            <div class="flex gap-1 mr-3">
+                                <button id="status-select-all"
+                                    class="h-6 w-6 text-sm bg-gray-200 text-gray-700 rounded hover:bg-gray-300 transition-colors"
+                                    title="全选">
+                                    <i class="fa fa-check-square"></i>
+                                </button>
+                                <button id="status-select-none"
+                                    class="h-6 w-6 text-sm bg-gray-200 text-gray-700 rounded hover:bg-gray-300 transition-colors"
+                                    title="全不选">
+                                    <i class="far fa-square"></i>
+                                </button>
+                                <button id="status-select-invert"
+                                    class="h-6 w-6 text-sm bg-gray-200 text-gray-700 rounded hover:bg-gray-300 transition-colors"
+                                    title="反选">
+                                    <i class="fa fa-exchange-alt"></i>
+                                </button>
+                            </div>
+                        </div>
+                        <div id="status-select" class="grid grid-cols-1 space-y-2 ml-4">
+                            <!-- 根据JS动态添加人员 -->
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 右侧列表 -->
+                <div class="w-full h-full md:w-3/4 lg:w-4/5">
+                    <!-- 列表头部 -->
+                    <div
+                        class="bg-white border border-gray-300 rounded-xl p-4 shadow-sm mb-5 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+                        <div>
+                            <h3 class="text-lg font-semibold">项目列表</h3>
+                            <p class="text-gray-500 text-sm">共找到
+                                <span class="text-primary font-medium" id="count-literature">0</span> 条相关文章
+                            </p>
+                        </div>
+                        <div class="flex items-center gap-3">
+                            <div class="flex border border-gray-300 rounded-lg overflow-hidden mr-8">
+                                <!-- 视图切换按钮 -->
+                                <button id="list-view-btn"
+                                    class="p-2 w-20 bg-white text-gray-600 hover:bg-gray-100 transition-colors"
+                                    title="列表视图">
+                                    <i class="fa fa-list"></i>
+                                </button>
+                                <button id="grid-view-btn"
+                                    class="p-2 w-20 bg-primary text-white hover:bg-primary/90 transition-colors"
+                                    title="网格视图">
+                                    <i class="fa fa-th-large"></i>
+                                </button>
+                            </div>
+                            <span class="text-gray-600 text-sm">排序方式:</span>
+                            <select id="sort-select"
+                                class="p-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary/50">
+                                <option value="updateDate">上传日期</option>
+                                <option value="subject">学科</option>
+                                <option value="name">文章名称</option>
+                                <option value="publishDate">发表日期</option>
+
+                            </select>
+                            <button id="sort-order-btn"
+                                class="p-2 w-12 bg-primary text-white border border-gray-300 hover:bg-primary/90 transition-colors rounded-lg overflow-hidden"
+                                title="升序排列">
+                                <i class="fa fa-sort-amount-down"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <!-- 根据JS动态添加 -->
+                    <div id="cards-contain" class="grid grid-cols-1 lg:grid-cols-2 gap-5">
+                        <!-- 根据JS动态添加 -->
+                    </div>
+                    <!-- 详细信息列表 -->
+                    <div id="list-contain" class="grid grid-cols-1 lg:grid-cols-1 gap-3 hidden">
+                        <!-- 根据JS动态添加 -->
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- 悬浮按钮 -->
+    <button class="ai-content-button" id="deepseek-button" title="AI助手">
+        <img class="h-[1.85rem] mx-auto block" src="../../icon/deepseek.png">
+    </button>
+    <button class="floating-button r-50" id="add-data-button">
+        <i class="fa fa-plus"></i>
+    </button>
+
+    <!-- 模态框 -->
+    <div id="modal" class="fixed inset-0 z-50 hidden">
+        <div class="absolute inset-0 bg-black/50 backdrop-blur-sm" id="modal-backdrop"></div>
+    </div>
+
+    <footer class="bg-white sticky bottom-0 z-50 border-t border-gray-200 py-6 mt-1">
+        <div class="container mx-auto px-4">
+            <div class="flex flex-col md:flex-row items-center justify-between">
+                <div class="flex items-center space-x-4">
+                    <span class="text-sm text-gray-500">© 2024 莱顿-力学测试数据库</span>
+                    <span
+                        class="bg-primary/10 text-primary text-xs px-2 py-1 rounded-full border border-primary/30 cursor-pointer">
+                        <i class="fa fa-flask mr-1"></i>
+                        <span id="version-span">
+                        </span>
+                    </span>
+                </div>
+                <div class="flex space-x-4">
+                    <button id="yuanbao-btn" class="flex hover:border hover:border-primary" title="腾讯元宝">
+                        <img class="h-[1.65rem] mx-auto block" src="../../icon/logo_yuanbao.png">
+                        <span class="ml-1">腾讯元宝</span>
+                    </button>
+                    <button id="naton-btn" class="flex hover:border hover:border-primary" title="智慧办公">
+                        <img class="h-[1.5rem] mx-auto block" src="../../icon/logo_naton.png">
+                        <span class="ml-1">智慧办公</span>
+                    </button>
+                    <a class="text-gray-500 hover:text-primary transition-colors cursor-pointer" id="guide-a">
+                        <i class="fa fa-question-circle"></i>
+                        <span class="ml-1">操作指引</span>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- 初始化粒子效果 -->
+    <script>
+        particlesJS.load('particles-js', '../../particlesConfig.json', function () {
+        });
+    </script>
+
+    <script src="../JavaScript/showNotification.js"></script>
+    <script src="../JavaScript/api.js"></script>
+    <script src="../JavaScript/ipd.js"></script>
+    <script src="../JavaScript/cooperations.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/showdown@2.1.0/dist/showdown.min.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/highlight.js@11.7.0/styles/github-dark.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/highlight.js@11.7.0/lib/highlight.min.js"></script>
+    <script src="../JavaScript/addCooperation.js"></script>
+</body>
+
+</html>

@@ -1,0 +1,410 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>材料信息</title>
+    <link rel="icon" type="image/png" href="../../icon/material-conf.png">
+    <!-- 登录检查 -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const username = localStorage.getItem('username');
+            if (!username) {
+                window.location.href = '../login.html';
+            } else {
+                document.getElementById('username-button').textContent = username;
+            }
+        });
+    </script>
+    <!-- 验证token -->
+    <script src='../../javaScript/verifyToken.js'></script>
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- 引入Font Awesome -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#99774b',
+                        secondary: '#b3946d',
+                        accent: '#0FC6C2',
+                        neutral: '#F5F7FA',
+                        dark: '#1D2129',
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'system-ui', 'sans-serif'],
+                    },
+                }
+            }
+        }
+    </script>
+
+    <!-- 自定义工具类 -->
+    <link rel="stylesheet" href="../../style.css">
+    <style type="text/tailwindcss">
+        @layer utilities {
+            /* 设置粒子容器样式 */
+            #particles-js {
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                z-index: -1;
+            }
+        } 
+    </style>
+</head>
+<body class="bg-gray-50 font-sans text-dark">
+    <!-- 粒子效果容器 -->
+    <div id="particles-js"></div>
+    <!-- 引入粒子效果配置 -->
+    <script src="https://cdn.jsdelivr.net/gh/VincentGarreau/particles.js@2.0.0/particles.min.js"></script>
+
+    <!-- 顶部导航栏 -->
+    <nav class="bg-white shadow-md sticky top-0 z-50 transition-all duration-300">
+        <div class="container mx-auto px-4 py-3 flex justify-between items-center">
+            <div class="flex items-center space-x-2">
+                <i class="fa fa-cubes text-primary text-2xl"></i>
+                <h1 class="text-xl font-bold text-neutral-600">材料信息</h1>
+                <div class="hidden md:flex items-center space-x-6">
+                    <button onClick="javascript:history.back(-1);"
+                        class="flex items-center bg-gray-100 hover:bg-primary text-black font-medium py-2 px-4 rounded-lg transition duration-300 ease-in-out shadow-md hover:shadow-lg transform hover:-translate-y-0.5">
+                        <i class="fa fa-arrow-left text-gray-600 text-2xl transition-colors"></i>
+                        <span class="hidden md:inline-block text-xl text-gray-800 transition-colors">返回</span>
+                    </button>
+                </div>
+            </div>
+
+            <div class="hidden md:flex items-center space-x-6">
+                <button id="user-button"
+                    class="flex items-center bg-gray-200 hover:bg-primary text-black font-medium py-2 px-4 rounded-lg transition duration-300 ease-in-out shadow-md hover:shadow-lg transform hover:-translate-y-0.5">
+                    <div class="w-8 h-8 rounded-full bg-gray-300 flex items-center justify-center">
+                        <i id="user-icon" class="fa fa-user text-gray-600"></i>
+                    </div>
+                    <span id="username-button" class="text-sm font-medium hidden md:inline-block ml-2">用户名</span>
+                </button>
+                <button
+                    class="flex items-center bg-gray-200 hover:bg-primary text-black font-medium py-2 px-4 rounded-lg transition duration-300 ease-in-out shadow-md hover:shadow-lg transform hover:-translate-y-0.5">
+                    <div class="w-8 h-8 rounded-full bg-gray-300 flex items-center justify-center">
+                        <i class="fa fa-envelope"></i>
+                    </div>
+                    <span class="text-sm font-medium hidden md:inline-block ml-2">消息</span>
+                    <span
+                        class="hidden ml-2 bg-gray-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">0</span>
+                </button>
+            </div>
+
+            <div class="md:hidden">
+                <button class="text-neutral-500 focus:outline-none">
+                    <i class="fa fa-bars text-xl"></i>
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    <div class="flex flex-col md:flex-row min-h-screen">
+        <!-- 左侧材料选择栏 -->
+        <aside class="w-full md:w-64 bg-primary text-white p-4">
+            <h2 class="text-xl font-bold mb-6">材料选择</h2>
+            <ul id="material-list" class="space-y-2 text-gray-100">
+                <!-- 后台获取数据，使用JS添加 -->
+                <!-- <li class="material-item p-2 rounded hover:bg-secondary hover:text-primary cursor-pointer" data-material="S46500">不锈钢-S46500</li>
+                <li class="material-item p-2 rounded hover:bg-secondary hover:text-primary cursor-pointer" data-material="304">不锈钢-304</li>
+                <li class="material-item p-2 rounded hover:bg-secondary hover:text-primary cursor-pointer" data-material="1RK91">不锈钢-1RK91</li>
+                <li class="material-item p-2 rounded hover:bg-secondary hover:text-primary cursor-pointer" data-material="TC4">纯钛-TC4</li>
+                <li class="material-item p-2 rounded hover:bg-secondary hover:text-primary cursor-pointer" data-material="PEEK">聚醚醚酮树脂-PEEK</li> -->
+            </ul>
+        </aside>
+
+        <!-- 右侧性能指标显示区 -->
+        <main class="flex-1 p-8">
+            <h1 id="material-name" class="text-center text-2xl font-bold mb-8 text-primary"></h1>
+            <h1 class="text-2xl font-bold mb-8 text-primary">
+            <i class="fa fa-info-circle" title="经不同加工工艺处理后，原材料的性能会发生相应改变"></i>
+            原材料性能指标</h1>
+            <div id="performance-container" class="flex flex-wrap mb-6 space-x-2 space-y-4">
+                <div></div>
+                <div class="bg-gray-200/30 rounded border border-gary-300 w-[49%] space-y-4 px-5 py-3">
+                    <h3 class="text-center text-xl font-bold text-neutral-600 ml-3">弹塑性性能参数</h3>
+                    <!-- 弹性模量 -->
+                    <div class="performance-item">
+                        <div class="flex items-center justify-between mb-2">
+                            <span class="font-medium">
+                                <i class="fa fa-info-circle" title="弹性阶段内，应力与应变的比值（σ=Eε），反映材料抵抗拉伸/压缩弹性变形的 “刚度”"></i>
+                                弹性模量 (E, MPa)</span>
+                            <span id="modulus-title" class="bg-gray-200 rounded border border-gray-300">--</span>
+                            <span id="modulus-value" class="font-bold">--</span>
+                        </div>
+                        <div class="w-full bg-gray-200/50 rounded-full h-6 overflow-hidden">
+                            <div id="modulus-bar" class="bg-primary/80 h-6 transition duration-300 ease-in-out" style="width: 1%"></div>
+                        </div>
+                    </div>
+
+                    <!-- 泊松比 -->
+                    <div class="performance-item">
+                        <div class="flex items-center justify-between mb-2">
+                            <span class="font-medium">
+                            <i class="fa fa-info-circle" title="弹性阶段内，横向应变与轴向应变的比值"></i>
+                            泊松比 (ν)</span>
+                            <span id="poisson-title" class="bg-gray-200 rounded border border-gray-300">--</span>
+                            <span id="poisson-value" class="font-bold">--</span>
+                        </div>
+                        <div class="w-full bg-gray-200 rounded-full h-6 overflow-hidden">
+                            <div id="poisson-bar" class="bg-primary/80 h-6 transition duration-300 ease-in-out" style="width: 1%"></div>
+                        </div>
+                    </div>
+
+                    <!-- 剪切模量 -->
+                    <div class="performance-item">
+                        <div class="flex items-center justify-between mb-2">
+                            <span class="font-medium">
+                            <i class="fa fa-info-circle" title="剪切载荷下，切应力与切应变的比值（τ=Gγ），反映材料抵抗 “剪切弹性变形” 的能力"></i>
+                            剪切模量 (G, MPa)</span>
+                            <span id="G-title" class="bg-gray-200 rounded border border-gray-300">--</span>
+                            <span id="G-value" class="font-bold">--</span>
+                        </div>
+                        <div class="w-full bg-gray-200 rounded-full h-6 overflow-hidden">
+                            <div id="G-bar" class="bg-primary/80 h-6 transition duration-300 ease-in-out" style="width: 1%"></div>
+                        </div>
+                    </div>
+
+                    <!-- 断后伸长率 -->
+                    <div class="performance-item">
+                        <div class="flex items-center justify-between mb-2">
+                            <span class="font-medium">
+                            <i class="fa fa-info-circle" title="拉伸试验后，材料断裂后标距的伸长量与原始标距的百分比（A=(L₁-L₀)/L₀×100%，L₀为原始标距，L₁为断后标距）"></i>
+                            断后伸长率 (A, %)</span>
+                            <span id="A-title" class="bg-gray-200 rounded border border-gray-300">--</span>
+                            <span id="A-value" class="font-bold">--</span>
+                        </div>
+                        <div class="w-full bg-gray-200 rounded-full h-6 overflow-hidden">
+                            <div id="A-bar" class="bg-primary/80 h-6 transition duration-300 ease-in-out" style="width: 1%"></div>
+                        </div>
+                    </div>
+
+                    <!-- 断面收缩率 -->
+                    <div class="performance-item">
+                        <div class="flex items-center justify-between mb-2">
+                            <span class="font-medium">
+                            <i class="fa fa-info-circle" title="拉伸试验后，材料断裂处横截面积的缩减量与原始横截面积的百分比（Z=(S₀-S₁)/S₀×100%，S₀为原始截面积，S₁为断后截面积）"></i>
+                            断面收缩率 (Z, %)</span>
+                            <span id="Z-title" class="bg-gray-200 rounded border border-gray-300">--</span>
+                            <span id="Z-value" class="font-bold">--</span>
+                        </div>
+                        <div class="w-full bg-gray-200 rounded-full h-6 overflow-hidden">
+                            <div id="Z-bar" class="bg-primary/80 h-6 transition duration-300 ease-in-out" style="width: 1%"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-gray-200/30 rounded border border-gary-300 w-[49%] space-y-4 px-5 py-3">
+                    <h3 class="text-center text-xl font-bold text-neutral-600 ml-3">强度性能参数</h3>
+
+                    <!-- 屈服强度 -->
+                    <div class="performance-item">
+                        <div class="flex items-center justify-between mb-2">
+                            <span class="font-medium">
+                            <i class="fa fa-info-circle" title='材料从 “弹性变形” 过渡到 “塑性变形” 的临界应力：\n- 明显屈服材料（如低碳钢）取屈服点 σₛ；\n- 无明显屈服材料（如铝合金）取规定非比例延伸强度 σ₀.₂（通常取残余变形 0.2% 对应的应力）'></i>
+                            屈服强度（σₛ/σ₀.₂, MPa）</span>
+                            <span id="yield-title" class="bg-gray-200 rounded border border-gray-300">--</span>
+                            <span id="yield-value" class="font-bold">--</span>
+                        </div>
+                        <div class="w-full bg-gray-200 rounded-full h-6 overflow-hidden">
+                            <div id="yield-bar" class="bg-primary/80 h-6 transition duration-300 ease-in-out" style="width: 1%"></div>
+                        </div>
+                    </div>
+
+                    <!-- 抗拉强度 -->
+                    <div class="performance-item">
+                        <div class="flex items-center justify-between mb-2">
+                            <span class="font-medium">
+                            <i class="fa fa-info-circle" title="材料在拉伸过程中能承受的最大应力（对应拉伸曲线的峰值点），超过后材料会因 “颈缩”（局部变细）逐渐断裂"></i>
+                            极限抗拉强度 (UTS, MPa)</span>
+                            <span id="tensile-title" class="bg-gray-200 rounded border border-gray-300">--</span>
+                            <span id="tensile-value" class="font-bold">--</span>
+                        </div>
+                        <div class="w-full bg-gray-200 rounded-full h-6 overflow-hidden">
+                            <div id="tensile-bar" class="bg-primary/80 h-6 transition duration-300 ease-in-out" style="width: 1%"></div>
+                        </div>
+                    </div>
+
+                    <!-- 抗压强度 -->
+                    <div class="performance-item">
+                        <div class="flex items-center justify-between mb-2">
+                            <span class="font-medium">
+                            <i class="fa fa-info-circle" title="材料在轴向压缩载荷下，抵抗断裂或显著塑性变形的最大压应力（脆性材料如混凝土、陶瓷会直接压碎，塑性材料如钢会 “镦粗” 而无明显断裂点，需按规定变形量定义）"></i>
+                            抗压强度 (σ_c, MPa)</span>
+                            <span id="compress-title" class="bg-gray-200 rounded border border-gray-300">--</span>
+                            <span id="compress-value" class="font-bold">--</span>
+                        </div>
+                        <div class="w-full bg-gray-200 rounded-full h-6 overflow-hidden">
+                            <div id="compress-bar" class="bg-primary/80 h-6 transition duration-300 ease-in-out" style="width: 1%"></div>
+                        </div>
+                    </div>
+
+                    <!-- 抗弯强度 -->
+                    <div class="performance-item">
+                        <div class="flex items-center justify-between mb-2">
+                            <span class="font-medium">
+                            <i class="fa fa-info-circle" title="材料受弯曲载荷时，横截面最大正应力（通常取受拉侧应力，因多数材料抗拉弱于抗压）"></i>
+                            抗弯强度 (σ_bend, MPa)</span>
+                            <span id="bending-title" class="bg-gray-200 rounded border border-gray-300">--</span>
+                            <span id="bending-value" class="font-bold">--</span>
+                        </div>
+                        <div class="w-full bg-gray-200 rounded-full h-6 overflow-hidden">
+                            <div id="bending-bar" class="bg-primary/80 h-6 transition duration-300 ease-in-out" style="width: 1%"></div>
+                        </div>
+                    </div>
+
+                    <!-- 抗剪强度 -->
+                    <div class="performance-item">
+                        <div class="flex items-center justify-between mb-2">
+                            <span class="font-medium">
+                            <i class="fa fa-info-circle" title="材料受剪切载荷时，抵抗剪切破坏的最大切应力（如螺栓受剪时，剪切面的临界应力）"></i>
+                            抗剪强度 (τ_b, MPa)</span>
+                            <span id="shearing-title" class="bg-gray-200 rounded border border-gray-300">--</span>
+                            <span id="shearing-value" class="font-bold">--</span>
+                        </div>
+                        <div class="w-full bg-gray-200 rounded-full h-6 overflow-hidden">
+                            <div id="shearing-bar" class="bg-primary/80 h-6 transition duration-300 ease-in-out" style="width: 1%"></div>
+                        </div>
+                    </div>
+
+                    <!-- 疲劳强度 -->
+                    <div class="performance-item">
+                        <div class="flex items-center justify-between mb-2">
+                            <span class="font-medium">
+                            <i class="fa fa-info-circle" title="材料在交变载荷下，循环N次（通常 5×10⁶次）仍不发生断裂的最大应力值"></i>
+                            疲劳强度 (σ_N, MPa)</span>
+                            <span id="fatigued-title" class="bg-gray-200 rounded border border-gray-300">--</span>
+                            <span id="fatigued-value" class="font-bold">--</span>
+                        </div>
+                        <div class="w-full bg-gray-200 rounded-full h-6 overflow-hidden">
+                            <div id="fatigued-bar" class="bg-primary/80 h-6 transition duration-300 ease-in-out" style="width: 1%"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 硬度 -->
+                <div class="bg-gray-200/30 rounded border border-gary-300 w-[49%] space-y-4 px-5 py-3">
+                    <h3 class="text-center text-xl font-bold text-neutral-600 ml-3">硬度参数</h3>
+                    <div class="performance-item">
+                        <div class="flex items-center justify-between mb-2">
+                            <span class="font-medium">
+                            <i class="fa fa-info-circle" title="用金刚石圆锥（HRC）或钢球（HRB）施加 “初载荷 + 主载荷”，测量压痕深度差，直接读数（分 HRC、HRB、HRV 等标尺）"></i>
+                            洛氏硬度（HR）</span>
+                            <span id="HR-title" class="bg-gray-200 rounded border border-gray-300">--</span>
+                            <span id="HR-value" class="font-bold">--</span>
+                        </div>
+                        <div class="w-full bg-gray-200 rounded-full h-6 overflow-hidden">
+                            <div id="HR-bar" class="bg-primary/80 h-6 transition duration-300 ease-in-out" style="width: 1%"></div>
+                        </div>
+                    </div>
+
+                    <div class="performance-item">
+                        <div class="flex items-center justify-between mb-2">
+                            <span class="font-medium">
+                            <i class="fa fa-info-circle" title="用硬质合金球（直径 D）施加压力 F，测量压痕直径 d，按公式计算硬度（HBW=0.102×2F/(πD (D-√(D²-d²)))）"></i> 
+                            布氏硬度（HBW）</span>
+                            <span id="HBW-title" class="bg-gray-200 rounded border border-gray-300">--</span>
+                            <span id="HBW-value" class="font-bold">--</span>
+                        </div>
+                        <div class="w-full bg-gray-200 rounded-full h-6 overflow-hidden">
+                            <div id="HBW-bar" class="bg-primary/80 h-6 transition duration-300 ease-in-out" style="width: 1%"></div>
+                        </div>
+                    </div>
+
+                    <div class="performance-item">
+                        <div class="flex items-center justify-between mb-2">
+                            <span class="font-medium">
+                            <i class="fa fa-info-circle" title="用金刚石正四棱锥（顶角 136°）施加压力 F，测量压痕对角线长度 d，按公式计算（HV=0.102×2F/(d²×sin68°)）"></i> 
+                            维氏硬度（HV）</span>
+                            <span id="HV-title" class="bg-gray-200 rounded border border-gray-300">--</span>
+                            <span id="HV-value" class="font-bold">--</span>
+                        </div>
+                        <div class="w-full bg-gray-200 rounded-full h-6 overflow-hidden">
+                            <div id="HV-bar" class="bg-primary/80 h-6 transition duration-300 ease-in-out" style="width: 1%"></div>
+                        </div>
+                    </div>
+                 </div>
+
+                 <!-- 韧性性能参数 -->
+                 <div class="bg-gray-200/30 rounded border border-gary-300 w-[49%] space-y-4 px-5 py-3">
+                    <h3 class="text-center text-xl font-bold text-neutral-600 ml-3">韧性性能参数</h3>
+                    <div class="performance-item">
+                        <div class="flex items-center justify-between mb-2">
+                            <span class="font-medium">
+                            <i class="fa fa-info-circle" title="含预制裂纹的材料，抵抗 “裂纹扩展” 的临界应力场强度因子，反映材料在 “有缺陷” 状态下的抗断裂能力"></i>
+                            断裂韧性（Kᵢc, MPa・m^(1/2)）</span>
+                            <span id="Kic-title" class="bg-gray-200 rounded border border-gray-300">--</span>
+                            <span id="Kic-value" class="font-bold">--</span>
+                        </div>
+                        <div class="w-full bg-gray-200 rounded-full h-6 overflow-hidden">
+                            <div id="Kic-bar" class="bg-primary/80 h-6 transition duration-300 ease-in-out" style="width: 1%"></div>
+                        </div>
+                    </div>
+
+                    <div class="performance-item">
+                        <div class="flex items-center justify-between mb-2">
+                            <span class="font-medium">
+                            <i class="fa fa-info-circle" title="材料在突然冲击载荷下（如锤击），断裂时吸收的总能量（单位：J），需区分 “夏比 U 型缺口”（AₖU）和 “夏比 V 型缺口”（AₖV，缺口更尖锐，更能暴露材料脆性）"></i>
+                            冲击韧性（Aₖ）</span>
+                            <span id="Ak-title" class="bg-gray-200 rounded border border-gray-300">--</span>
+                            <span id="Ak-value" class="font-bold">--</span>
+                        </div>
+                        <div class="w-full bg-gray-200 rounded-full h-6 overflow-hidden">
+                            <div id="Ak-bar" class="bg-primary/80 h-6 transition duration-300 ease-in-out" style="width: 1%"></div>
+                        </div>
+                    </div>
+                 </div>
+            </div>
+            <div class="text-sm">
+                <p><b>*报告值：</b>实际检测的官方数据，来源于材质单；</p>
+                <p><b>*典型值：</b>同类材料的常见参考数据，来源于文献；</p>
+                <p><b>*理论值：</b>基于科学公式计算得出的预测数据。</p>
+            </div>
+        </main>
+    </div>
+
+    <footer class="bg-white sticky bottom-0 z-50 border-t border-gray-200 py-6 mt-1">
+        <div class="container mx-auto px-4">
+            <div class="flex flex-col md:flex-row items-center justify-between">
+                <div class="flex items-center space-x-4">
+                    <span class="text-sm text-gray-500">© 2024 莱顿-材料信息数据库</span>
+                    <span
+                        class="bg-primary/10 text-primary text-xs px-2 py-1 rounded-full border border-primary/30 cursor-pointer">
+                        <i class="fa fa-flask mr-1"></i>
+                        <span id="version-span">v1.0.0</span>
+                    </span>
+                </div>
+                <div class="flex space-x-4">
+                    <button id="yuanbao-btn" class="flex hover:border hover:border-primary" title="腾讯元宝">
+                        <img class="h-[1.65rem] mx-auto block" src="../../icon/logo_yuanbao.png">
+                        <span class="ml-1">腾讯元宝</span>
+                    </button>
+                    <button id="naton-btn" class="flex hover:border hover:border-primary" title="智慧办公">
+                        <img class="h-[1.5rem] mx-auto block" src="../../icon/logo_naton.png">
+                        <span class="ml-1">智慧办公</span>
+                    </button>
+                    <a class="text-gray-500 hover:text-primary transition-colors cursor-pointer" id="guide-a">
+                        <i class="fa fa-question-circle"></i>
+                        <span class="ml-1">操作指引</span>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- 初始化粒子效果 -->
+    <script>
+        particlesJS.load('particles-js', '../../particlesConfig.json', function () {
+        });
+    </script>
+    <script src="../../JavaScript/api.js"></script>
+    <script src="../../JavaScript/material.js"></script>
+    <script src="../../JavaScript/showNotification.js"></script>
+</body>
+</html>

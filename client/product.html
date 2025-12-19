@@ -96,7 +96,7 @@
                     </button>
                 </div>
             </div>
-
+            <img class="default-icon h-[2.5rem] mx-auto block text-xl" src="../../icon/纳通口腔logo.png">
             <div class="hidden md:flex items-center space-x-6">
                 <button id="user-button"
                     class="flex items-center bg-gray-200 hover:bg-primary text-black font-medium py-2 px-4 rounded-lg transition duration-300 ease-in-out shadow-md hover:shadow-lg transform hover:-translate-y-0.5">
@@ -124,12 +124,57 @@
         </div>
     </nav>
 
+    <div id="guide-bar"
+        class="grid md:grid-cols-5 bg-gray-100 shadow-md transition-all duration-300 z-10">
+        <div class="grid items-center justify-center text-primary text-xl ml-12">
+            <label class="text-black font-bold ml-12">信息汇总：</label>
+        </div>
+        <div class="col-span-4 grid md:grid-cols-7 items-center justify-end text-center text-primary text-xl">
+            <div></div>
+            <div class="relative group">
+                <button class="hover:bg-primary/10 hover:scale-105 px-2 py-1">植体信息
+                    <i class="fa fa-chevron-down ml-1 text-xs"></i>
+                </button>
+                <div class="absolute left-0 mt-1 w-48 bg-white shadow-lg rounded-md overflow-hidden opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 transform origin-top scale-95 group-hover:scale-100 z-20">
+                    <a href="https://www.kdocs.cn/wo/sl/v148ZSiO" target="_blank" class="block px-4 py-2 hover:bg-primary/10">国械注准</a>
+                    <a href="https://www.kdocs.cn/wo/sl/v13WAqy5" target="_blank" class="block px-4 py-2 hover:bg-primary/10">国械注许</a>
+                    <a href="https://www.kdocs.cn/wo/sl/v1OEAdV" target="_blank" class="block px-4 py-2 hover:bg-primary/10">国械注进</a>
+                    <hr>
+                    <a href="https://www.kdocs.cn/l/cdW7kz5ojK1O" target="_blank" class="block px-4 py-2 hover:bg-primary/10">龈水平种植体</a>
+                    <a href="https://www.kdocs.cn/l/coWsRUZ2fWpt" target="_blank" class="block px-4 py-2 hover:bg-primary/10">陶瓷种植体</a>
+                </div>
+            </div>
+            <div class="relative group">
+                <button class="hover:bg-primary/10 hover:scale-105 px-2 py-1">模板文件
+                    <i class="fa fa-chevron-down ml-1 text-xs"></i>
+                </button>
+                <div class="absolute left-0 mt-1 w-48 bg-white shadow-lg rounded-md overflow-hidden opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 transform origin-top scale-95 group-hover:scale-100 z-20">
+                    <button id="download-CR-btn" class="block w-full text-left px-4 py-2 hover:bg-primary/10">变更评审单</button>
+                </div>
+            </div>
+            <div class="relative group">
+                <button class="hover:bg-primary/10 hover:scale-105 px-2 py-1">产品编码规则
+                    <i class="fa fa-chevron-down ml-1 text-xs"></i>
+                </button>
+                <div class="absolute left-0 mt-1 w-48 bg-white shadow-lg rounded-md overflow-hidden opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 transform origin-top scale-95 group-hover:scale-100 z-20">
+                    <button id="apollo-code-btn" class="block w-full text-left px-4 py-2 hover:bg-primary/10">Apollo产品</button>
+                    <button id="other-code-btn" class="block w-full text-left px-4 py-2 hover:bg-primary/10">其他产品</button>
+                </div>
+            </div>
+            <div class="relative group">
+                <button class="hover:bg-primary/10 hover:scale-105 px-2 py-1">委外信息
+                    <i class="fa fa-chevron-down ml-1 text-xs"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+
     <main class="container mx-auto px-4 py-8">
         <!-- 筛选和列表区域 -->
         <section id="products" class="mb-1">
             <div class="flex flex-col md:flex-row gap-6">
                 <!-- 左侧产品类型文件夹 -->
-                <div id="sidebar" class="rounded-xl md:w-3/8 lg:w-1/4 z-20 transition-all duration-300 ease-in-out">
+                <div id="sidebar" class="rounded-xl md:w-3/8 lg:w-1/4 z-10 transition-all duration-300 ease-in-out">
                     <div class="bg-white p-3 border-b border-gray-400 flex items-center justify-between sticky top-24">
                         <h1 id="sidebar-title"
                             class="text-xl font-bold text-primary/90 transition-opacity duration-300"><i
@@ -142,8 +187,8 @@
                     <!-- 搜索产品 -->
                     <div class="bg-white shadow-sm mt-2 ml-4 mb-2">
                         <div class="relative">
-                            <input type="text" placeholder="搜索产品"
-                                class="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/50">
+                            <input type="text" placeholder="搜索产品" id="product-search-input"
+                                class="w-full pl-10 pr-4 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/50">
                             <i class="fa fa-search absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"></i>
                         </div>
                     </div>
@@ -155,7 +200,7 @@
                                 <button class="folder-item w-full text-left px-4 py-3 rounded-lg flex items-center justify-between hover:bg-gray-100 transition-custom folder-active">
                                     <div class="flex items-center">
                                         <i class="fa fa-folder text-primary mr-3"></i>
-                                        <span>牙种植体</span>
+                                        <span class="data-type">牙种植体</span>
                                     </div>
                                     <span id="implant-count" class="bg-gray-200 text-gray-700 text-xs px-2 py-1 rounded-full">0</span>
                                 </button>
@@ -164,7 +209,7 @@
                                 <button class="folder-item w-full text-left px-4 py-3 rounded-lg flex items-center justify-between hover:bg-gray-100 transition-custom">
                                     <div class="flex items-center">
                                         <i class="fa fa-folder text-primary mr-3"></i>
-                                        <span>基台及附件</span>
+                                        <span class="data-type">基台</span>
                                     </div>
                                     <span id="abutment-count" class="bg-gray-200 text-gray-700 text-xs px-2 py-1 rounded-full">0</span>
                                 </button>
@@ -173,7 +218,107 @@
                                 <button class="folder-item w-full text-left px-4 py-3 rounded-lg flex items-center justify-between hover:bg-gray-100 transition-custom">
                                     <div class="flex items-center">
                                         <i class="fa fa-folder text-primary mr-3"></i>
-                                        <span>手术器械</span>
+                                        <span class="data-type">附件</span>
+                                    </div>
+                                    <span id="attachment-count" class="bg-gray-200 text-gray-700 text-xs px-2 py-1 rounded-full">0</span>
+                                </button>
+                            </li>
+                            <li>
+                                <button class="folder-item w-full text-left px-4 py-3 rounded-lg flex items-center justify-between hover:bg-gray-100 transition-custom">
+                                    <div class="flex items-center">
+                                        <i class="fa fa-folder text-primary mr-3"></i>
+                                        <span class="data-type">手术器械</span>
+                                    </div>
+                                    <span id="instrument-count" class="bg-gray-200 text-gray-700 text-xs px-2 py-1 rounded-full">0</span>
+                                </button>
+                            </li>
+                            <!-- 子类目 -->
+                            <li class="set-item hidden ml-6 text-sm text-gray-500" title="Apollo BL种植工具盒">
+                                <button class="w-full text-left px-4 py-3 rounded-lg flex items-center justify-between hover:bg-gray-100 transition-custom">
+                                    <div class="flex items-center">
+                                        <i class="fa fa-folder text-primary mr-3"></i>
+                                        <span class="set-type">L040.166</span>
+                                    </div>
+                                    <span id="instrument-count" class="bg-gray-200 text-gray-700 text-xs px-2 py-1 rounded-full">0</span>
+                                </button>
+                            </li>
+                            <li class="set-item hidden ml-6 text-sm text-gray-500" title="Apollo TL种植工具盒">
+                                <button class="w-full text-left px-4 py-3 rounded-lg flex items-center justify-between hover:bg-gray-100 transition-custom">
+                                    <div class="flex items-center">
+                                        <i class="fa fa-folder text-primary mr-3"></i>
+                                        <span class="set-type">L040.167</span>
+                                    </div>
+                                    <span id="instrument-count" class="bg-gray-200 text-gray-700 text-xs px-2 py-1 rounded-full">0</span>
+                                </button>
+                            </li>
+                            <li class="set-item hidden ml-6 text-sm text-gray-500" title="种植工具盒-BB外形">
+                                <button class="w-full text-left px-4 py-3 rounded-lg flex items-center justify-between hover:bg-gray-100 transition-custom">
+                                    <div class="flex items-center">
+                                        <i class="fa fa-folder text-primary mr-3"></i>
+                                        <span class="set-type">L040.168</span>
+                                    </div>
+                                    <span id="instrument-count" class="bg-gray-200 text-gray-700 text-xs px-2 py-1 rounded-full">0</span>
+                                </button>
+                            </li>
+                            <li class="set-item hidden ml-6 text-sm text-gray-500" title="种植工具盒-全仿BB">
+                                <button class="w-full text-left px-4 py-3 rounded-lg flex items-center justify-between hover:bg-gray-100 transition-custom">
+                                    <div class="flex items-center">
+                                        <i class="fa fa-folder text-primary mr-3"></i>
+                                        <span class="set-type">L040.169</span>
+                                    </div>
+                                    <span id="instrument-count" class="bg-gray-200 text-gray-700 text-xs px-2 py-1 rounded-full">0</span>
+                                </button>
+                            </li>
+                            <li class="set-item hidden ml-6 text-sm text-gray-500" title="种植工具盒-全仿BB刻度钻">
+                                <button class="w-full text-left px-4 py-3 rounded-lg flex items-center justify-between hover:bg-gray-100 transition-custom">
+                                    <div class="flex items-center">
+                                        <i class="fa fa-folder text-primary mr-3"></i>
+                                        <span class="set-type">L040.170</span>
+                                    </div>
+                                    <span id="instrument-count" class="bg-gray-200 text-gray-700 text-xs px-2 py-1 rounded-full">0</span>
+                                </button>
+                            </li>
+                            <li class="set-item hidden ml-6 text-sm text-gray-500" title="种植工具盒-修复套装">
+                                <button class="w-full text-left px-4 py-3 rounded-lg flex items-center justify-between hover:bg-gray-100 transition-custom">
+                                    <div class="flex items-center">
+                                        <i class="fa fa-folder text-primary mr-3"></i>
+                                        <span class="set-type">L040.182</span>
+                                    </div>
+                                    <span id="instrument-count" class="bg-gray-200 text-gray-700 text-xs px-2 py-1 rounded-full">0</span>
+                                </button>
+                            </li>
+                            <li class="set-item hidden ml-6 text-sm text-gray-500" title="种植工具盒-植入修复套装">
+                                <button class="w-full text-left px-4 py-3 rounded-lg flex items-center justify-between hover:bg-gray-100 transition-custom">
+                                    <div class="flex items-center">
+                                        <i class="fa fa-folder text-primary mr-3"></i>
+                                        <span class="set-type">L040.183</span>
+                                    </div>
+                                    <span id="instrument-count" class="bg-gray-200 text-gray-700 text-xs px-2 py-1 rounded-full">0</span>
+                                </button>
+                            </li>
+                            <li class="set-item hidden ml-6 text-sm text-gray-500 ">
+                                <button class="w-full text-left px-4 py-3 rounded-lg flex items-center justify-between hover:bg-gray-100 transition-custom">
+                                    <div class="flex items-center">
+                                        <i class="fa fa-folder text-primary mr-3"></i>
+                                        <span class="set-type">外科全配工具盒</span>
+                                    </div>
+                                    <span id="instrument-count" class="bg-gray-200 text-gray-700 text-xs px-2 py-1 rounded-full">0</span>
+                                </button>
+                            </li>
+                            <li class="set-item hidden ml-6 text-sm text-gray-500 ">
+                                <button class="w-full text-left px-4 py-3 rounded-lg flex items-center justify-between hover:bg-gray-100 transition-custom">
+                                    <div class="flex items-center">
+                                        <i class="fa fa-folder text-primary mr-3"></i>
+                                        <span class="set-type">外科标准工具盒</span>
+                                    </div>
+                                    <span id="instrument-count" class="bg-gray-200 text-gray-700 text-xs px-2 py-1 rounded-full">0</span>
+                                </button>
+                            </li>
+                            <li class="set-item hidden ml-6 text-sm text-gray-500 ">
+                                <button class="w-full text-left px-4 py-3 rounded-lg flex items-center justify-between hover:bg-gray-100 transition-custom">
+                                    <div class="flex items-center">
+                                        <i class="fa fa-folder text-primary mr-3"></i>
+                                        <span class="set-type">GI工具盒</span>
                                     </div>
                                     <span id="instrument-count" class="bg-gray-200 text-gray-700 text-xs px-2 py-1 rounded-full">0</span>
                                 </button>
@@ -182,7 +327,7 @@
                                 <button class="folder-item w-full text-left px-4 py-3 rounded-lg flex items-center justify-between hover:bg-gray-100 transition-custom">
                                     <div class="flex items-center">
                                         <i class="fa fa-folder text-primary mr-3"></i>
-                                        <span>骨粉与骨胶</span>
+                                        <span class="data-type">骨粉与骨胶</span>
                                     </div>
                                     <span id="glue-count" class="bg-gray-200 text-gray-700 text-xs px-2 py-1 rounded-full">0</span>
                                 </button>
@@ -191,7 +336,16 @@
                                 <button class="folder-item w-full text-left px-4 py-3 rounded-lg flex items-center justify-between hover:bg-gray-100 transition-custom">
                                     <div class="flex items-center">
                                         <i class="fa fa-folder text-primary mr-3"></i>
-                                        <span>其他产品</span>
+                                        <span class="data-type">支抗钉</span>
+                                    </div>
+                                    <span id="tad-count" class="bg-gray-200 text-gray-700 text-xs px-2 py-1 rounded-full">0</span>
+                                </button>
+                            </li>
+                            <li title="包装、接口">
+                                <button class="folder-item w-full text-left px-4 py-3 rounded-lg flex items-center justify-between hover:bg-gray-100 transition-custom">
+                                    <div class="flex items-center">
+                                        <i class="fa fa-folder text-primary mr-3"></i>
+                                        <span class="data-type">其他产品</span>
                                     </div>
                                     <span id="other-product-count" class="bg-gray-200 text-gray-700 text-xs px-2 py-1 rounded-full">0</span>
                                 </button>
@@ -220,7 +374,7 @@
                                 </div>
                             </div>
                         <div id="company-select" class="grid grid-cols-1 space-y-2 ml-4">
-                            <!-- 根据JS动态添加人员 -->
+                            <!-- 根据JS动态添加公司 -->
                         </div>
 
                         <hr class="my-4">
@@ -248,6 +402,18 @@
                         <div id="status-select" class="grid grid-cols-1 space-y-2 ml-4">
                             <!-- 根据JS动态添加人员 -->
                         </div>
+                        <!-- 按钮 -->
+                        <hr class="my-4">
+                        <div class="flex gap-3">
+                            <button id="apply-filter-button"
+                                class="flex-1 bg-primary hover:bg-primary/90 text-white py-2 rounded-lg transition-custom">
+                                应用筛选
+                            </button>
+                            <button id="reset-filter-button"
+                                class="flex-1 bg-gray-100 hover:bg-gray-200 text-gray-700 py-2 rounded-lg transition-custom">
+                                重置
+                            </button>
+                        </div>
                     </div>
                 </div>
 
@@ -272,7 +438,7 @@
                         <div
                             class="bg-white rounded-lg p-4 shadow-md flex items-center transform transition-all duration-300 hover:scale-105 hover:shadow-lg">
                             <div class="w-12 h-12 rounded-full bg-blue-100 flex items-center justify-center mr-4">
-                                <i class="fa fa-file-pdf text-blue-600 text-xl"></i>
+                                <img class="h-[1.85rem] text-blue-600 text-xl" src="../../icon/2D图纸.png">
                             </div>
                             <div>
                                 <p class="text-gray-500 text-sm">图纸文件</p>
@@ -284,7 +450,7 @@
                         <div
                             class="bg-white rounded-lg p-4 shadow-md flex items-center transform transition-all duration-300 hover:scale-105 hover:shadow-lg">
                             <div class="w-12 h-12 rounded-full bg-green-100 flex items-center justify-center mr-4">
-                                <i class="fa fa-cubes text-green-600 text-xl"></i>
+                                <i class="fa fa-cubes text-lime-600 text-xl"></i>
                             </div>
                             <div>
                                 <p class="text-gray-500 text-sm">3D模型</p>
@@ -342,7 +508,7 @@
                                         </th>
                                         <th scope="col"
                                             class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                            名称
+                                            名称/型号
                                         </th>
                                         <th scope="col"
                                             class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
@@ -453,9 +619,11 @@
                             class="w-full p-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-primary/30 focus:border-primary transition-all duration-200">
                             <option value="">--请选择--</option>
                             <option value="牙种植体">牙种植体</option>
-                            <option value="基台及附件">基台及附件</option>
+                            <option value="基台">基台</option>
+                            <option value="基台">附件</option>
                             <option value="手术器械">手术器械</option>
                             <option value="骨粉与骨胶">骨粉与骨胶</option>
+                            <option value="支抗钉">支抗钉</option>
                             <option value="其他产品">其他产品</option>
                         </select>
                     </div>
@@ -487,11 +655,12 @@
                             <option value="研发中">研发中</option>
                             <option value="试生产">试生产</option>
                             <option value="已上市">已上市</option>
-                            <option value="已停产">已停产</option>
+                            <option value="已停产">已停产/未注册</option>
                         </select>
                     </div>
                     <div class="col-span-3 grid grid-cols-3">
-                        <label class="col-span-3 block text-lg font-bold text-gray-800 mb-1">注册证号:<span class="text-red-600">*</span></label>
+                        <label class="col-span-2 block text-lg font-bold text-gray-800 mb-1">注册证号:<span class="text-red-600">*</span></label>
+                        <label class="col-span-1 block text-lg font-bold text-gray-800 mb-1">批准日期</label>
                         <select id="registration-select"
                             class="col-span-1 w-full p-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-primary/30 focus:border-primary transition-all duration-200 mr-1">
                             <option value="">--请选择--</option>
@@ -503,7 +672,9 @@
                             <option value="无">无</option>
                         </select>
                         <input type="number" id="registration-code" 
-                            class="col-span-2 w-full p-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-primary/30 focus:border-primary transition-all duration-200 ml-1">
+                            class="col-span-1 w-full p-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-primary/30 focus:border-primary transition-all duration-200 ml-1">
+                        <input type="date" id="approval-date"
+                            class="col-span-1 w-full p-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-primary/30 focus:border-primary transition-all duration-200 ml-1">
                     </div>
                     <div class="col-span-3">
                         <label class="block text-lg font-bold text-gray-800 mb-1">产品介绍</label>
@@ -512,18 +683,36 @@
                     </div>
                     <div class="col-span-3">
                         <label class="block text-lg font-bold text-gray-800 mb-1">图纸文件</label>
-                        <input type="file" id="drawing-file" accept=".pdf,.dwg,.dxf"
-                            class="w-full p-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-primary/30 focus:border-primary transition-all duration-200">
+                        <div class="grid grid-cols-3 space-x-2">
+                            <input type="file" id="drawing-file" accept=".pdf,.dwg,.dxf"
+                                class="col-span-2 w-full p-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-primary/30 focus:border-primary transition-all duration-200">
+                            <input type="text" id="drawing-file-version" placeholder="描述版本信息：如S0"
+                                class="col-span-1 w-full p-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-primary/30 focus:border-primary transition-all duration-200">
+                        </div>       
                     </div>
                     <div class="col-span-3">
                         <label class="block text-lg font-bold text-gray-800 mb-1">3D模型</label>
-                        <input type="file" id="model-file" accept=".stl,.step,.iges,.obj,.prt,.sldprt"
-                            class="w-full p-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-primary/30 focus:border-primary transition-all duration-200">
+                        <div class="grid grid-cols-3 space-x-2">
+                            <input type="file" id="model-file" accept=".stl,.step,.iges,.obj,.prt,.sldprt"
+                                class="col-span-2 w-full p-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-primary/30 focus:border-primary transition-all duration-200">
+                            <input type="text" id="model-file-version" placeholder="描述版本信息：如S0"
+                                class="col-span-1 w-full p-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-primary/30 focus:border-primary transition-all duration-200">
+                        </div>
                     </div>
                     <div class="col-span-3">
-                        <label class="block text-lg font-bold text-gray-800 mb-1">产品手册</label>
-                        <input type="file" id="manual-file" accept=".pdf"
-                            class="w-full p-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-primary/30 focus:border-primary transition-all duration-200">
+                        <div class="flex">
+                            <label class="block text-lg font-bold text-gray-800 mb-1">产品手册</label>
+                            <button id="add-manual-btn" 
+                                class="w-8 h-8 bg-gray-100 rounded-full border border-gray-600 items-center justify-center ml-4 mb-1">
+                                <i class="fa fa-plus" title="添加文件"></i>
+                            </button>
+                        </div>
+                        <div id="manual-div" class="grid grid-cols-3 space-x-2 space-y-2">
+                            <input type="file" id="manual-file" accept=".pdf"
+                                class="col-span-2 w-full p-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-primary/30 focus:border-primary transition-all duration-200">
+                            <input type="text" id="manual-file-version" placeholder="描述版本信息：如S0"
+                                class="col-span-1 w-full p-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-primary/30 focus:border-primary transition-all duration-200">
+                        </div>
                     </div>
                     <div class="col-span-3">
                         <label class="block text-lg font-bold text-gray-800 mb-1">备注信息</label>
@@ -545,22 +734,92 @@
         </div>
     </div>
 
-        <!-- 预览阅读器模态框 -->
-    <div id="preview-modal" class="fixed inset-0 z-50 hidden">
-        <div class="absolute inset-0 bg-black/50 backdrop-blur-sm" id="preview-modal-backdrop"></div>
-        <!-- 主容器：居中显示+响应式限制 -->
-        <div class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-full max-w-[95%] bg-white rounded-xl shadow-2xl overflow-hidden flex flex-col">
-            <div class="p-2 border-b flex justify-between items-center bg-gray-50">
-                <h3 class="text-xl font-bold" id="preview-modal-title">文件预览</h3>
-                <div class="flex items-center gap-3">
-                    <button id="close-preview-modal" class="p-2 text-gray-400 hover:text-gray-600 transition-custom">
-                        <i class="fa fa-times text-xl"></i>
-                    </button>
-                </div>  
+    <div id="code-category-apollo" 
+        class="hidden fixed bg-gray-100 top-1/2 left-1/2 max-w-[90%] border border-gray-600 transform -translate-x-1/2 -translate-y-1/2 p-3 rounded shadow-lg z-20">
+        <div class="flex p-2 justify-between items-center w-full">
+            <div class="mt-2 text-center w-full">
+                <h3 class="text-gray-800 font-medium text-lg mb-3 text-center">Apollo产品编码分类</h3>
+            </div>         
+            <button id="close-category-apollo" class="text-gray-400 hover:text-gray-600 transition-custom">
+                <i class="fa fa-times text-xl"></i>
+            </button>
+        </div>
+        <div class="grid grid-cols-1 gap-2">
+            <div class="flex items-center">
+                <span class="font-medium text-gray-800 ml-2 mr-12">LX21:</span>
+                <span class="text-gray-700 ml-6 mr-2">种植体（无领型）</span>
             </div>
-            <embed id="pdf-embed" type="application/pdf" class="hidden bg-white w-full min-h-[90vh] border border-gray-400">
+            <div class="flex text-sm items-center">
+                <span class="font-medium text-gray-800/0 ml-2 mr-12">LX21:</span>
+                <span class="text-gray-700 ml-6 mr-2">X=0，柱形</span>
+            </div>
+            <div class="flex text-sm items-center">
+                <span class="font-medium text-gray-800/0 ml-2 mr-12">LX21:</span>
+                <span class="text-gray-700 ml-6 mr-2">X=1，标准型(PBL外形)</span>
+            </div>
+            <div class="flex text-sm items-center">
+                <span class="font-medium text-gray-800/0 ml-2 mr-12">LX21:</span>
+                <span class="text-gray-700 ml-6 mr-2">X=2，即刻型(EBL外形)</span>
+            </div>
+            <div class="flex items-center">
+                <span class="font-medium text-gray-800 ml-2 mr-12">L022:</span>
+                <span class="text-gray-700 ml-6 mr-2">基台及附件</span>
+            </div>
+            <div class="flex items-center">
+                <span class="font-medium text-gray-800 ml-2 mr-12">L023:</span>
+                <span class="text-gray-700 ml-6 mr-2">塑料件</span>
+            </div>
+            <div class="flex items-center">
+                <span class="font-medium text-gray-800 ml-2 mr-12">L024:</span>
+                <span class="text-gray-700 ml-6 mr-2">愈合组件</span>
+            </div>
+            <div class="flex items-center">
+                <span class="font-medium text-gray-800 ml-2 mr-12">L025:</span>
+                <span class="text-gray-700 ml-6 mr-2">转移件、紧固螺丝</span>
+            </div>
+            <div class="flex items-center">
+                <span class="font-medium text-gray-800 ml-2 mr-12">L026:</span>
+                <span class="text-gray-700 ml-6 mr-2">外科手术工具（无领型）</span>
+            </div>
+            <div class="flex items-center">
+                <span class="font-medium text-gray-800 ml-2 mr-12">L043:</span>
+                <span class="text-gray-700 ml-6 mr-2">种植体（有领型）</span>
+            </div>
+            <div class="flex items-center">
+                <span class="font-medium text-gray-800 ml-2 mr-12">L044:</span>
+                <span class="text-gray-700 ml-6 mr-2">外科手术工具（有领型）</span>
+            </div>
+            <div class="flex items-center">
+                <span class="font-medium text-gray-800 ml-2 mr-12">L046:</span>
+                <span class="text-gray-700 ml-6 mr-2">辅助工具（通用）</span>
+            </div>
+            <div class="flex items-center">
+                <span class="font-medium text-gray-800 ml-2 mr-12">L048:</span>
+                <span class="text-gray-700 ml-6 mr-2">基台、愈合组件、转移件</span>
+            </div>
+            <div class="flex items-center">
+                <span class="font-medium text-gray-800 ml-2 mr-12">L049:</span>
+                <span class="text-gray-700 ml-6 mr-2">紧固螺丝</span>
+            </div>
+            <div class="flex items-center">
+                <span class="font-medium text-gray-800 ml-2 mr-12">L050:</span>
+                <span class="text-gray-700 ml-6 mr-2">正畸支抗钉（阳极氧化）</span>
+            </div>
+            <div class="flex items-center">
+                <span class="font-medium text-gray-800 ml-2 mr-12">L051:</span>
+                <span class="text-gray-700 ml-6 mr-2">正畸支抗钉</span>
+            </div>
+            <div class="flex items-center">
+                <span class="font-medium text-gray-800 ml-2 mr-12">L052:</span>
+                <span class="text-gray-700 ml-6 mr-2">支抗钉扳手</span>
+            </div>
+            <div class="flex items-center">
+                <span class="font-medium text-gray-800 ml-2 mr-12">L053:</span>
+                <span class="text-gray-700 ml-6 mr-2">支抗钉手柄</span>
+            </div>
         </div>
     </div>
+
 
     <!-- 初始化粒子效果 -->
     <script>

@@ -9,6 +9,7 @@ const modalContent = document.getElementById('modal-content');
 const cardsContain = document.getElementById('cards-contain');
 const listContain = document.getElementById('list-contain');
 const standardCards = document.querySelectorAll('.standard-card');
+const downloadBtn = document.getElementById('download-button')
 const previewBtn = document.getElementById('preview-button');
 const pdfModal = document.getElementById('pdf-modal');
 const pdfEmbed = document.getElementById('pdf-embed')
@@ -147,7 +148,7 @@ function renderStandards(currentData) {
             type = "国家标准", typeColor = "bg-green-200", typeIcon = '<i class="fa fa-flag mr-1" style="color: #de2910;"></i>';
         } else if (standard.type.includes("YY")) {
             type = "行业标准", typeColor = "bg-blue-200", typeIcon = '<i class="fa fa-cogs mr-1"></i>';
-        } else if (standard.type.includes("TT")) {
+        } else if (standard.type.includes("TT") || standard.type.includes('CHSA')) {
             type = "团体标准", typeColor = "bg-indigo-200", typeIcon = '<i class="fa fa-map-marker mr-1"></i>';
         }
 
@@ -361,16 +362,23 @@ document.addEventListener('keydown', function (e) {
 // const previewBtn = document.getElementById('preview-button');
 // const pdfModal = document.getElementById('pdf-modal');
 // const pdfEmbed = document.getElementById('pdf-embed')
+downloadBtn.addEventListener('click', () => {
+    const filename = modalTitle.textContent;
+    const filePath = `database/standards/${filename}`
+    downloadByPath(filePath, filename)
+})
 previewBtn.addEventListener('click', () => {
-    pdfModal.classList.remove('hidden');
-    document.getElementById('pdf-modal-title').textContent = modalTitle.textContent
+    // 新页面打开
+    // pdfModal.classList.remove('hidden');
+    // document.getElementById('pdf-modal-title').textContent = modalTitle.textContent
     let fileURL = getStandardFile(modalTitle.textContent)
     // loadFile(fileURL)
     .then(fileURL => {
-        pdfEmbed.src = fileURL;
+        // pdfEmbed.src = fileURL;
+        window.open(fileURL, '_black')
     })
-    pdfEmbed.classList.remove('hidden')
-    document.body.style.overflow = 'hidden'; // 防止背景滚动
+    // pdfEmbed.classList.remove('hidden')
+    // document.body.style.overflow = 'hidden'; // 防止背景滚动
 })
 
 function performSearch() {

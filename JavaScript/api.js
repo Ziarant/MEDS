@@ -1,7 +1,5 @@
 // const username = localStorage.getItem('username');
 // 服务器地址
-const serveURL = 'http://A012050-1.naton.cn'
-const servePost = 8081
 
 // 处理单文件上传
 async function uploadSingleFile(file) {
@@ -214,6 +212,10 @@ async function downloadFile(file) {
 // 文件预览（通过路径）
 // 例如：filePath = 'database/products/xxx.pdf'
 async function previewByPath(filePath) {
+    // 截取文件名
+    const lastSepIndex = filePath.lastIndexOf('\\');
+    const fileName = filePath.substring(lastSepIndex + 1);
+    
     const response = await fetch(`${serveURL}:${servePost}/getFileByPath`, {
         method: 'POST',
         headers: {
@@ -226,8 +228,10 @@ async function previewByPath(filePath) {
         showNotification('文件获取失败', 'error');
         return
     }
+    // let filename = '未命名文件.pdf'; // 默认文件名
+
     const blob = await response.blob();
-    const url = URL.createObjectURL(blob); // 创建临时URL
+    const url = URL.createObjectURL(blob, {name:fileName}); // 创建临时URL
     return url
 }
 
@@ -503,6 +507,22 @@ async function getStandardList(username) {
     }
 }
 
+async function getMaterials(username) {
+    const response = await fetch(`${serveURL}:${servePost}/getMaterials`, {
+        method: 'POST',
+        body: JSON.stringify({
+            username
+        })
+    })
+
+    if (response.ok) {
+        const result = await response.json();
+        return result
+    } else {
+        return null
+    }
+}
+
 // 标准文件流处理
 async function getStandardFile(filename) {
     const response = await fetch(`${serveURL}:${servePost}/getStandardFile`, {
@@ -621,6 +641,24 @@ async function submitLiterature(formData) {
         showNotification('文献添加失败', 'warning')
         return
     };
+}
+
+// 获取医工合作
+async function getCooperations(username) {
+    const response = await fetch(`${serveURL}:${servePost}/getCooperations`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ username })
+    });
+
+    if (response.ok) {
+        const result = await response.json();
+        return result
+    } else {
+        return null
+    }
 }
 
 // 标准文件流处理
