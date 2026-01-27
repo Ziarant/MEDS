@@ -5,6 +5,7 @@ const totalModelFiles = document.getElementById('total-model-files');
 const totalManualFiles = document.getElementById('total-manual-files');
 // 
 const apolloCodeBtn = document.getElementById('apollo-code-btn');
+const otherCodeBtn = document.getElementById('other-code-btn');
 // 数量统计
 const implantCount = document.getElementById('implant-count');
 const abutmentCount = document.getElementById('abutment-count');
@@ -27,10 +28,16 @@ apolloCodeBtn.addEventListener('click', () => {
 document.getElementById('close-category-apollo').addEventListener('click', () => {
     document.getElementById('code-category-apollo').classList.add('hidden');
 });
+otherCodeBtn.addEventListener('click', () => {
+    document.getElementById('code-category-other').classList.remove('hidden');
+});
+document.getElementById('close-category-other').addEventListener('click', () => {
+    document.getElementById('code-category-other').classList.add('hidden');
+});
 
 // 文件夹切换功能
 document.querySelectorAll('.folder-item').forEach(item => {
-    item.addEventListener('click', function() {
+    item.addEventListener('click', function () {
         // 移除其他文件夹的活跃状态
         document.querySelectorAll('.folder-item').forEach(folder => {
             folder.classList.remove('folder-active');
@@ -41,7 +48,7 @@ document.querySelectorAll('.folder-item').forEach(item => {
 
         //如果是“手术器械”，则展开下级菜单set-item
         const dataType = this.querySelector('.data-type').textContent;
-        
+
         if (dataType === '手术器械') {
             const setItems = document.querySelectorAll('.set-item')
             setItems.forEach(setItem => {
@@ -51,7 +58,7 @@ document.querySelectorAll('.folder-item').forEach(item => {
             const setItems = document.querySelectorAll('.set-item')
             setItems.forEach(setItem => {
                 if (!setItem.classList.contains('hidden')) {
-                    setItem.classList.add('hidden');  
+                    setItem.classList.add('hidden');
                 }
             });
         }
@@ -65,7 +72,7 @@ const productTableContainer = document.getElementById('product-table-container')
 const sidebarTitle = document.getElementById('sidebar-title');
 let sidebarCollapsed = false;
 
-toggleBtn.addEventListener('click', function() {
+toggleBtn.addEventListener('click', function () {
     sidebarCollapsed = !sidebarCollapsed;
     if (sidebarCollapsed) {
         // 收起侧边栏
@@ -145,27 +152,27 @@ let drawingFileCount = 0, modelFileCount = 0, manualFileCount = 0, productCount 
 let implantCountValue = 0, abutmentCountValue = 0, attachmentCountValue = 0, instrumentCountValue = 0, glueCountValue = 0, tadCountValue = 0, otherProductCountValue = 0;
 updateProducts();
 
-function updateProducts () {
+function updateProducts() {
     currentData = [];
     // 重置统计数据
     drawingFileCount = 0; modelFileCount = 0; manualFileCount = 0; productCount = 0;
-    implantCountValue = 0; abutmentCountValue = 0; attachmentCountValue =0; instrumentCountValue = 0; glueCountValue = 0; tadCountValue = 0; otherProductCountValue = 0;
+    implantCountValue = 0; abutmentCountValue = 0; attachmentCountValue = 0; instrumentCountValue = 0; glueCountValue = 0; tadCountValue = 0; otherProductCountValue = 0;
     productList = getProductList(username)
-    .then(data => {
-        sortedData = [...data];
-        sortedData = sortProducts();
-        const duplicateIds = findDuplicateIds()
-        if(duplicateIds.length > 0) {
-            showNotification('存在重复元素', 'error')
-            duplicateIds.forEach(id => {
-            console.log(id)
-        })
-    }
-        
-    currentData = filterProducts();
-    getCompanyCount();// 统计不同产品的信息,更新筛选选项(公司和状态)
-    renderProducts();
-    });
+        .then(data => {
+            sortedData = [...data];
+            sortedData = sortProducts();
+            const duplicateIds = findDuplicateIds()
+            if (duplicateIds.length > 0) {
+                showNotification('存在重复元素', 'error')
+                duplicateIds.forEach(id => {
+                    console.log(id)
+                })
+            }
+
+            currentData = filterProducts();
+            getCompanyCount();// 统计不同产品的信息,更新筛选选项(公司和状态)
+            renderProducts();
+        });
 }
 
 function getCompanyCount() {
@@ -185,13 +192,13 @@ function getCompanyCount() {
         }
 
         // 统计各类别产品数量
-        if (product.productType === '牙种植体') {implantCountValue += 1;}
-        else if (product.productType === '基台') {abutmentCountValue += 1;}
-        else if (product.productType === '附件') {attachmentCountValue += 1;}
-        else if (product.productType === '手术器械') {instrumentCountValue += 1;}
-        else if (product.productType === '骨粉与骨胶') {glueCountValue += 1;}
-        else if (product.productType === '支抗钉') {tadCountValue += 1;}
-        else {otherProductCountValue += 1;}
+        if (product.productType === '牙种植体') { implantCountValue += 1; }
+        else if (product.productType === '基台') { abutmentCountValue += 1; }
+        else if (product.productType === '附件') { attachmentCountValue += 1; }
+        else if (product.productType === '手术器械') { instrumentCountValue += 1; }
+        else if (product.productType === '骨粉与骨胶') { glueCountValue += 1; }
+        else if (product.productType === '支抗钉') { tadCountValue += 1; }
+        else { otherProductCountValue += 1; }
     });
     // 更新公司数量显示
     const companySelect = document.getElementById('company-select');
@@ -256,7 +263,7 @@ function filterProducts() {
     const typeItems = document.querySelectorAll('.folder-item')
     let selectedType = '';
     typeItems.forEach(item => {
-        if(item.classList.contains('folder-active')) {
+        if (item.classList.contains('folder-active')) {
             selectedType = item.querySelector('.data-type').textContent;
         }
     });
@@ -310,10 +317,10 @@ function renderProducts() {
         let hasDrawing = 'hidden', hasModel = 'hidden', hasManual = 'hidden', hasUrl = 'hidden', hasProgram = 'hidden';
         let darwingTextColor = 'text-gray-400', modelTextColor = 'text-gray-400', manualTextColor = 'text-gray-400', urlTextColor = 'text-gray-400', programTextColor = 'text-purple-400';
         let manualFileName = '', modelFileName = '', drawingFileName = '', programFileName = '';
-        if (product.productUrl) {hasUrl = ''; urlTextColor = 'text-blue-600';}
+        if (product.productUrl) { hasUrl = ''; urlTextColor = 'text-blue-600'; }
         files.forEach(file => {
             if (file.description === '产品手册') {
-                if(manualList.indexOf(file.filename) === -1) {
+                if (manualList.indexOf(file.filename) === -1) {
                     manualList.push(file.filename)
                 }
                 hasManual = '';
@@ -325,7 +332,7 @@ function renderProducts() {
                 modelTextColor = 'text-lime-600';
                 modelFileName = file.filename;
             } else if (file.description === '2D图纸' || file.description === '2D') {
-                if(drawingList.indexOf(file.filename) === -1) {
+                if (drawingList.indexOf(file.filename) === -1) {
                     drawingList.push(file.filename)
                 }
                 hasDrawing = '';
@@ -416,7 +423,7 @@ function renderProducts() {
                     fileListDiv.append(row)
                 }
             })
-            
+
             // filesModal.append(fileListDiv)
 
             const addDIv = document.createElement('div')
@@ -437,7 +444,7 @@ function renderProducts() {
                 oldModal.remove()
             }
             document.body.appendChild(filesModal)
-            document.getElementById('close-fileModal').addEventListener('click' , () => {
+            document.getElementById('close-fileModal').addEventListener('click', () => {
                 filesModal.remove();
                 document.body.style.overflow = '';
             })
@@ -472,7 +479,7 @@ function renderRow(file) {
     const row = document.createElement('tr');
     row.className = 'grid grid-cols-10 border-b border-gray-100 hover:bg-primary/20 transition-colors';
     let isVisible = 'hidden'
-    if (fileName.includes('.pdf')) { 
+    if (fileName.includes('.pdf')) {
         isVisible = ''
     }
 
@@ -488,7 +495,7 @@ function renderRow(file) {
         </td>
         <td class="col-span-3 flex items-center py-2 px-4 ml-3 mr-3">
             <span class="font-medium text-gray-800 truncate max-w-xs">
-                <span class="border border-gray-300 bg-gray-200 rounder-lg">版本</span>
+                <span class="border border-gray-300 bg-gray-200 rounded-lg px-1">版本</span>
                 ${fileVersion}
             </span>
         </td>
@@ -504,21 +511,21 @@ function renderRow(file) {
         </td>
         `;
     row.querySelector('.download-file').addEventListener('click', () => {
-            downloadByPath(filePath, fileName)
-        });
+        downloadByPath(filePath, fileName)
+    });
     row.querySelector('.preview-file').addEventListener('click', () => {
-            previewFile(file)
-        });
-        return row
+        previewFile(file)
+    });
+    return row
 }
 
 // 文件预览：
 function previewFile(file) {
     let fileURL = previewByPath(file.filepath)
-    .then(fileURL => {
-        // 在新页面打开url:
-        window.open(fileURL, '_blank')
-    })
+        .then(fileURL => {
+            // 在新页面打开url:
+            window.open(fileURL, '_blank')
+        })
 }
 
 // 根据id获取产品详情
@@ -561,33 +568,33 @@ function openProductDetails(productId) {
         document.getElementById('product-details-name').textContent = product.productName;
         const contentDiv = detailsModal.querySelector('#product-details-content');
         let graphHtml = '';
-        if(product.graphs && product.graphs.length > 0) {
-            
+        if (product.graphs && product.graphs.length > 0) {
+
             product.graphs.forEach(graph => {
                 imageUrl = previewByPath(graph)
-                .then(imageUrl => {
-                    graphHtml = '<div class="gap-4">';
-                    graphHtml += `
+                    .then(imageUrl => {
+                        graphHtml = '<div class="gap-4">';
+                        graphHtml += `
                         <div class="items-center border border-gray-200 p-3 rounded-lg shadow-sm transition-all duration-300 hover:shadow-md">
                             <img src="${imageUrl}" alt="产品图片" class="max-w-full h-auto mx-auto transition-transform duration-300 hover:scale-[1.06] object-contain" loading="lazy">
                         </div>
                     `;
-                    graphHtml += '</div>';
-                    contentDiv.innerHTML += `
+                        graphHtml += '</div>';
+                        contentDiv.innerHTML += `
                         ${graphHtml}
                     `;
-                });
-                
+                    });
+
             });
-            
+
         }
-        
+
         let set = '';
         if (product.set) {
             set = `<div class="col-span-1 font-semibold text-gray-700 ml-2">套装:</div>
                 <div class="col-span-3 text-black">${product.set}</div>`;
         }
-        
+
         contentDiv.innerHTML += `
             <h3 class="text-xl font-semibold mt-4">基本信息:</h3>
             <div class="grid grid-cols-4 mb-4">
@@ -625,7 +632,7 @@ function openProductDetails(productId) {
         fileList.className = 'space-y-2'
         product.files.forEach(file => {
             const description = file.description;
-            let version = ``, icon='download';
+            let version = ``, icon = 'download';
             if (file.version !== undefined) {
                 version = `[${file.version}]`
             }
@@ -636,7 +643,7 @@ function openProductDetails(productId) {
             li.className = 'grid grid-cols-3 space-x-2 w-full'
             li.innerHTML = `
                 <div class="col-span-1 ml-2 flex justify-between">
-                    <span class="bg-gray-100 border border-gray-200 rounder-lg text-gray-700 mr-2">${description}</span>
+                    <span class="bg-gray-100 border border-gray-200 rounded-lg text-gray-700 mr-2 px-1">${description}</span>
                     <span class="text-gray-700 mr-2">${version}:</span>
                 </div>
                 <a href="#" class="col-span-2 file-link text-blue-600 hover:underline" data-filepath="${filePath}">
@@ -645,7 +652,7 @@ function openProductDetails(productId) {
             `
             fileList.appendChild(li)
         })
-        
+
         // 为文件链接添加点击事件，预览文件
         contentDiv.querySelectorAll('.file-link').forEach(link => {
             link.addEventListener('click', (e) => {
@@ -676,16 +683,16 @@ function findDuplicateIds() {
     sortedData.forEach(product => {
         const id = product?.id;
         const productCode = product?.productCode;
-        if(id === undefined) {
+        if (id === undefined) {
             console.log(product)
         };
-        if(seenIds.has(id)){
+        if (seenIds.has(id)) {
             duplicateIds.add(id);
         } else {
             seenIds.add(id)
         }
 
-        if(seenProductCodes.has(productCode)){
+        if (seenProductCodes.has(productCode)) {
             duplicateProductCodes.add(productCode);
         } else {
             seenProductCodes.add(productCode)

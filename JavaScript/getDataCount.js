@@ -40,6 +40,7 @@ let weekRanges = [];
 for (let i = -weekRangeNum + 1; i <= 0; i++) {
     weekRanges.push(i);
 }
+console.log(weekRanges)
 const recentCount = {
     file: [],
     data: [],

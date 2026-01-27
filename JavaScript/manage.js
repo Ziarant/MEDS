@@ -39,7 +39,7 @@ userList.then(data => {
             <td class="py-3 px-4">${user.email}</td>
             <td class="py-3 px-4">${user.group}</td>
             <td class="py-3 px-4">
-                <span class="bg-${statusColor}-100 border border-gray-100 rounded-lg">${status}</span>
+                <span class="bg-${statusColor}-100 border border-gray-200 rounded-lg px-1">${status}</span>
             </td>
             <td class="py-3 px-4">${user.lastlogin}</td>
             <td class="flex grid grid-cols-3 py-2 px-3 justify-end gap-2 text-sm">
@@ -61,9 +61,9 @@ userList.then(data => {
         if (user.group.includes('开发者') || user.group.includes('管理员')) {
                 const editButton = row.querySelector('button[onclick^="editUser"]');
                 const deleteButton = row.querySelector('button[onclick^="deleteUser"]');
-                editButton.disabled = true;
-                editButton.classList.remove('bg-green-100');
-                editButton.classList.add('bg-gray-200');
+                // editButton.disabled = true;
+                // editButton.classList.remove('bg-green-100');
+                // editButton.classList.add('bg-gray-200');
                 deleteButton.disabled = true;
                 deleteButton.classList.remove('btn-danger');
                 deleteButton.classList.add('bg-gray-200');

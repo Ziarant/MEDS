@@ -48,6 +48,8 @@ materialData.then(data => {
                 document.getElementById('material-name').textContent = `${mat}-${prop.status}`
                 const current_mat = propLi.getAttribute('data-material')
                 const current_propIndex = propLi.getAttribute('data-property')
+                
+                window.location.search = `?material=${current_mat}&property=${current_propIndex}`;
                 showMaterial(current_mat, current_propIndex)
             })
             propIndex++;

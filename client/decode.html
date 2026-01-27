@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <title>加密Excel 复制并下载</title>
+</head>
+<body>
+    <input type="file" id="fileInput" accept=".xlsx,.xls">
+    <button id="uploadBtn">上传并处理加密Excel</button>
+    <div id="result"></div>
+
+    <script>
+        const fileInput = document.getElementById('fileInput');
+        const uploadBtn = document.getElementById('uploadBtn');
+        const resultDiv = document.getElementById('result');
+        const serveURL = localStorage.getItem('serveURL');
+        const servePost = localStorage.getItem('servePost');
+
+        uploadBtn.addEventListener('click', async () => {
+            const file = fileInput.files[0];
+            console.log(file)
+            if (!file) {
+                alert('请选择加密Excel文件');
+                return;
+            }
+
+            // 构建FormData，上传文件到服务器
+            const formData = new FormData();
+            formData.append('excelFile', file);
+            formData.append('name', file.name);
+
+            try {
+                // 发送请求到服务器
+                const response = await fetch(`${serveURL}:${servePost}/upload-excel`, {
+                    method: 'POST',
+                    body: formData
+                });
+
+                const data = await response.json();
+                if (data.code === 200) {
+                    // 显示下载链接
+                    resultDiv.innerHTML = `
+                        <p>处理成功！<a href="${data.downloadUrl}" target="_blank">点击下载新文件</a></p>
+                    `;
+                } else {
+                    resultDiv.innerHTML = `<p style="color:red;">${data.message}</p>`;
+                }
+            } catch (err) {
+                resultDiv.innerHTML = `<p style="color:red;">请求失败：${err.message}</p>`;
+            }
+        });
+    </script>
+</body>
+</html>

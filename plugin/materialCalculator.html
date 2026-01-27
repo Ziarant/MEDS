@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>材料性能计算器</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#99774b',
+                        secondary: '#b3946d',
+                        accent: '#0FC6C2',
+                        neutral: '#F5F7FA',
+                        dark: '#1D2129',
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'system-ui', 'sans-serif'],
+                    },
+                }
+            }
+        }
+    </script>
+
+    <!-- 自定义工具类 -->
+    <link rel="stylesheet" href="../../style.css">
+</head>
+
+<body class="bg-white/10 h-[600px]">
+    <div class="w-full flex flex-col">
+        <!-- 主体内容 -->
+        <main class="flex-grow w-full">
+            <input type="hidden" id="token" value="">
+            <div class="bg-white/10 p-6 rounded-lg shadow-lg">
+                <!-- 计算器表单 -->
+                <form id="materialCalculatorForm" class="w-full grid grid-cols-2 space-x-4 space-y-4 bg-gray-50 border border-gray-200 rounded-md">
+                    <div class="text-xl font-bold ml-4 mt-2 text-primary">输入条件</h2></div>
+                    <div></div>
+                    <div>
+                        <label for="calculationType" class="block text-sm font-medium text-gray-700 mr-2">计算类型</label>
+                        <select id="calculationType" name="calculationType"
+                            class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2">
+                            <option value="torque">断裂扭矩</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label for="calculationType" class="block text-sm font-medium text-gray-700 mr-2">截面形状</label>
+                        <select id="sectionShape" name="sectionShape" disabled
+                            class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2">
+                            <option value="circular">圆形截面</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label for="propertyValue" class="block text-sm font-medium text-gray-700 mr-2">输入直径(mm)</label>
+                        <input type="number" id="propertyValue" name="propertyValue" step="any" min="0" value="1.0"
+                            class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2"
+                            placeholder="输入数值">
+                    </div>
+                    <div>
+                        <label for="calculationType" class="block text-sm font-medium text-gray-700 mr-2">安全系数n</label>
+                        <input type="number" id="safetyIndex" name="safetyIndex" step="any" min="1.0" value="1.5"
+                            class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2"
+                            placeholder="输入数值">
+                    </div>
+                    <div>
+                        <button type="submit"
+                            class="bg-primary text-white px-4 py-2 rounded-md hover:bg-primary-dark">计算</button>
+                    </div><div></div>
+                    <div></div><div></div>
+                </form>
+                <!-- 结果显示 -->
+                <div id="calculationResult" class="h-[330px] mt-6 p-4 bg-gray-50 border border-gray-200 rounded-md">
+                    <h2 class="text-xl font-bold mb-2 text-primary">计算结果</h2>
+                    <p id="resultText" class="text-gray-800"></p>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        document.getElementById('materialCalculatorForm').addEventListener('submit', function (e) {
+            e.preventDefault();
+
+            // locstion = 'http://a012050-1.naton.cn:8080/client/material.html?material=TA4?property=1'
+            
+            const materialName = new URLSearchParams(window.location.search).get('material');
+            const propertyIndex = new URLSearchParams(window.location.search).get('property');
+            console.log('Material Name:', materialName, 'Property Index:', propertyIndex);
+
+            const calculationType = document.getElementById('calculationType').value;
+            const sectionShape = document.getElementById('sectionShape').value;
+            const propertyValue = parseFloat(document.getElementById('propertyValue').value);
+
+            let resultText = `最大扭矩断裂公式为：<math display="block">
+                                <mi>T</mi>
+                                <mo>=</mo>
+                                <mfrac>
+                                    <mi>π</mi>
+                                    <mn>16</mn>
+                                </mfrac>
+                                <mo>×</mo>
+                                <mi>[τ]</mi>
+                                <mo>×</mo>
+                                <msup>
+                                    <mi>d</mi>
+                                    <mn>3</mn>
+                                </msup>
+                                </math>其中[τ]为许用剪切应力，d为直径。<br><br>`;
+
+            if (calculationType === 'torque' && sectionShape === 'circular') {
+                // 计算断裂扭矩 T = (π/16) * τ * d^3
+                const shearStress = 1080; // 假设材料的许用剪切应力为250 MPa
+                const safetyIndex = parseFloat(document.getElementById('safetyIndex').value);
+                const adjustedShearStress = shearStress / safetyIndex; // 考虑安全系
+                const diameter_m = propertyValue ;
+                const torque = 0.1 *  (Math.PI / 16) * adjustedShearStress * Math.pow(diameter_m, 3); // 扭矩单位为N·cm
+
+                resultText += `对于直径为<b class="text-primary text-lg"> ${propertyValue} mm </b>的圆形截面材料，计算得到的断裂扭矩为<b class="text-primary text-lg"> ${torque.toFixed(3)} </b>Ncm （安全系数：${safetyIndex}）。`;
+            } else {
+                resultText = '所选计算类型或截面形状尚未实现。';
+            }
+
+            document.getElementById('resultText').innerHTML = resultText;
+        });
+    </script>
+</body>

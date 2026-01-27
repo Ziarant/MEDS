@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>专利信息管理</title>
+    <link rel="icon" type="image/png" href="../../icon/patent.png">
+    <!-- 登录检查 -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const username = localStorage.getItem('username');
+            if (!username) {
+                window.location.href = '../login.html';
+            } else {
+                document.getElementById('username-button').textContent = username;
+            }
+        });
+    </script>
+    <!-- 验证token -->
+    <script src='../../javaScript/verifyToken.js'></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- 引入Font Awesome -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" rel="stylesheet">
+    <!-- 引入SheetJS库 -->
+    <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#99774b',
+                        secondary: '#b3946d',
+                        accent: '#0FC6C2',
+                        neutral: '#F5F7FA',
+                        dark: '#1D2129',
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'system-ui', 'sans-serif'],
+                    },
+                }
+            }
+        }
+    </script>
+    <!-- 自定义工具类 -->
+    <link rel="stylesheet" href="../../style.css">
+    <style type="text/tailwindcss">
+        @layer utilities {
+            .content-auto {
+                content-visibility: auto;
+            }
+            .card-shadow {
+                box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+            }
+            .transition-custom {
+                transition: all 0.3s ease;
+            }
+            .stat-number {
+                @apply text-xl font-bold text-primary;
+            }
+             
+            .filter-section {
+            background-color: white;
+            padding: 1.5rem;
+            border-radius: 8px;
+            margin-bottom: 1.5rem;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            }
+
+            .filter-title {
+                font-size: 1.2rem;
+                margin-bottom: 1rem;
+                color: #7a5d38;
+                border-left: 4px solid #99774b;
+                padding-left: 0.8rem;
+            }
+
+            .filter-controls {
+                display: flex;
+                flex-wrap: wrap;
+                gap: 1rem;
+                align-items: center;
+            }
+
+            .filter-input {
+                padding: 0.6rem 1rem;
+                border: 1px solid var(--border-color);
+                border-radius: 4px;
+                width: 200px;
+            }
+
+            .filter-input:focus {
+                outline: none;
+                border-color: #99774b;
+            }
+
+            .filter-btn {
+                background-color: #99774b;
+                color: white;
+                border: none;
+                padding: 0.6rem 1.5rem;
+                border-radius: 4px;
+                cursor: pointer;
+                transition: background-color 0.3s;
+            }
+
+            .filter-btn:hover {
+                background-color: #7a5d38;
+            }
+
+            /* 表格区域 */
+            .table-section {
+                background-color: white;
+                border-radius: 8px;
+                box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+                overflow: hidden;
+            }
+
+            .patent-table {
+                width: 100%;
+                border-collapse: collapse;
+            }
+
+            .patent-table th {
+                background-color: #b89a72;
+                color: white;
+                padding: 1rem;
+                text-align: left;
+                font-weight: normal;
+            }
+
+            .patent-table td {
+                padding: 1rem;
+                border-bottom: 1px solid var(--border-color);
+                text-align: left;
+            }
+
+            .patent-table tr:hover {
+                background-color: #faf6f0;
+            }
+
+            /* 状态标签样式 */
+            .status-tag {
+                padding: 0.3rem 0.8rem;
+                border-radius: 20px;
+                font-size: 0.85rem;
+                color: white;
+            }
+
+            .status-paid {
+                background-color: #4CAF50;
+            }
+
+            .status-unpaid {
+                background-color: #F44336;
+            }
+
+            .status-pending {
+                background-color: #FF9800;
+            }
+        } 
+    </style>
+</head>
+
+<body class="bg-gray-50 font-sans text-dark">
+    <!-- 粒子效果容器 -->
+    <div id="particles-js"></div>
+    <!-- 引入粒子效果配置 -->
+    <script src="https://cdn.jsdelivr.net/gh/VincentGarreau/particles.js@2.0.0/particles.min.js"></script>
+
+    <!-- 顶部导航栏 -->
+    <nav class="bg-white shadow-md sticky top-0 z-50 transition-all duration-300">
+        <div class="container mx-auto px-4 py-3 flex justify-between items-center">
+            <div class="flex items-center space-x-2">
+                <img class="default-icon h-[1.7rem] mx-auto block text-xl" src="../../icon/patent.png">
+                <h1 class="text-xl font-bold text-neutral-600">专利信信息管理</h1>
+                <div class="hidden md:flex items-center space-x-6">
+                    <button onClick="javascript:history.back(-1);"
+                        class="flex items-center bg-gray-100 hover:bg-primary text-black font-medium py-2 px-4 rounded-lg transition duration-300 ease-in-out shadow-md hover:shadow-lg transform hover:-translate-y-0.5">
+                        <i class="fa fa-arrow-left text-gray-600 text-2xl transition-colors"></i>
+                        <span class="hidden md:inline-block text-xl text-gray-800 transition-colors">返回</span>
+                    </button>
+                </div>
+            </div>
+            <img class="default-icon h-[2.5rem] mx-auto block text-xl" src="../../icon/纳通口腔logo.png">
+            <div class="hidden md:flex items-center space-x-6">
+                <button id="user-button"
+                    class="flex items-center bg-gray-200 hover:bg-primary text-black font-medium py-2 px-4 rounded-lg transition duration-300 ease-in-out shadow-md hover:shadow-lg transform hover:-translate-y-0.5">
+                    <div class="w-8 h-8 rounded-full bg-gray-300 flex items-center justify-center">
+                        <i id="user-icon" class="fa fa-user text-gray-600"></i>
+                    </div>
+                    <span id="username-button" class="text-sm font-medium hidden md:inline-block ml-2">用户名</span>
+                </button>
+                <button
+                    class="flex items-center bg-gray-200 hover:bg-primary text-black font-medium py-2 px-4 rounded-lg transition duration-300 ease-in-out shadow-md hover:shadow-lg transform hover:-translate-y-0.5">
+                    <div class="w-8 h-8 rounded-full bg-gray-300 flex items-center justify-center">
+                        <i class="fa fa-envelope"></i>
+                    </div>
+                    <span class="text-sm font-medium hidden md:inline-block ml-2">消息</span>
+                    <span
+                        class="hidden ml-2 bg-gray-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">0</span>
+                </button>
+            </div>
+
+            <div class="md:hidden">
+                <button class="text-neutral-500 focus:outline-none">
+                    <i class="fa fa-bars text-xl"></i>
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- 主要内容 -->
+    <main class="container mx-auto h-full px-4 py-8">
+        <!-- 筛选区域 -->
+        <div class="filter-section">
+            <div class="filter-title">专利信息筛选</div>
+            <div class="filter-controls">
+                <input type="text" class="filter-input" placeholder="请输入专利名称/编号">
+                <select class="filter-input">
+                    <option value="">全部专利性质</option>
+                    <option value="发明">发明专利</option>
+                    <option value="实用新型">实用新型</option>
+                    <option value="外观设计">外观设计</option>
+                </select>
+                <select class="filter-input">
+                    <option value="">全部缴费状态</option>
+                    <option value="paid">已缴纳</option>
+                    <option value="unpaid">未缴纳</option>
+                    <option value="pending">待缴纳</option>
+                </select>
+                <button class="filter-btn">查询</button>
+                <button class="filter-btn">重置</button>
+            </div>
+        </div>
+
+        <!-- 表格区域 -->
+        <div class="table-section">
+            <div class="text-primary text-2xl font-bold text-center mt-2 mb-2">专利信息列表</div>
+            <table class="patent-table">
+                <thead class="bg-primary">
+                    <tr class="text-center">
+                        <th>申请号</th>
+                        <th>专利名称</th>
+                        <th>专利性质</th>
+                        <th class="hidden" data-column="申请人">申请人</th>
+                        <th class="w-[15ch]">公开日期</th>
+                        <th>代理公司</th>
+                        <th class="w-[12ch]">操作</th>
+                    </tr>
+                </thead>
+                <tbody id="patent-table-body">
+                    <!-- 根据JS导入信息 -->
+                </tbody>
+            </table>
+        </div>
+        <div class="justify-end mt-4">
+            <button class="filter-btn">导出当前列表</button>
+        </div>
+    </main>
+
+    <!-- 悬浮按钮 -->
+    <button class="ai-content-button" id="deepseek-button" title="AI助手">
+        <img class="h-[1.85rem] mx-auto block" src="../../icon/deepseek.png">
+    </button>
+    <button class="floating-button r-50" id="add-data-button">
+        <i class="fa fa-plus"></i>
+    </button>
+
+    <!-- 页脚 -->
+    <footer class="bg-white sticky bottom-0 z-50 border-t border-gray-200 py-6 mt-1">
+        <div class="container mx-auto px-4">
+            <div class="flex flex-col md:flex-row items-center justify-between">
+                <div class="flex items-center space-x-4">
+                    <span class="text-sm text-gray-500">© 2024 莱顿-产品信息数据库</span>
+                    <span
+                        class="bg-primary/10 text-primary text-xs px-2 py-1 rounded-full border border-primary/30 cursor-pointer">
+                        <i class="fa fa-flask mr-1"></i>
+                        <span id="version-span">v1.0.0</span>
+                    </span>
+                </div>
+                <div class="flex space-x-4">
+                    <button id="yuanbao-btn" class="flex hover:border hover:border-primary" title="腾讯元宝">
+                        <img class="h-[1.65rem] mx-auto block" src="../../icon/logo_yuanbao.png">
+                        <span class="ml-1">腾讯元宝</span>
+                    </button>
+                    <button id="naton-btn" class="flex hover:border hover:border-primary" title="智慧办公">
+                        <img class="h-[1.5rem] mx-auto block" src="../../icon/logo_naton.png">
+                        <span class="ml-1">智慧办公</span>
+                    </button>
+                    <a class="text-gray-500 hover:text-primary transition-colors cursor-pointer" id="guide-a">
+                        <i class="fa fa-question-circle"></i>
+                        <span class="ml-1">操作指引</span>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- 初始化粒子效果 -->
+    <script>
+        particlesJS.load('particles-js', '../../particlesConfig.json', function () {
+        });
+    </script>
+    <script src="../JavaScript/showNotification.js"></script>
+    <script src="../JavaScript/api.js"></script>
+    <script src="../JavaScript/patent.js"></script>
+</body>
+</html>

@@ -697,6 +697,23 @@ async function getLiteratureFile(filename) {
     return url
 }
 
+// 获取专利列表：
+async function getPatentList(username) {
+    const response = await fetch(`${serveURL}:${servePost}/getPatentList`, {
+        method: 'POST',
+        body: JSON.stringify({
+            username
+        })
+    })
+
+    if (response.ok) {
+        const result = await response.json();
+        return result
+    } else {
+        return null
+    }
+}
+
 // deepseek插件：
 async function sendMessage(messageId, currentSession) {
     const messages = currentSession.messages.slice(0, -1);

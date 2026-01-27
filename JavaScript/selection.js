@@ -100,3 +100,18 @@ document.getElementById("research-card").addEventListener("click", function () {
         return;
     }
 });
+document.getElementById("patent-card").addEventListener("click", function () {
+    // 跳转到专利页面
+    const patentHref = "../patent.html";
+    window.open(patentHref, '_blank')
+});
+document.getElementById("decode-card").addEventListener("click", function () {
+    // 跳转到文件解密页面
+    if(group.includes('开发者')) {
+        const decodeHref = "../decode.html";
+        window.open(decodeHref, '_blank')
+    } else {
+        showNotification('功能开发中...', 'info');
+        return;
+    }
+});
